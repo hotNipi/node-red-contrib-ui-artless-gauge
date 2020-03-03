@@ -1,0 +1,25 @@
+{
+    "name": "node-red-contrib-ui-artless-gauge",
+    "version": "0.0.1",
+    "description": "A Node-RED dashboard ui node. Gauge with minimal design",
+    "main": "ui-artless-gauge.js",
+    "node-red": {
+        "nodes": {
+            "ui-value-trail": "ui-artless-gauge.js"
+        }
+    },
+    "keywords": [
+        "node-red",
+        "gauge",        
+        "dashboard"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/hotNipi/node-red-contrib-ui-artless-gauge.git"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "hotNipi <nipnippel@gmail.com>",
+    "license": "MIT"
+}

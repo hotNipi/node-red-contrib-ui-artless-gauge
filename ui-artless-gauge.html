@@ -1,0 +1,174 @@
+<!--
+MIT License
+
+Copyright (c) 2020 hotNipi
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the 'Software'), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<script type='text/javascript'>
+    RED.nodes.registerType('ui_artlessgauge',{
+        category: 'dashboard',
+        color: 'rgb( 63, 173, 181)',
+        defaults: {
+            group: {type: 'ui_group', required:true},
+            order: {value: 0},
+            width: {
+                value: 0,
+                validate: function(v) {
+                    var valid = true
+                    var width = v||0;
+                    var currentGroup = $('#node-input-group').val()|| this.group;
+                    var groupNode = RED.nodes.node(currentGroup);
+                    valid = !groupNode || +width <= +groupNode.width;
+                    $('#node-input-size').toggleClass('input-error',!valid);
+                    return valid;
+                }},
+            height: {value: 0},
+            min: {value: 0, required: true, validate: RED.validators.number()},
+            max: {value: 10, required: true, validate: RED.validators.number()},
+            name: {value: ''},
+            icon: {value: ''},
+            label:{value: 'Gauge'},
+            unit:{value: ''},
+            layout:{value: 'linear'},
+            decimals: {value: 0, required: false, validate: RED.validators.number()},
+            differential:{value:false},                
+            colorLine: {value: '#ff9900'},
+            colorTrack: {value: '#555555'},           
+            colorFromTheme:{value:true} ,
+            bgcolorFromTheme:{value:true}                  
+        },
+        inputs:1,
+        outputs:0,
+        icon: 'artlessgauge.png',
+        paletteLabel: 'artless-gauge',
+        label: function() {
+            return this.name||'artless-gauge';
+        },
+        oneditprepare: function() {
+            $('#node-input-size').elementSizer({
+                width: '#node-input-width',
+                height: '#node-input-height',
+                group: '#node-input-group'
+            });
+           
+            if (this.differential === undefined) {
+                $("#node-input-differential").prop('checked', false);
+            }  
+            
+            if (this.layout === undefined) {
+                this.layout = 'linear';
+                $('#node-input-layout').val('Linear');
+            }
+           
+           
+            $('#node-input-colorFromTheme').change(function() {                
+                if (this.checked == true) {                                 
+                    $('#node-input-colorLine').hide();                  
+                    $('#node-input-colorLineSpan').hide();                  
+                }
+                else {                   
+                    $('#node-input-colorLine').show();
+                    $('#node-input-colorLineSpan').show();
+                }
+            });
+            $('#node-input-bgcolorFromTheme').change(function() {                
+                if (this.checked == true) {                                 
+                    $('#node-input-colorTrack').hide();                  
+                    $('#node-input-colorTrackSpan').hide();                  
+                }
+                else {                   
+                    $('#node-input-colorTrack').show();
+                    $('#node-input-colorTrackSpan').show();
+                }
+            });
+          
+        },
+        oneditsave: function (){
+           // $('input[name=foo]').attr('checked', this.colorFromTheme);
+        }
+    });
+</script>
+<script type='text/x-red' data-template-name='ui_artlessgauge'>
+    <div class='form-row' id='template-row-group'>
+        <label for='node-input-group'><i class='fa fa-table'></i> Group</span></label>
+        <input type='text' id='node-input-group'>
+    </div>
+    <div class='form-row' id='template-row-size'>
+        <label><i class='fa fa-object-group'></i> Size</span></label>
+        <input type='hidden' id='node-input-width'>
+        <input type='hidden' id='node-input-height'>
+        <button class='editor-button' id='node-input-size'></button>
+    </div>      
+</br> 
+    <div class='form-row' id='node-input-el-label'>
+        <label for='node-input-label'><i class='icon-tag'></i> Label</label>
+        <input type='text' id='node-input-label' placeholder='Gauge'>
+    </div>
+    <div class='form-row' id='node-input-el-icon'>
+        <label for='node-input-icon'><i class='icon-tag'></i> Icon</label>
+        <input type='text' id='node-input-icon' placeholder='fa-fire'>
+    </div>
+    <div class='form-row'>
+        <label for='node-input-layout'><i class='fa fa-list'></i> Layout</label>
+        <select id='node-input-layout' style='width:200px !important'>
+            <option value='linear'>Linear</option>
+            <option value='radial'>Radial</option>           
+        </select>
+    </div> 
+    <div class='form-row' id='node-input-diffmode'>
+        <label for='node-input-differential'><i class='fa fa-gear'></i> Mode</span></label>
+        <input type="checkbox" id="node-input-differential" style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;">differential       
+    </div>    
+    <div class='form-row' id='node-input-linecolor'>
+        <label for='node-input-colorFromTheme' style='padding-top:6px; padding-bottom:6px'><i class='fa fa-paint-brush'></i> Line color</span></label>
+        <input type="checkbox" id="node-input-colorFromTheme" checked style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;">Use theme color
+        <span for='node-input-colorLine' id='node-input-colorLineSpan' style='margin-left:20px;'>Custom color</span>
+        <input type='color' id='node-input-colorLine' style='width:80px'/>
+    </div>
+    <div class='form-row' id='node-input-linebgcolor'>
+        <label for='node-input-bgcolorFromTheme' style='padding-top:6px; padding-bottom:6px'><i class='fa fa-paint-brush'></i> Track color</span></label>
+        <input type="checkbox" id="node-input-bgcolorFromTheme" checked style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;">Use theme color
+        <span for='node-input-colorTrack' id='node-input-colorTrackSpan' style='margin-left:20px;'>Custom color</span>
+        <input type='color' id='node-input-colorTrack' style='width:80px'/>
+    </div>
+    <div class='form-row'>
+        <label for='node-input-min'><i class='fa fa-gear'></i> Range</label>
+        <span for='node-input-min'>min</span>
+        <input type='text' id='node-input-min' style='width:80px' dir=''>
+        <span for='node-input-max' style='margin-left:20px;'>max</span>
+        <input type='text' id='node-input-max' style='width:80px' dir=''>
+    </div>
+    <div class='form-row'>
+        <label for='node-input-unit'><i class='fa fa-gear'></i> Format</label>
+        <span for='node-input-unit'>Unit</span>
+        <input type='text' id='node-input-unit' style='width:80px' placeholder='units' dir=''>
+        <span for='node-input-decimals' style='margin-left:20px;'>decimals</span>
+        <input type='text' id='node-input-decimals' style='width:80px' placeholder='0' dir=''>
+    </div>  
+     
+</br>
+    <div class='form-row'>
+        <label for='node-input-name'><i class='icon-tag'></i> Name</label>
+        <input type='text' id='node-input-name' placeholder='Name'>
+    </div>
+</script>
+<script type='text/x-red' data-help-name='ui_artlessgauge'>
+   
+</script>
