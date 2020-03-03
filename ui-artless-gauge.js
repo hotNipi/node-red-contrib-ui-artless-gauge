@@ -400,7 +400,14 @@ module.exports = function (RED) {
 							}							
 							var ic = document.getElementById("ag_icon_"+$scope.unique);
 							if(ic){								
-								$(ic).text(icontext);								
+								$(ic).text(icontext);									
+								var ib = ic.getBBox()								
+								if(ib.x == 0){
+									var ih = ib.height
+									var ch = document.getElementById("ag_svg_"+$scope.unique).getBBox().height
+									var ny = ih + ((ch - ih)/2)									
+									$(ic).attr('y',ny);		
+								}			
 							}							
 						}
 						

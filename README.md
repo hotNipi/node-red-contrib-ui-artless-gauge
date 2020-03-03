@@ -49,3 +49,10 @@ Value is always rounded according to the configured decimals. Default is zero so
 
 ## Input 
 msg.payload should carry single numeric value.
+
+
+### Licence
+
+This node uses GreenSock animation library GSAP licenced with Standard "No Charge" GreenSock License
+https://greensock.com/standard-license/
+
