@@ -170,5 +170,41 @@ SOFTWARE.
     </div>
 </script>
 <script type='text/x-red' data-help-name='ui_artlessgauge'>
+    <p>Artless gauge is gauge with minimal design. Gauge has two layouts - linear and radial. 
+        Both layouts support regular mode and differential mode. 
+        With differential mode, the indicating colored track is drawn from center to side. 
+        There is no tick marks or values presented near the gauge track.
+
+    <p>
+<h2>> Configuration</h2>
+<h3> Size</h3>
+For linear layout the supported height is 1 unit.
+For radial mode the minimal size is 2x2 units. Supported size configuration for radial layout is rectangular (3x3, 4x4). Widget forces different size combinations to be rectangular based on shortest side.
+
+<h3> Label</h3>
+Label can be any string. Label field does not support any html for color or size adjustments.
+
+<h3> Icon</h3>
+Supported icons are same as for dashboard: Font Awesome, Material Icons and Weather icons. 
+Icon field does not support any html for size adjustments.
+
+<h3> Layout</h3>
+Choose layout type. Layout can be linear or radial.
+
+<h3> Mode</h3>
+Option to turn on differential mode. With this option selected, the colored track has center point from which the value is shown. Value of center point is not shown anywhere, as well there is no minimum or maximum marks. Value of center point is exactly between configured min and max.
+
+<h3> Colors</h3>
+Color of track and background line can be configured. By default, the site colors used.
+
+<h3> Range</h3>
+Minimum and maximum expected values. Note that with differential mode, the middle point is exactly between those values.
+
+<h3> Format</h3>
+Unit is displayed near the value field. Unit can be any string.
+Value is always rounded according to the configured decimals. Default is zero so value presented as integer.  
+
+<h2> Input </h2>
+msg.payload should carry single numeric value.
    
 </script>
