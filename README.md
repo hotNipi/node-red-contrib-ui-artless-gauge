@@ -13,7 +13,7 @@
 ## Description
 
 
-Artless gauge is gauge with minimal design. Gauge has two layouts - linear and radial. Both layouts support regular mode and differential mode. With differential mode, the indicating colored track is drawn from center to side. There is no tick marks or values presented near the gauge track. 
+Artless gauge is gauge with minimal design. Gauge has two layouts - linear and radial. Both layouts support regular mode and differential mode. With differential mode, the indicating colored track is drawn from center to side. There are no tick marks or values presented near the gauge track. 
 
 
 ![Node-RED dashboard widget node-red-contrib-ui-artless-gauge](images/node-red-dashboard-widget-artless-gauge.JPG)
@@ -22,13 +22,13 @@ Artless gauge is gauge with minimal design. Gauge has two layouts - linear and r
 ## Configuration
 ### Size
 For linear layout the supported height is 1 unit.
-For radial mode the minimal size is 2x2 units. Supported size configuration for radial layout is rectangular (3x3, 4x4). Widget forces different size combinations to be rectangular based on shortest side.
+For radial mode the minimal size is 2x2 units. Supported size configuration for radial layout is sqaure (3x3, 4x4, ...). Widget forces different size combinations to be square, based on shortest side.
 
 ### Label
 Label can be any string. Label field does not support any html for color or size adjustments.
 
 ### Icon
-Supported icons are same as for dashboard: [Font Awesome](https://fontawesome.com/v4.7.0/icons/), [Material Icons](https://material.io/resources/icons/?style=baseline) and [Weather icons lite](https://github.com/Paul-Reed/weather-icons-lite). 
+Supported icons are same as for dashboard: [Font Awesome 4.7](https://fontawesome.com/v4.7.0/icons/), [Material Icons](https://material.io/resources/icons/?style=baseline) and [Weather icons lite](https://github.com/Paul-Reed/weather-icons-lite). 
 Icon field does not support any html for icon appearance adjustments.
 
 ### Layout
@@ -53,6 +53,5 @@ msg.payload should carry single numeric value.
 
 ### Licence
 
-This node uses GreenSock animation library GSAP licenced with Standard "No Charge" GreenSock License
-https://greensock.com/standard-license/
+This node uses GreenSock animation library GSAP licenced with Standard GreenSock License for non-commercial use https://greensock.com/standard-license/
 
