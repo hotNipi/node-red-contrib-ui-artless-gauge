@@ -28,8 +28,8 @@ For radial mode the minimal size is 2x2 units. Supported size configuration for 
 Label can be any string. Label field does not support any html for color or size adjustments.
 
 ### Icon
-Supported icons are same as for dashboard: Font Awesome, Material Icons and Weather icons. 
-Icon field does not support any html for size adjustments.
+Supported icons are same as for dashboard: [Font Awesome](https://fontawesome.com/v4.7.0/icons/), [Material Icons](https://material.io/resources/icons/?style=baseline) and [Weather icons lite](https://github.com/Paul-Reed/weather-icons-lite). 
+Icon field does not support any html for icon appearance adjustments.
 
 ### Layout
 Choose layout type. Layout can be linear or radial.
