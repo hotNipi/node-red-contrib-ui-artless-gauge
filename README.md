@@ -37,11 +37,11 @@ Choose layout type. Layout can be linear or radial.
 ### Mode
 Option to turn on differential mode. With this option selected, the colored track has center point from which the value is shown. Value of center point is not shown anywhere, as well there is no minimum or maximum marks. Value of center point is exactly between configured min and max.
 
-### Colors
-Color of track and background line can be configured. By default, the site colors used.
-
 ### Range
-Minimum and maximum expected values. Note that with differential mode, the middle point is exactly between those values.
+Configure minimum and maximum expected values and adjust line color. Add segments and configure colors for them if needed. Note that MIN and MAX options can not be removed.
+
+### Track color
+Color of track background line can be configured. By default, the site colors used.
 
 ### Format
 Unit is displayed near the value field. Unit can be any string.

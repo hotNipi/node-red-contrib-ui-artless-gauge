@@ -22,86 +22,369 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 -->
 <script type='text/javascript'>
-    RED.nodes.registerType('ui_artlessgauge',{
+    var ERR_MINMAX = "MIN should be less than MAX!"
+    var ERR_UNIQUE = "All values must be unique!"
+    var ERR_SOME_NAN = "Bad sector configuration!"
+    var ERR_SOME_OVER = "Sector out of range!"
+    RED.nodes.registerType('ui_artlessgauge', {
         category: 'dashboard',
         color: 'rgb( 63, 173, 181)',
+        configError: '',
         defaults: {
-            group: {type: 'ui_group', required:true},
-            order: {value: 0},
+            group: {
+                type: 'ui_group',
+                required: true
+            },
+            order: {
+                value: 0
+            },
             width: {
                 value: 0,
-                validate: function(v) {
+                validate: function (v) {
                     var valid = true
-                    var width = v||0;
-                    var currentGroup = $('#node-input-group').val()|| this.group;
+                    var width = v || 0;
+                    var currentGroup = $('#node-input-group').val() || this.group;
                     var groupNode = RED.nodes.node(currentGroup);
                     valid = !groupNode || +width <= +groupNode.width;
-                    $('#node-input-size').toggleClass('input-error',!valid);
+                    $('#node-input-size').toggleClass('input-error', !valid);
                     return valid;
-                }},
-            height: {value: 0},
-            min: {value: 0, required: true, validate: RED.validators.number()},
-            max: {value: 10, required: true, validate: RED.validators.number()},
-            name: {value: ''},
-            icon: {value: ''},
-            label:{value: 'Gauge'},
-            unit:{value: ''},
-            layout:{value: 'linear'},
-            decimals: {value: 0, required: false, validate: RED.validators.number()},
-            differential:{value:false},                
-            colorLine: {value: '#ff9900'},
-            colorTrack: {value: '#555555'},           
-            colorFromTheme:{value:true} ,
-            bgcolorFromTheme:{value:true}                  
+                }
+            },
+            height: {
+                value: 0
+            },
+            min: {
+                value: 0,
+                required: true,
+                validate: RED.validators.number()
+            },
+            max: {
+                value: 10,
+                required: true,
+                validate: RED.validators.number()
+            },
+            name: {
+                value: ''
+            },
+            icon: {
+                value: ''
+            },
+            label: {
+                value: 'Gauge'
+            },
+            unit: {
+                value: ''
+            },
+            layout: {
+                value: 'linear'
+            },
+            decimals: {
+                value: 0,
+                required: false,
+                validate: RED.validators.number()
+            },
+            differential: {
+                value: false
+            },            
+            colorTrack: {
+                value: '#555555'
+            },
+            colorFromTheme: {
+                value: true
+            },
+            sectors: {
+                value: [{
+                    val: 0,
+                    col: '#ff9900',
+                    t: "min"
+                }, {
+                    val: 10,
+                    col: '#ff9900',
+                    t: "max"
+                }],
+                validate: function (v) {
+                    configError = ""
+                    var unique = [...new Set(v.map(s => s.val))]
+                    var valid = true
+                    var mi = v.find(el => el.t == 'min')
+                    var ma = v.find(el => el.t == 'max')
+                    if (mi.val > ma.val) {
+                        configError = ERR_MINMAX
+                        valid = false
+                    } else if (v.length != unique.length) {
+                        configError = ERR_UNIQUE
+                        valid = false
+                    } else if (v.some(el => isNaN(el.val))) {
+                        configError = ERR_SOME_NAN
+                        valid = false
+                    } else if (v.some(el => el.val > ma.val)) {
+                        configError = ERR_SOME_OVER
+                        valid = false
+                    }
+                    return valid
+                    //return true
+                }
+            },
+            bgcolorFromTheme: {
+                value: true
+            }
         },
-        inputs:1,
-        outputs:0,
+        inputs: 1,
+        outputs: 0,
         icon: 'artlessgauge.png',
         paletteLabel: 'artless-gauge',
-        label: function() {
-            return this.name||'artless-gauge';
+        label: function () {
+            return this.name || 'artless-gauge';
         },
-        oneditprepare: function() {
+        oneditprepare: function () {
+            var typedefinitions = {
+                min: {
+                    value: "min",
+                    label: "Min ",
+                    validate: RED.validators.number()
+                },
+                max: {
+                    value: "max",
+                    label: "Max ",
+                    validate: RED.validators.number()
+                },
+                sec: {
+                    value: "sec",
+                    label: "Seg ",
+                    validate: RED.validators.number()
+                },
+            }
+
+            function getTypeDef(type) {
+                return typedefinitions[type]
+            }
+
+            function getColor(idx) {
+                var colors = ['#009933', '#999999', '#ff6666', '#009999', '#cccc00', '#ff33cc', '#cc6600',
+                    '#99ff66', '#660033'
+                ]
+                if (idx > colors.length - 1) {
+                    return colors[Math.floor(Math.random() * colors.length)]
+                }
+                return colors[idx]
+            }
+
+            function defaultRule(idx) {
+                return {
+                    val: 5,
+                    col: getColor(idx),
+                    t: "sec"
+                }
+            }
+
+            function ruleInfo(error) {
+                $('#error-ruleinfo').text(error);
+                $('.red-ui-editableList-border').toggleClass('input-error', (error != ""));
+            }
+
             $('#node-input-size').elementSizer({
                 width: '#node-input-width',
                 height: '#node-input-height',
                 group: '#node-input-group'
             });
-           
+
             if (this.differential === undefined) {
                 $("#node-input-differential").prop('checked', false);
-            }  
-            
+            }
+
             if (this.layout === undefined) {
                 this.layout = 'linear';
                 $('#node-input-layout').val('Linear');
             }
-           
-           
-            $('#node-input-colorFromTheme').change(function() {                
-                if (this.checked == true) {                                 
-                    $('#node-input-colorLine').hide();                  
-                    $('#node-input-colorLineSpan').hide();                  
-                }
-                else {                   
+
+
+            $('#node-input-colorFromTheme').change(function () {
+                if (this.checked == true) {
+                    $('#node-input-colorLine').hide();
+                    $('#node-input-colorLineSpan').hide();
+                } else {
                     $('#node-input-colorLine').show();
                     $('#node-input-colorLineSpan').show();
                 }
             });
-            $('#node-input-bgcolorFromTheme').change(function() {                
-                if (this.checked == true) {                                 
-                    $('#node-input-colorTrack').hide();                  
-                    $('#node-input-colorTrackSpan').hide();                  
-                }
-                else {                   
+            $('#node-input-bgcolorFromTheme').change(function () {
+                if (this.checked == true) {
+                    $('#node-input-colorTrack').hide();
+                    $('#node-input-colorTrackSpan').hide();
+                } else {
                     $('#node-input-colorTrack').show();
                     $('#node-input-colorTrackSpan').show();
                 }
             });
-          
+
+            $("#node-input-rule-container").editableList({
+                removable: true,
+                sortable: true,
+                header: $("<div>").css({
+                    padding: "6px"
+                }).append($.parseHTML(`
+                    <div style='width:120px; text-align:center; display: inline-grid'><b>Value</b></div> 
+                    <div style='width:80px; text-align:center; display: inline-grid'><b>Color</b></div>
+                    <div id='error-ruleinfo' style='width:180px; color:red; text-align:center; font-weight:bold; display:inline-grid'></div>  
+                    `)),
+                addItem: function (container, index, rule) {
+                    if (!rule.hasOwnProperty('t')) {
+                        rule = defaultRule(index)
+                    }
+                    container.css({
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap'
+                    });
+                    var row = $('<div/>').appendTo(container);
+                    var valField
+                    var colorField
+                    valField = $('<input/>', {
+                            class: "node-input-rule-value",
+                            style: "width:120px;",
+                            type: "text"
+                        })
+                        .appendTo(row)
+                        .typedInput({
+                            types: [getTypeDef(rule.t)]
+                        });
+                    colorField = $('<input/>', {
+                            value: rule.col,
+                            disabled: (rule.t == 'max'),
+                            class: "node-input-rule-color",
+                            style: "width:80px; margin-left:8px;",                           
+                            type: "color"
+                        })
+                        .appendTo(row)
+
+                    valField.typedInput('type', getTypeDef(rule.t));
+                    valField.typedInput('value', rule.val);
+
+                   
+
+                    sortList()
+
+                    colorField.on('change', function (type, value) {
+                        if (configError != '') {
+                            configError = ""
+                            ruleInfo(configError)
+                        }
+                        sortList()
+                    });
+
+                    valField.typedInput().on('change', function (type, value) {
+                        if (configError != '') {
+                            configError = ""
+                            ruleInfo(configError)
+                        }
+                        sortList()
+                    });
+
+
+                },
+                removeItem: function (data) {
+                    if (data.t == 'min' || data.t == 'max') {                       
+                        $("#node-input-rule-container").editableList('addItem', data);
+                    }
+                    configError = ""
+                    ruleInfo(configError)
+                    sortList()
+                },
+                sort: function (dataA, dataB) {
+                    return dataA.val - dataB.val;
+                }
+            });
+
+            function setColorForMax() {
+                var list = $("#node-input-rule-container").editableList('items');
+                var max = Number.MIN_VALUE + 1
+                var col = ''
+                var rule, t, v, c
+                list.each(function (i) {
+                    rule = $(this);
+                    t = rule.find(".node-input-rule-value").typedInput('type')
+                    v = parseFloat(rule.find(".node-input-rule-value").typedInput('value'))
+                    c = rule.find(".node-input-rule-color").val();
+                    if (t == 'min') {
+                        col = c
+                    }
+                    if (t != 'max') {
+                        if (max < v) {
+                            max = v
+                            col = c
+                        }
+                    }
+                });
+                if (col != '') {
+                    list.each(function (i) {
+                        rule = $(this);
+                        t = rule.find(".node-input-rule-value").typedInput('type')
+                        if (t == 'max') {
+                            rule.find(".node-input-rule-color").val(col)
+                        }
+                    });
+                }
+            }
+
+            function sortList() {
+                $("#node-input-rule-container").editableList('sort');
+                setColorForMax()
+            }
+
+            if (!this.sectors) {
+                var min = {
+                    val: 0,
+                    col: '#ff9900',
+                    t: "min"
+                };
+                var max = {
+                    val: 10,
+                    col: '#ff9900',
+                    t: "max"
+                };
+                this.sectors = [min, max];
+            }
+
+            function revalidate(v) {
+                configError = ""
+                var unique = [...new Set(v.map(s => s.val))]
+                var mi = v.find(el => el.t == 'min')
+                var ma = v.find(el => el.t == 'max')
+                if (mi.val > ma.val) {
+                    configError = ERR_MINMAX
+                } else if (v.length != unique.length) {
+                    configError = ERR_UNIQUE
+                } else if (v.some(el => isNaN(el.val))) {
+                    configError = ERR_SOME_NAN
+                } else if (v.some(el => el.val > ma.val)) {
+                    configError = ERR_SOME_OVER
+                }
+            }
+            revalidate(this.sectors)
+            $("#node-input-rule-container").editableList('addItems', this.sectors);
+            ruleInfo(configError)
+
         },
-        oneditsave: function (){
-           // $('input[name=foo]').attr('checked', this.colorFromTheme);
+        oneditsave: function () {
+            var list = $("#node-input-rule-container").editableList('items');
+            var node = this;
+            node.sectors = [];
+            var convert = function (rule) {
+                rule.val = parseFloat(rule.val)
+                return rule
+            }
+            list.each(function (i) {
+                var rule = $(this);
+                var t = rule.find(".node-input-rule-value").typedInput('type')
+                var v = rule.find(".node-input-rule-value").typedInput('value')
+                var c = rule.find(".node-input-rule-color").val();
+
+                var r = convert({
+                    val: v,
+                    col: c,
+                    t: t
+                })
+                node.sectors.push(r);
+            });           
         }
     });
 </script>
@@ -135,30 +418,25 @@ SOFTWARE.
     <div class='form-row' id='node-input-diffmode'>
         <label for='node-input-differential'><i class='fa fa-gear'></i> Mode</span></label>
         <input type="checkbox" id="node-input-differential" style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;">differential       
-    </div>    
-    <div class='form-row' id='node-input-linecolor'>
-        <label for='node-input-colorFromTheme' style='padding-top:6px; padding-bottom:6px'><i class='fa fa-paint-brush'></i> Line color</span></label>
-        <input type="checkbox" id="node-input-colorFromTheme" checked style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;">Use theme color
-        <span for='node-input-colorLine' id='node-input-colorLineSpan' style='margin-left:20px;'>Custom color</span>
-        <input type='color' id='node-input-colorLine' style='width:80px'/>
+    </div>   
+    
+    <div class='form-row'>
+        <label><i class='fa fa-gear'></i> Range</label>       
     </div>
+    <div class="form-row node-input-rule-container-row">
+        <ol id="node-input-rule-container"></ol>    
+    </div>
+</br>  
     <div class='form-row' id='node-input-linebgcolor'>
         <label for='node-input-bgcolorFromTheme' style='padding-top:6px; padding-bottom:6px'><i class='fa fa-paint-brush'></i> Track color</span></label>
         <input type="checkbox" id="node-input-bgcolorFromTheme" checked style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;">Use theme color
         <span for='node-input-colorTrack' id='node-input-colorTrackSpan' style='margin-left:20px;'>Custom color</span>
         <input type='color' id='node-input-colorTrack' style='width:80px'/>
-    </div>
-    <div class='form-row'>
-        <label for='node-input-min'><i class='fa fa-gear'></i> Range</label>
-        <span for='node-input-min'>min</span>
-        <input type='text' id='node-input-min' style='width:80px' dir=''>
-        <span for='node-input-max' style='margin-left:20px;'>max</span>
-        <input type='text' id='node-input-max' style='width:80px' dir=''>
-    </div>
+    </div> 
     <div class='form-row'>
         <label for='node-input-unit'><i class='fa fa-gear'></i> Format</label>
         <span for='node-input-unit'>Unit</span>
-        <input type='text' id='node-input-unit' style='width:80px' placeholder='units' dir=''>
+        <input type='text' id='node-input-unit' style='width:120px' placeholder='units' dir=''>
         <span for='node-input-decimals' style='margin-left:20px;'>decimals</span>
         <input type='text' id='node-input-decimals' style='width:80px' placeholder='0' dir=''>
     </div>  
@@ -198,11 +476,11 @@ Choose layout type. Layout can be linear or radial.
 <h3> Mode</h3>
 Option to turn on differential mode. With this option selected, the colored track has center point from which the value is shown. Value of center point is not shown anywhere, as well there is no minimum or maximum marks. Value of center point is exactly between configured min and max.
 
-<h3> Colors</h3>
-Color of track and background line can be configured. By default, the site colors used.
-
 <h3> Range</h3>
-Minimum and maximum expected values. Note that with differential mode, the middle point is exactly between those values.
+Configure minimum and maximum expected values and adjust line color. Add segments and configure colors for them if needed. Note that Min and Max options can not be removed.
+
+<h3> Track color</h3>
+Color of track background line can be configured. By default, the site colors used.
 
 <h3> Format</h3>
 Unit is displayed near the value field. Unit can be any string.
