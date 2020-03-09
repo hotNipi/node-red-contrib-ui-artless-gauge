@@ -85,7 +85,7 @@ SOFTWARE.
             },
             differential: {
                 value: false
-            },            
+            },
             colorTrack: {
                 value: '#555555'
             },
@@ -251,7 +251,7 @@ SOFTWARE.
                             value: rule.col,
                             disabled: (rule.t == 'max'),
                             class: "node-input-rule-color",
-                            style: "width:80px; margin-left:8px;",                           
+                            style: "width:80px; margin-left:8px;",
                             type: "color"
                         })
                         .appendTo(row)
@@ -259,7 +259,7 @@ SOFTWARE.
                     valField.typedInput('type', getTypeDef(rule.t));
                     valField.typedInput('value', rule.val);
 
-                   
+
 
                     sortList()
 
@@ -282,7 +282,7 @@ SOFTWARE.
 
                 },
                 removeItem: function (data) {
-                    if (data.t == 'min' || data.t == 'max') {                       
+                    if (data.t == 'min' || data.t == 'max') {
                         $("#node-input-rule-container").editableList('addItem', data);
                     }
                     configError = ""
@@ -296,20 +296,17 @@ SOFTWARE.
 
             function setColorForMax() {
                 var list = $("#node-input-rule-container").editableList('items');
-                var max = Number.MIN_VALUE + 1
+                var sum = Number.MIN_SAFE_INTEGER
                 var col = ''
                 var rule, t, v, c
                 list.each(function (i) {
                     rule = $(this);
                     t = rule.find(".node-input-rule-value").typedInput('type')
-                    v = parseFloat(rule.find(".node-input-rule-value").typedInput('value'))
-                    c = rule.find(".node-input-rule-color").val();
-                    if (t == 'min') {
-                        col = c
-                    }
-                    if (t != 'max') {
-                        if (max < v) {
-                            max = v
+                    if (t == 'min' || t == 'sec') {
+                        v = parseFloat(rule.find(".node-input-rule-value").typedInput('value'))
+                        c = rule.find(".node-input-rule-color").val();
+                        if (sum < v) {
+                            sum = v
                             col = c
                         }
                     }
@@ -384,7 +381,7 @@ SOFTWARE.
                     t: t
                 })
                 node.sectors.push(r);
-            });           
+            });
         }
     });
 </script>
