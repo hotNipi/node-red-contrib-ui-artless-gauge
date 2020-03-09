@@ -56,7 +56,8 @@ module.exports = function (RED) {
 			}
 			.ag-icon-{{unique}}.angular-material{
 				font-family:"Material Icons";
-			}			
+			}
+					
 													
 		</style>`
 		var initpos = config.differential == true ? config.stripe.left + (config.stripe.width / 2) : config.stripe.left
@@ -407,7 +408,10 @@ module.exports = function (RED) {
 				} : {
 					fixed: parseInt(config.decimals)
 				}
-
+				config.padding = {
+					hor:'6px',
+					vert:(site.sizes.sy/16)+'px'
+				}				
 				var html = HTML(config);
 
 				done = ui.addWidget({
@@ -461,6 +465,7 @@ module.exports = function (RED) {
 							$scope.timeout = null
 							if (data.config) {
 								$scope.type = data.config.type
+								updateContainerStyle(main,data.config.padding)
 								updateIcon(data.config.icontype, data.config.icon)
 								updateUnit(data.config.unit)
 								if (data.config.type === 'radial') {
@@ -479,6 +484,16 @@ module.exports = function (RED) {
 									updateGaugeLinear(data.payload)
 								}
 							}
+						}
+
+						var updateContainerStyle = function(el,padding){
+							el = el.parentElement
+							if(el && el.classList.contains('nr-dashboard-template')){
+								if($(el).css('paddingLeft') == '0px'){
+									el.style.paddingLeft = el.style.paddingRight = padding.hor
+									el.style.paddingTop = el.style.paddingBottom = padding.vert
+								}
+							}							
 						}
 
 						var createArcBgr = function (arc) {
