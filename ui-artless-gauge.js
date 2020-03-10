@@ -371,7 +371,7 @@ module.exports = function (RED) {
 				config.exactheight = parseInt(site.sizes.sy * config.height + site.sizes.cy * (config.height - 1)) - 12;
 				var iconsize = 32
 				
-				var fp = {minin:30,maxin:60 * 6,minout:1,maxout:1+(config.height == 2 ? 1 : config.height)}
+				var fp = {minin:34,maxin:60 * 6,minout:1,maxout:1+(config.height == 2 ? 1 : config.height)}
 				var b = config.type == 'radial' ? range(site.sizes.sy * config.height,fp,'clamp',false) : 1.28
 				
 				config.icontype = getIconType()
