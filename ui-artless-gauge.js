@@ -38,11 +38,11 @@ module.exports = function (RED) {
 				font-size:0.7em;
 			}
 			.ag-txt-{{unique}}.big {
-				font-size:1.3em;
+				font-size:${config.font.big}em;
 			}			
 			.ag-icon-{{unique}}{
 				fill: currentColor;
-				font-size:x-large;				
+				font-size:${config.font.icon};				
 			}
 			.ag-icon-{{unique}}.fa{
 				font-family:"FontAwesome";
@@ -52,7 +52,7 @@ module.exports = function (RED) {
 			}
 			.ag-icon-{{unique}}.wi{
 				font-family:"weather-icons-lite";
-				font-size:larger
+				font-size:${config.font.icon}
 			}
 			.ag-icon-{{unique}}.angular-material{
 				font-family:"Material Icons";
@@ -65,7 +65,7 @@ module.exports = function (RED) {
 		var linear = String.raw `				
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="start" dominant-baseline="baseline" x="` + config.stripe.left + `" y="${config.stripe.y-7}">${config.label}</text>
-				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="end" dominant-baseline="baseline" x="${config.exactwidth -3}" y="${config.stripe.y-7}"></text>
+				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="end" dominant-baseline="baseline" x="${config.exactwidth -3}" y="${config.stripe.y-6}"></text>
 				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="end" dominant-baseline="baseline" x="${config.exactwidth -3}" y="${config.stripe.y+12}"></text>
 				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="start" dominant-baseline="baseline" x="0" y="${config.stripe.y+6}">icon</text>	
 				<rect id="ag_str_bg_{{unique}}" x="` + config.stripe.left + `" y="` + config.stripe.y + `" 
@@ -88,8 +88,8 @@ module.exports = function (RED) {
 		var radial = String.raw `				
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${(config.arc.cy - config.arc.r)-config.height*5}">${config.label}</text>
-				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${(config.exactheight/2)*1.2}"></text>
-				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${((config.exactheight/2)*1.2)+12}"></text>
+				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${(config.exactheight/2)*1.25}"></text>
+				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${((config.exactheight/2)*1.25)+13}"></text>
 				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${config.exactheight-2}">icon</text>
 				<rect ng-if="${config.differential == true}" x="${(config.exactwidth/2)}" y="${(config.arc.cy - config.arc.r)}" 
 					width="1" height="7"	
@@ -370,6 +370,16 @@ module.exports = function (RED) {
 				config.exactwidth = parseInt(site.sizes.sx * config.width + site.sizes.cx * (config.width - 1)) - 12;
 				config.exactheight = parseInt(site.sizes.sy * config.height + site.sizes.cy * (config.height - 1)) - 12;
 				var iconsize = 32
+				
+				var fp = {minin:30,maxin:60 * 6,minout:1,maxout:1+(config.height == 2 ? 1 : config.height)}
+				var b = config.type == 'radial' ? range(site.sizes.sy * config.height,fp,'clamp',false) : 1.28
+				
+				config.icontype = getIconType()
+				var iconsizes = ['small','large','larger','x-large','xx-large','xxx-large']
+				var idx = config.height + (config.height == 1 ? 2 : config.height == 2 ? -1 : 1) - (config.icontype == "wi" ? 1 : 0)
+
+				var is = iconsizes[idx]					
+				config.font = {big:b,icon:is}
 
 				var le = config.icon == "" ? 0 : iconsize
 				var wi = config.icon == "" ? config.exactwidth : config.exactwidth - iconsize
@@ -402,7 +412,7 @@ module.exports = function (RED) {
 				});
 				//config.sectors = config.sectors.filter(el => el.t != 'min')
 
-				config.icontype = getIconType()
+				
 				config.decimals = isNaN(parseFloat(config.decimals)) ? {
 					fixed: 1
 				} : {
