@@ -89,8 +89,8 @@ module.exports = function (RED) {
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${(config.arc.cy - config.arc.r)-config.height*5}">${config.label}</text>
 				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${(config.exactheight/2)*1.25}"></text>
-				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${((config.exactheight/2)*1.25)+13}"></text>
-				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${config.exactheight-2}">icon</text>
+				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${((config.exactheight/2)*1.25)+12}"></text>
+				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${config.exactheight}">icon</text>
 				<rect ng-if="${config.differential == true}" x="${(config.exactwidth/2)}" y="${(config.arc.cy - config.arc.r)}" 
 					width="1" height="7"	
 					style="stroke:none";
@@ -306,13 +306,13 @@ module.exports = function (RED) {
 					var ret = config.color
 					if (i > 0) {
 						ret = config.sectors[i - 1].col
-					}else{
-						if(v < config.min){
+					} else {
+						if (v < config.min) {
 							ret = config.sectors[0].col
-						}else{
-							ret = config.sectors[config.sectors.length-1].col
-						}						
-					}									
+						} else {
+							ret = config.sectors[config.sectors.length - 1].col
+						}
+					}
 					return ret
 				}
 
@@ -370,16 +370,26 @@ module.exports = function (RED) {
 				config.exactwidth = parseInt(site.sizes.sx * config.width + site.sizes.cx * (config.width - 1)) - 12;
 				config.exactheight = parseInt(site.sizes.sy * config.height + site.sizes.cy * (config.height - 1)) - 12;
 				var iconsize = 32
-				
-				var fp = {minin:34,maxin:60 * 6,minout:1,maxout:1+(config.height == 2 ? 1 : config.height)}
-				var b = config.type == 'radial' ? range(site.sizes.sy * config.height,fp,'clamp',false) : 1.28
-				
-				config.icontype = getIconType()
-				var iconsizes = ['small','large','larger','x-large','xx-large','xxx-large']
-				var idx = config.height + (config.height == 1 ? 2 : config.height == 2 ? -1 : 1) - (config.icontype == "wi" ? 1 : 0)
 
-				var is = iconsizes[idx]					
-				config.font = {big:b,icon:is}
+				var fp = {
+					minin: 40,
+					maxin: config.exactwidth * 2,
+					minout: 1,
+					maxout: (1 + (config.height == 2 ? 1 : config.height)) * .9
+				}
+				var b = config.type == 'radial' ? range(site.sizes.sy * config.height, fp, 'clamp', false) : 1.28
+
+				config.icontype = getIconType()
+				var iconsizes = ['small', 'large', 'larger', 'x-large', 'xx-large', 'xxx-large']
+				var idx = config.height + (config.height == 1 ? 2 : config.height == 2 ? -1 : 1) - (config.icontype == "wi" ? 1 : 0)
+				if (idx > 5) {
+					idx = 5
+				}
+				var is = iconsizes[idx]
+				config.font = {
+					big: b,
+					icon: is
+				}
 
 				var le = config.icon == "" ? 0 : iconsize
 				var wi = config.icon == "" ? config.exactwidth : config.exactwidth - iconsize
@@ -412,16 +422,16 @@ module.exports = function (RED) {
 				});
 				//config.sectors = config.sectors.filter(el => el.t != 'min')
 
-				
+
 				config.decimals = isNaN(parseFloat(config.decimals)) ? {
 					fixed: 1
 				} : {
 					fixed: parseInt(config.decimals)
 				}
 				config.padding = {
-					hor:'6px',
-					vert:(site.sizes.sy/16)+'px'
-				}				
+					hor: '6px',
+					vert: (site.sizes.sy / 16) + 'px'
+				}
 				var html = HTML(config);
 
 				done = ui.addWidget({
@@ -475,7 +485,7 @@ module.exports = function (RED) {
 							$scope.timeout = null
 							if (data.config) {
 								$scope.type = data.config.type
-								updateContainerStyle(main,data.config.padding)
+								updateContainerStyle(main, data.config.padding)
 								updateIcon(data.config.icontype, data.config.icon)
 								updateUnit(data.config.unit)
 								if (data.config.type === 'radial') {
@@ -496,14 +506,14 @@ module.exports = function (RED) {
 							}
 						}
 
-						var updateContainerStyle = function(el,padding){
+						var updateContainerStyle = function (el, padding) {
 							el = el.parentElement
-							if(el && el.classList.contains('nr-dashboard-template')){
-								if($(el).css('paddingLeft') == '0px'){
+							if (el && el.classList.contains('nr-dashboard-template')) {
+								if ($(el).css('paddingLeft') == '0px') {
 									el.style.paddingLeft = el.style.paddingRight = padding.hor
 									el.style.paddingTop = el.style.paddingBottom = padding.vert
 								}
-							}							
+							}
 						}
 
 						var createArcBgr = function (arc) {
