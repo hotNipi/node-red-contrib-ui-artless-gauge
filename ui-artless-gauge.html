@@ -53,16 +53,6 @@ SOFTWARE.
             height: {
                 value: 0
             },
-            min: {
-                value: 0,
-                required: true,
-                validate: RED.validators.number()
-            },
-            max: {
-                value: 10,
-                required: true,
-                validate: RED.validators.number()
-            },
             name: {
                 value: ''
             },
@@ -84,6 +74,9 @@ SOFTWARE.
                 validate: RED.validators.number()
             },
             differential: {
+                value: false
+            },
+            minmax: {
                 value: false
             },
             colorTrack: {
@@ -191,6 +184,9 @@ SOFTWARE.
             if (this.differential === undefined) {
                 $("#node-input-differential").prop('checked', false);
             }
+            if (this.minmax === undefined) {
+                $("#node-input-minmax").prop('checked', false);
+            }
 
             if (this.layout === undefined) {
                 this.layout = 'linear';
@@ -239,21 +235,21 @@ SOFTWARE.
                     var valField
                     var colorField
                     valField = $('<input/>', {
-                            class: "node-input-rule-value",
-                            style: "width:120px;",
-                            type: "text"
-                        })
+                        class: "node-input-rule-value",
+                        style: "width:120px;",
+                        type: "text"
+                    })
                         .appendTo(row)
                         .typedInput({
                             types: [getTypeDef(rule.t)]
                         });
                     colorField = $('<input/>', {
-                            value: rule.col,
-                            disabled: (rule.t == 'max'),
-                            class: "node-input-rule-color",
-                            style: "width:80px; margin-left:8px;",
-                            type: "color"
-                        })
+                        value: rule.col,
+                        disabled: (rule.t == 'max'),
+                        class: "node-input-rule-color",
+                        style: "width:80px; margin-left:8px;",
+                        type: "color"
+                    })
                         .appendTo(row)
 
                     valField.typedInput('type', getTypeDef(rule.t));
@@ -430,6 +426,10 @@ SOFTWARE.
         <span for='node-input-colorTrack' id='node-input-colorTrackSpan' style='margin-left:20px;'>Custom color</span>
         <input type='color' id='node-input-colorTrack' style='width:80px'/>
     </div> 
+    <div class='form-row' id='node-input-minmaxshow'>
+        <label for='node-input-minmax'><i class='fa fa-gear'></i> Tickmarks</span></label>
+        <input type="checkbox" id="node-input-minmax" style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;">Show for min and max (and center)    
+    </div>  
     <div class='form-row'>
         <label for='node-input-unit'><i class='fa fa-gear'></i> Format</label>
         <span for='node-input-unit'>Unit</span>
@@ -478,6 +478,12 @@ Configure minimum and maximum expected values and adjust line color. Add segment
 
 <h3> Track color</h3>
 Color of track background line can be configured. By default, the site colors used.
+
+<h3> Tickmarks</h3>
+Min and max values can be shown near the track.
+For differential mode, also the center value is shown.
+<p>With radial layout the tickmarks can be shown only if layout size is 3x3 units or more.
+<p>With linear layout together with differential mode, the unit field will be overtaken by tickmarks.
 
 <h3> Format</h3>
 Unit is displayed near the value field. Unit can be any string.

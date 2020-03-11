@@ -29,7 +29,7 @@ module.exports = function (RED) {
 			config
 		});
 
-		var styles = String.raw `
+		var styles = String.raw`
 		<style>
 			.ag-txt-{{unique}} {					
 				fill: currentColor;					
@@ -62,36 +62,48 @@ module.exports = function (RED) {
 		</style>`
 		var initpos = config.differential == true ? config.stripe.left + (config.stripe.width / 2) : config.stripe.left
 
-		var linear = String.raw `				
+		var linear = String.raw`				
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
-				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="start" dominant-baseline="baseline" x="` + config.stripe.left + `" y="${config.stripe.y-7}">${config.label}</text>
-				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="end" dominant-baseline="baseline" x="${config.exactwidth -3}" y="${config.stripe.y-6}"></text>
-				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="end" dominant-baseline="baseline" x="${config.exactwidth -3}" y="${config.stripe.y+12}"></text>
-				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="start" dominant-baseline="baseline" x="0" y="${config.stripe.y+6}">icon</text>	
+				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="start" dominant-baseline="baseline" x="` + config.stripe.left + `" y="${config.stripe.y - 7}">${config.label}</text>
+				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="end" dominant-baseline="baseline" x="${config.exactwidth - 3}" y="${config.stripe.y - 6}"></text>
+				<text id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="${config.stripe.left}" y="${config.stripe.y + 12}"
+					text-anchor="end" dominant-baseline="baseline">
+					<tspan x="${config.stripe.left}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
+					<tspan x="${config.stripe.left + 1.5 + (config.stripe.width / 2)}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
+					<tspan x="${config.exactwidth - 3}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
+				</text>
+				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="start" dominant-baseline="baseline" x="0" y="${config.stripe.y + 6}">icon</text>	
 				<rect id="ag_str_bg_{{unique}}" x="` + config.stripe.left + `" y="` + config.stripe.y + `" 
 					width="${config.stripe.width}" height="1"	
 					style="stroke:none";
 					fill="${config.bgrColor}"					
 				/>
-				<rect ng-if="${config.differential == true}"  x="${initpos}" y="${config.stripe.y -1}" 
+				<rect ng-if="${config.differential == true}"  x="${initpos}" y="${config.stripe.y - 7}" 
 					width="1" height="7"	
 					style="stroke:none";
 					fill="${config.bgrColor}"				
 				/>	
-				<rect id="ag_str_line_{{unique}}" x="${initpos}" y="${config.stripe.y -1}" 
+				<rect id="ag_str_line_{{unique}}" x="${initpos}" y="${config.stripe.y - 1}" 
 					width="0" height="3"	
 					style="stroke:none";
 					fill="${config.color}"				
 				/>				
 			</svg>`
 
-		var radial = String.raw `				
+		var radial = String.raw`				
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
-				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${(config.arc.cy - config.arc.r)-config.height*5}">${config.label}</text>
-				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${(config.exactheight/2)*1.25}"></text>
-				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${((config.exactheight/2)*1.25)+12}"></text>
-				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth/2}" y="${config.exactheight}">icon</text>
-				<rect ng-if="${config.differential == true}" x="${(config.exactwidth/2)}" y="${(config.arc.cy - config.arc.r)}" 
+				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${(config.arc.cy - config.arc.r) - config.height * 5}">${config.label}</text>
+				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${(config.exactheight / 2) * 1.25}"></text>
+				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${((config.exactheight / 2) * 1.25) + 12}"></text>
+				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.exactheight}">icon</text>
+				
+				<text ng-if="${config.width > 2}" id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="0" y="0"
+					text-anchor="end" dominant-baseline="baseline">
+					<tspan y="0" dy="${config.exactheight - 3}" x="0" dx="${config.arc.r / 2.8}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
+					<tspan y="0" dy="${(config.arc.cy + 16 - config.arc.r)}" x="${config.exactwidth / 2 + 1.5}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
+					<tspan y="0" dy="${config.exactheight - 3}" x="0" dx="${config.exactwidth - (config.arc.r / 2.8)}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
+				</text>
+				<rect ng-if="${config.differential == true}" x="${(config.exactwidth / 2)}" y="${(config.arc.cy - 7 - config.arc.r)}" 
 					width="1" height="7"	
 					style="stroke:none";
 					fill="${config.bgrColor}";				
@@ -103,9 +115,9 @@ module.exports = function (RED) {
 		var layout = config.type == "linear" ? linear : radial
 
 
-		var scripts = String.raw `<script src="ui-artless-gauge/js/gsap.min.js"></script>`
+		var scripts = String.raw`<script src="ui-artless-gauge/js/gsap.min.js"></script>`
 
-		return String.raw `${styles}${scripts}${layout}`;
+		return String.raw`${styles}${scripts}${layout}`;
 	}
 
 	function checkConfig(node, conf) {
@@ -386,10 +398,7 @@ module.exports = function (RED) {
 					idx = 5
 				}
 				var is = iconsizes[idx]
-				config.font = {
-					big: b,
-					icon: is
-				}
+				config.font = { big: b, icon: is }
 
 				var le = config.icon == "" ? 0 : iconsize
 				var wi = config.icon == "" ? config.exactwidth : config.exactwidth - iconsize
@@ -423,11 +432,7 @@ module.exports = function (RED) {
 				//config.sectors = config.sectors.filter(el => el.t != 'min')
 
 
-				config.decimals = isNaN(parseFloat(config.decimals)) ? {
-					fixed: 1
-				} : {
-					fixed: parseInt(config.decimals)
-				}
+				config.decimals = isNaN(parseFloat(config.decimals)) ? { fixed: 1 } : { fixed: parseInt(config.decimals) }
 				config.padding = {
 					hor: '6px',
 					vert: (site.sizes.sy / 16) + 'px'
@@ -487,7 +492,20 @@ module.exports = function (RED) {
 								$scope.type = data.config.type
 								updateContainerStyle(main, data.config.padding)
 								updateIcon(data.config.icontype, data.config.icon)
-								updateUnit(data.config.unit)
+
+								var u = data.config.type == "linear" ? ["", "", data.config.unit] : ["", "", ""]
+								var cv = ""
+								if (data.config.minmax) {
+									if (data.config.type == "linear") {
+										cv = data.config.unit
+									}
+									if (data.config.differential == true) {
+										cv = ((data.config.min + data.config.max) / 2).toFixed(data.config.decimals)
+									}
+									u = [data.config.min, cv, data.config.max]
+								}
+								updateUnit(u, data.config.unit)
+
 								if (data.config.type === 'radial') {
 									$scope.arc = data.config.arc
 									createArcBgr(data.config.arc)
@@ -521,10 +539,17 @@ module.exports = function (RED) {
 							el.setAttribute("d", arcPath(arc.cx, arc.cy, arc.r, arc.left, arc.right));
 						}
 
-						var updateUnit = function (u) {
-							var ic = document.getElementById("ag_unit_" + $scope.unique);
+						var updateUnit = function (arr, unit) {
+							var ic = document.getElementById("ag_alt_" + $scope.unique);
 							if (ic) {
-								$(ic).text(u);
+								for (var i = 0; i < 3; i++) {
+									ic = document.getElementById("ag_alt_" + i + "_" + $scope.unique);
+									$(ic).text(arr[i]);
+								}
+							}
+							ic = document.getElementById("ag_unit_" + $scope.unique);
+							if (ic) {
+								$(ic).text(unit);
 							}
 						}
 
