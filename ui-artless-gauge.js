@@ -113,8 +113,6 @@ module.exports = function (RED) {
 			</svg>`
 
 		var layout = config.type == "linear" ? linear : radial
-
-
 		var scripts = String.raw`<script src="ui-artless-gauge/js/gsap.min.js"></script>`
 
 		return String.raw`${styles}${scripts}${layout}`;
@@ -180,16 +178,7 @@ module.exports = function (RED) {
 					if (opts === null) {
 						node.log("Couldn't reach to the site parameters. Using hardcoded default parameters!")
 						opts = {}
-						opts.sizes = {
-							sx: 48,
-							sy: 48,
-							gx: 4,
-							gy: 4,
-							cx: 4,
-							cy: 4,
-							px: 4,
-							py: 4
-						}
+						opts.sizes = {sx: 48, sy: 48, gx: 4, gy: 4, cx: 4, cy: 4, px: 4,py: 4}
 						opts.theme = {
 							'widget-backgroundColor': {
 								value: "#097479"
@@ -332,7 +321,6 @@ module.exports = function (RED) {
 					var t = ""
 					if (config.icon === "") {
 						return t
-
 					}
 					var url = /^https?:\/\//i;
 					var fa = /^fa-/i;
@@ -351,10 +339,8 @@ module.exports = function (RED) {
 					} else {
 						t = 'angular-material';
 					}
-
 					return t
 				}
-
 
 				var group = RED.nodes.getNode(config.group);
 				var site = getSiteProperties();
@@ -430,9 +416,7 @@ module.exports = function (RED) {
 
 				config.sectors.sort(function (a, b) {
 					return a.val - b.val
-				});
-				//config.sectors = config.sectors.filter(el => el.t != 'min')
-
+				});				
 
 				config.decimals = isNaN(parseFloat(config.decimals)) ? { fixed: 1 } : { fixed: parseInt(config.decimals) }
 				config.padding = {
@@ -464,9 +448,7 @@ module.exports = function (RED) {
 							pos: calculatePercPos(msg.payload),
 							col: calculateColor(msg.payload)
 						}
-						return {
-							msg: fem
-						};
+						return {msg: fem};
 					},
 
 					initController: function ($scope) {
