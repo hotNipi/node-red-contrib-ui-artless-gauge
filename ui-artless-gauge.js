@@ -66,7 +66,7 @@ module.exports = function (RED) {
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="start" dominant-baseline="baseline" x="` + config.stripe.left + `" y="${config.stripe.y - 7}">${config.label}</text>
 				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="end" dominant-baseline="baseline" x="${config.exactwidth - 3}" y="${config.stripe.y - 6}"></text>
-				<text id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="${config.stripe.left}" y="${config.stripe.y + 12}"
+				<text id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="${config.stripe.left}" y="${config.stripe.y + 14}"
 					text-anchor="end" dominant-baseline="baseline">
 					<tspan x="${config.stripe.left}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
 					<tspan x="${config.stripe.left + 1.5 + (config.stripe.width / 2)}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
@@ -92,16 +92,16 @@ module.exports = function (RED) {
 
 		var radial = String.raw`				
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
-				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${(config.arc.cy - config.arc.r) - config.height * 5}">${config.label}</text>
-				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${(config.exactheight / 2) * 1.25}"></text>
-				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${((config.exactheight / 2) * 1.25) + 12}"></text>
-				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.exactheight}">icon</text>
+				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${(config.arc.cy - config.arc.r) - config.height * 4}">${config.label}</text>
+				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy *.9}"></text>
+				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy *.9 + 12}"></text>
+				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy *.75  + config.arc.r}">icon</text>
 				
 				<text ng-if="${config.width > 2}" id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="0" y="0"
 					text-anchor="end" dominant-baseline="baseline">
-					<tspan y="0" dy="${config.exactheight - 3}" x="0" dx="${config.arc.r / 2.8}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
+					<tspan y="0" dy="${config.arc.cy *.75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 - config.arc.r *.7}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
 					<tspan y="0" dy="${(config.arc.cy + 16 - config.arc.r)}" x="${config.exactwidth / 2 + 1.5}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
-					<tspan y="0" dy="${config.exactheight - 3}" x="0" dx="${config.exactwidth - (config.arc.r / 2.8)}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
+					<tspan y="0" dy="${config.arc.cy *.75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 + config.arc.r*.7}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
 				</text>
 				<rect ng-if="${config.differential == true}" x="${(config.exactwidth / 2)}" y="${(config.arc.cy - 7 - config.arc.r)}" 
 					width="1" height="7"	
@@ -389,7 +389,8 @@ module.exports = function (RED) {
 					minout: 1,
 					maxout: (1 + (config.height == 2 ? 1 : config.height)) * .9
 				}
-				var b = config.type == 'radial' ? range(site.sizes.sy * config.height, fp, 'clamp', false) : 1.28
+				var side = Math.min((site.sizes.sy * config.height),(site.sizes.sx * config.width))
+				var b = config.type == 'radial' ? range(side, fp, 'clamp', false) : 1.28
 
 				config.icontype = getIconType()
 				var iconsizes = ['small', 'large', 'larger', 'x-large', 'xx-large', 'xxx-large']
@@ -405,13 +406,14 @@ module.exports = function (RED) {
 
 				config.stripe = {
 					left: le,
-					y: site.sizes.sy * .57,
+					y: site.sizes.sy * .52,
 					width: wi
 				}
+				side = Math.min(config.exactwidth,config.exactheight)
 				config.arc = {
 					cx: (config.exactwidth / 2),
-					cy: (config.exactheight / 2) * 1.4,
-					r: (config.exactwidth / 2) - 6,
+					cy: (side / 2) * 1.4,
+					r: (side / 2) - 6,
 					left: -40,
 					right: 220
 				}
