@@ -54,8 +54,19 @@ Unit is displayed near the value field. Unit can be any string.
 Value is always rounded according to the configured decimals. Default is zero so value presented as integer.  
 
 ## Input 
-msg.payload should carry single numeric value.
+<code>msg.payload</code> should carry single numeric value.
 
+## Change the configuration at runtime
+
+Many options of widget configuration can be overrided at runtime using the <code>msg.options</code> property.
+You can send options one by one, or all together.
+Note, that min and max must be part of sectors property. 
+
+``` javascript
+var newSectors = [{t:"min",val:5,col:"#00ff00"},{t:"sec",val:8,col:"#ff0000"},{t:"max",val:30,col:"#0000ff"}]
+msg.control = {unit:"degrees",label:"Temperature",icon:"fa-thermometer",sectors:newSectors}
+```
+ 
 
 ### Licence
 

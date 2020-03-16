@@ -93,15 +93,15 @@ module.exports = function (RED) {
 		var radial = String.raw`				
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${(config.arc.cy - config.arc.r) - config.height * 4}">${config.label}</text>
-				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy *.9}"></text>
-				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy *.9 + 12}"></text>
-				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy *.75  + config.arc.r}">icon</text>
+				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .9}"></text>
+				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .9 + 12}"></text>
+				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .75 + config.arc.r}">icon</text>
 				
 				<text ng-if="${config.width > 2}" id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="0" y="0"
 					text-anchor="end" dominant-baseline="baseline">
-					<tspan y="0" dy="${config.arc.cy *.75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 - config.arc.r *.7}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
+					<tspan y="0" dy="${config.arc.cy * .75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 - config.arc.r * .7}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
 					<tspan y="0" dy="${(config.arc.cy + 16 - config.arc.r)}" x="${config.exactwidth / 2 + 1.5}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
-					<tspan y="0" dy="${config.arc.cy *.75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 + config.arc.r*.7}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
+					<tspan y="0" dy="${config.arc.cy * .75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 + config.arc.r * .7}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
 				</text>
 				<rect ng-if="${config.differential == true}" x="${(config.exactwidth / 2)}" y="${(config.arc.cy - 7 - config.arc.r)}" 
 					width="1" height="7"	
@@ -128,6 +128,7 @@ module.exports = function (RED) {
 
 	var ui = undefined;
 
+
 	function ArtlessGaugeNode(config) {
 		try {
 			var node = this;
@@ -143,6 +144,7 @@ module.exports = function (RED) {
 			var getSiteProperties = null;
 			var calculatePercPos = null;
 			var calculateColor = null;
+			var modifyConfig = null;
 
 			if (checkConfig(node, config)) {
 				ensureNumber = function (input, dets) {
@@ -168,6 +170,58 @@ module.exports = function (RED) {
 					}
 					return input;
 				}
+
+				modifyConfig = function (input) {
+					var ret = false
+					if (input && input.hasOwnProperty('sectors')) {
+						if (Array.isArray(input.sectors)) {
+							var sec, insec
+							function addSectors(s) {
+								if (s.t == 'sec') {
+									config.sectors.push(s)
+								}
+							}
+							if (input.sectors.some(el => el.t == 'sec')) {
+								config.sectors = config.sectors.filter(el => (el.t != "sec"))
+							}
+							insec = input.sectors.find(el => el.t == 'min')
+							if (insec) {
+								sec = config.sectors.find(el => el.t == 'min')
+								sec.val = insec.val
+								sec.col = insec.col
+								config.min = insec.val
+								config.color = insec.col
+							}
+
+							insec = input.sectors.find(el => el.t == 'max')
+							if (insec) {
+								sec = config.sectors.find(el => el.t == 'max')
+								sec.val = insec.val
+								sec.col = insec.col
+								config.max = insec.val
+							}
+							input.sectors.forEach(el => addSectors(el))
+							config.sectors.sort((a, b) => a.val - b.val);
+							var i = config.sectors.length - 1
+							config.sectors[i].col = config.sectors[i - 1].col
+							ret = config
+						}
+					}
+					if (input.icon) {
+						config.icon = input.icon
+						config.icontype = getIconType()
+						ret = config
+					}
+					if (input.label) {
+						config.label = input.label
+						ret = config
+					}
+					if (input.unit) {
+						config.unit = input.unit
+						ret = config
+					}
+					return ret
+				}
 				getSiteProperties = function () {
 					var opts = null;
 					if (typeof ui.getSizes === "function") {
@@ -178,7 +232,7 @@ module.exports = function (RED) {
 					if (opts === null) {
 						node.log("Couldn't reach to the site parameters. Using hardcoded default parameters!")
 						opts = {}
-						opts.sizes = {sx: 48, sy: 48, gx: 4, gy: 4, cx: 4, cy: 4, px: 4,py: 4}
+						opts.sizes = { sx: 48, sy: 48, gx: 4, gy: 4, cx: 4, cy: 4, px: 4, py: 4 }
 						opts.theme = {
 							'widget-backgroundColor': {
 								value: "#097479"
@@ -375,7 +429,7 @@ module.exports = function (RED) {
 					minout: 1,
 					maxout: (1 + (config.height == 2 ? 1 : config.height)) * .9
 				}
-				var side = Math.min((site.sizes.sy * config.height),(site.sizes.sx * config.width))
+				var side = Math.min((site.sizes.sy * config.height), (site.sizes.sx * config.width))
 				var b = config.type == 'radial' ? range(side, fp, 'clamp', false) : 1.28
 
 				config.icontype = getIconType()
@@ -395,7 +449,7 @@ module.exports = function (RED) {
 					y: site.sizes.sy * .52,
 					width: wi
 				}
-				side = Math.min(config.exactwidth,config.exactheight)
+				side = Math.min(config.exactwidth, config.exactheight)
 				config.arc = {
 					cx: (config.exactwidth / 2),
 					cy: (side / 2) * 1.4,
@@ -416,13 +470,14 @@ module.exports = function (RED) {
 
 				config.sectors.sort(function (a, b) {
 					return a.val - b.val
-				});				
+				});
 
 				config.decimals = isNaN(parseFloat(config.decimals)) ? { fixed: 1 } : { fixed: parseInt(config.decimals) }
 				config.padding = {
 					hor: '6px',
 					vert: (site.sizes.sy / 16) + 'px'
 				}
+
 				var html = HTML(config);
 
 				done = ui.addWidget({
@@ -438,17 +493,23 @@ module.exports = function (RED) {
 					storeFrontEndInputAsState: true,
 
 					beforeEmit: function (msg) {
-						if (msg.payload === undefined) {
-							return
-						}
+
 						var fem = {}
+						if (msg.control) {
+							fem.config = modifyConfig(msg.control)
+						}
+
+						if (!msg.payload) {
+							msg.payload = config.min
+						}
+
 						msg.payload = ensureNumber(msg.payload, config.decimals.fixed)
 						fem.payload = {
 							value: msg.payload,
 							pos: calculatePercPos(msg.payload),
 							col: calculateColor(msg.payload)
 						}
-						return {msg: fem};
+						return { msg: fem };
 					},
 
 					initController: function ($scope) {
@@ -462,6 +523,7 @@ module.exports = function (RED) {
 							update(p)
 						}
 						var update = function (data) {
+
 							var main = document.getElementById("ag_svg_" + $scope.unique);
 							if (data.payload && $scope.timeout != null) {
 								waitingpayload = data
@@ -473,9 +535,10 @@ module.exports = function (RED) {
 							}
 							$scope.timeout = null
 							if (data.config) {
+
 								$scope.type = data.config.type
 								updateContainerStyle(main, data.config.padding)
-								updateIcon(data.config.icontype, data.config.icon)
+
 
 								var u = data.config.type == "linear" ? ["", "", data.config.unit] : ["", "", ""]
 								var cv = ""
@@ -488,12 +551,13 @@ module.exports = function (RED) {
 									}
 									u = [data.config.min, cv, data.config.max]
 								}
-								updateUnit(u, data.config.unit)
+								updateTexts(u, data.config.unit, data.config.label)
 
 								if (data.config.type === 'radial') {
 									$scope.arc = data.config.arc
 									createArcBgr(data.config.arc)
 								}
+								updateIcon(data.config.icontype, data.config.icon, data.config.type, data.config.exactheight)
 								if (waitingpayload) {
 									data.payload = waitingpayload.payload
 									waitingpayload = null;
@@ -523,7 +587,7 @@ module.exports = function (RED) {
 							el.setAttribute("d", arcPath(arc.cx, arc.cy, arc.r, arc.left, arc.right));
 						}
 
-						var updateUnit = function (arr, unit) {
+						var updateTexts = function (arr, unit, label) {
 							var ic = document.getElementById("ag_alt_" + $scope.unique);
 							if (ic) {
 								for (var i = 0; i < 3; i++) {
@@ -535,9 +599,13 @@ module.exports = function (RED) {
 							if (ic) {
 								$(ic).text(unit);
 							}
+							ic = document.getElementById("ag_label_" + $scope.unique);
+							if (ic) {
+								$(ic).text(label);
+							}
 						}
 
-						var updateIcon = function (type, iconclass) {
+						var updateIcon = function (type, iconclass, layout, height) {
 							var icontext = ""
 							if (iconclass != "") {
 								if (type == 'angular-material') {
@@ -559,19 +627,26 @@ module.exports = function (RED) {
 							if (ic) {
 								$(ic).text(icontext);
 								var ib = ic.getBBox()
-								if (type != 'mi' && ib.x < 3) {
+								if (layout == 'linear') {
 									var ih = ib.height
-									var ch = document.getElementById("ag_svg_" + $scope.unique).getBBox().height
-									var ny = ih + ((ch - ih) / 2)
+
+									var ny = ih + ((height - ih) / 2)
 									if (type == 'wi') {
 										ny -= 3
 									}
 									$(ic).attr('y', ny);
 								}
+								if (layout == 'radial') {
+									var arcbox = document.getElementById("ag_str_bg_" + $scope.unique).getBBox()
+									ny = arcbox.y + arcbox.height
+									$(ic).attr('y', ny);
+								}
+
 							}
 						}
 
 						var updateGaugeLinear = function (p) {
+
 							var ic = document.getElementById("ag_value_" + $scope.unique);
 							if (ic) {
 								$(ic).text(p.value);
@@ -728,9 +803,9 @@ module.exports = function (RED) {
 							if (!msg) {
 								return;
 							}
-							if (msg.payload) {
-								update(msg)
-							}
+
+							update(msg)
+
 
 						});
 						$scope.$on('$destroy', function () {
