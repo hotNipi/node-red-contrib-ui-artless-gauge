@@ -172,15 +172,16 @@ module.exports = function (RED) {
 				}
 
 				modifyConfig = function (input) {
+					function addSectors(s) {
+						if (s.t == 'sec') {
+							config.sectors.push(s)
+						}
+					}
 					var ret = false
 					if (input && input.hasOwnProperty('sectors')) {
 						if (Array.isArray(input.sectors)) {
 							var sec, insec
-							function addSectors(s) {
-								if (s.t == 'sec') {
-									config.sectors.push(s)
-								}
-							}
+
 							if (input.sectors.some(el => el.t == 'sec')) {
 								config.sectors = config.sectors.filter(el => (el.t != "sec"))
 							}

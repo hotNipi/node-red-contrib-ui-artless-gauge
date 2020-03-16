@@ -60,7 +60,10 @@ Value is always rounded according to the configured decimals. Default is zero so
 
 Many options of widget configuration can be overrided at runtime using the <code>msg.options</code> property.
 You can send options one by one, or all together.
-Note, that min and max must be part of sectors property. 
+Note, that min and max must be part of sectors property.
+Change of min or max will not affect sectors if they were configured. But any sector update clears all previously configured sectors except the min and max.
+There is no validation on top of incoming sectors configuration.  
+
 
 ``` javascript
 var newSectors = [{t:"min",val:5,col:"#00ff00"},{t:"sec",val:8,col:"#ff0000"},{t:"max",val:30,col:"#0000ff"}]
