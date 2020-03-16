@@ -3,7 +3,7 @@
 
 
 [![NPM version][npm-image]][npm-url]
-[![CodeFactor](https://www.codefactor.io/repository/github/hotnipi/node-red-contrib-ui-artless-gauge/badge)](https://www.codefactor.io/repository/github/hotnipi/node-red-contrib-ui-state-trail)
+[![CodeFactor](https://www.codefactor.io/repository/github/hotnipi/node-red-contrib-ui-artless-gauge/badge)](https://www.codefactor.io/repository/github/hotnipi/node-red-contrib-ui-artless-gauge)
 ![npm](https://img.shields.io/npm/dm/node-red-contrib-ui-artless-gauge)
 
 [npm-image]: http://img.shields.io/npm/v/node-red-contrib-ui-artless-gauge.svg
