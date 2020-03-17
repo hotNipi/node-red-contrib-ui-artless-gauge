@@ -638,11 +638,20 @@ module.exports = function (RED) {
 									if (type == 'wi') {
 										ny -= 3
 									}
+									if (type == 'mi') {
+										ny += 3
+									}
 									$(ic).attr('y', ny);
 								}
 								if (layout == 'radial') {
 									var arcbox = document.getElementById("ag_str_bg_" + $scope.unique).getBBox()
 									ny = arcbox.y + arcbox.height
+									if (type == 'mi') {
+										ny += 3
+									}
+									if (type == 'wi') {
+										ny -= 3
+									}
 									$(ic).attr('y', ny);
 								}
 
