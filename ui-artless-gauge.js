@@ -561,7 +561,8 @@ module.exports = function (RED) {
 									$scope.arc = data.config.arc
 									createArcBgr(data.config.arc)
 								}
-								updateIcon(data.config.icontype, data.config.icon, data.config.type, data.config.exactheight)
+								var adjust = { h: data.config.height, eh: data.config.exactheight }
+								updateIcon(data.config.icontype, data.config.icon, data.config.type, adjust)
 								if (waitingpayload) {
 									data.payload = waitingpayload.payload
 									waitingpayload = null;
@@ -609,7 +610,7 @@ module.exports = function (RED) {
 							}
 						}
 
-						var updateIcon = function (type, iconclass, layout, height) {
+						var updateIcon = function (type, iconclass, layout, adjust) {
 							var icontext = ""
 							if (iconclass != "") {
 								if (type == 'angular-material') {
@@ -633,13 +634,12 @@ module.exports = function (RED) {
 								var ib = ic.getBBox()
 								if (layout == 'linear') {
 									var ih = ib.height
-
-									var ny = ih + ((height - ih) / 2)
+									var ny = ih + ((adjust.eh - ih) / 2)
 									if (type == 'wi') {
 										ny -= 3
 									}
 									if (type == 'mi') {
-										ny += 3
+										ny += 2
 									}
 									$(ic).attr('y', ny);
 								}
