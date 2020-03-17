@@ -47,7 +47,7 @@ Color of track background line can be configured. By default, the site colors us
 Min and max values can be shown near the track.
 For differential mode, also the center value is shown.
 With radial layout the tickmarks can be shown only if layout size is 3x3 units or more.
-With linear layout together with differential mode, the unit field will be overtaken by tickmarks.
+With linear layout together with differential mode, if unit is not configured empty, it will override center value.
 
 ### Format
 Unit is displayed near the value field. Unit can be any string.

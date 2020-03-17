@@ -549,6 +549,9 @@ module.exports = function (RED) {
 									}
 									if (data.config.differential == true) {
 										cv = ((data.config.min + data.config.max) / 2).toFixed(data.config.decimals)
+										if (data.config.type == "linear" && data.config.unit != "") {
+											cv = data.config.unit
+										}
 									}
 									u = [data.config.min, cv, data.config.max]
 								}
