@@ -845,7 +845,7 @@ module.exports = function (RED) {
 	if (RED.settings.ui) {
 		uipath = RED.settings.ui.path;
 	}
-	var fullPath = path.join(RED.settings.httpNodeRoot, uipath, '/ui-artless-gauge/*').replace(/\\/g, '/');
+	var fullPath = path.join('/', uipath, '/ui-artless-gauge/*').replace(/\\/g, '/');
 	RED.httpNode.get(fullPath, function (req, res) {
 		var options = {
 			root: __dirname + '/lib/',
