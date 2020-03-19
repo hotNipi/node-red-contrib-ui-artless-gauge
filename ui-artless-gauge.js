@@ -516,6 +516,7 @@ module.exports = function (RED) {
 					initController: function ($scope) {
 						$scope.unique = $scope.$eval('$id')
 						$scope.timeout = null
+						$scope.inited = false
 						$scope.type = null
 						$scope.arc = null
 						var waitingpayload = null
@@ -524,9 +525,12 @@ module.exports = function (RED) {
 							update(p)
 						}
 						var update = function (data) {
-
 							var main = document.getElementById("ag_svg_" + $scope.unique);
-							if (data.payload && $scope.timeout != null) {
+							if (data.payload && (!main || !$scope.inited)) {
+								if (data.config) {
+									$scope.timeout = setTimeout(update.bind(null, data), 40);
+									return
+								}
 								waitingpayload = data
 								return
 							}
@@ -534,6 +538,7 @@ module.exports = function (RED) {
 								$scope.timeout = setTimeout(update.bind(null, data), 40);
 								return
 							}
+							$scope.inited = true
 							$scope.timeout = null
 							if (data.config) {
 
