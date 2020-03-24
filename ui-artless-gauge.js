@@ -32,17 +32,18 @@ module.exports = function (RED) {
 		var styles = String.raw`
 		<style>
 			.ag-txt-{{unique}} {					
-				fill: currentColor;					
+				fill: currentColor;	
+				font-size:${config.font.normal}em;				
 			}					
 			.ag-txt-{{unique}}.small {
-				font-size:0.7em;
+				font-size:${config.font.small}em;
 			}
 			.ag-txt-{{unique}}.big {
 				font-size:${config.font.big}em;
 			}			
 			.ag-icon-{{unique}}{
 				fill: currentColor;
-				font-size:${config.font.icon};				
+				font-size:${config.font.icon}em;				
 			}
 			.ag-icon-{{unique}}.fa{
 				font-family:"FontAwesome";
@@ -52,7 +53,7 @@ module.exports = function (RED) {
 			}
 			.ag-icon-{{unique}}.wi{
 				font-family:"weather-icons-lite";
-				font-size:${config.font.icon}
+				font-size:${config.font.icon}em
 			}
 			.ag-icon-{{unique}}.angular-material{
 				font-family:"Material Icons";
@@ -66,7 +67,7 @@ module.exports = function (RED) {
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="start" dominant-baseline="baseline" x="` + config.stripe.left + `" y="${config.stripe.y - 7}">${config.label}</text>
 				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="end" dominant-baseline="baseline" x="${config.exactwidth - 3}" y="${config.stripe.y - 6}"></text>
-				<text id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="${config.stripe.left}" y="${config.stripe.y + 14}"
+				<text id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="${config.stripe.left}" y="${config.stripe.y + config.stripe.sdy}"
 					text-anchor="end" dominant-baseline="baseline">
 					<tspan x="${config.stripe.left}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
 					<tspan x="${config.stripe.left + 1.5 + (config.stripe.width / 2)}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
@@ -94,13 +95,13 @@ module.exports = function (RED) {
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${(config.arc.cy - config.arc.r) - config.height * 4}">${config.label}</text>
 				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .9}"></text>
-				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .9 + 12}"></text>
+				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .9 + config.stripe.sdy}"></text>
 				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .75 + config.arc.r}">icon</text>
 				
 				<text ng-if="${config.width > 2}" id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="0" y="0"
 					text-anchor="end" dominant-baseline="baseline">
 					<tspan y="0" dy="${config.arc.cy * .75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 - config.arc.r * .7}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
-					<tspan y="0" dy="${(config.arc.cy + 16 - config.arc.r)}" x="${config.exactwidth / 2 + 1.5}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
+					<tspan y="0" dy="${(config.arc.cy + config.stripe.sdy - config.arc.r)}" x="${config.exactwidth / 2 + 1.5}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
 					<tspan y="0" dy="${config.arc.cy * .75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 + config.arc.r * .7}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
 				</text>
 				<rect ng-if="${config.differential == true}" x="${(config.exactwidth / 2)}" y="${(config.arc.cy - 7 - config.arc.r)}" 
@@ -422,7 +423,9 @@ module.exports = function (RED) {
 
 				config.exactwidth = parseInt(site.sizes.sx * config.width + site.sizes.cx * (config.width - 1)) - 12;
 				config.exactheight = parseInt(site.sizes.sy * config.height + site.sizes.cy * (config.height - 1)) - 12;
-				var iconsize = 32
+				var sizecoef = site.sizes.sy / 48
+				var iconsize = (30 * sizecoef) + 4
+				var smalldrift = config.type == 'radial' ? config.height == 2 ? (13 * sizecoef) + 1 : (16 * sizecoef) + 1 : (13 * sizecoef) + 1
 
 				var fp = {
 					minin: 40,
@@ -434,13 +437,12 @@ module.exports = function (RED) {
 				var b = config.type == 'radial' ? range(side, fp, 'clamp', false) : 1.28
 
 				config.icontype = getIconType()
-				var iconsizes = ['small', 'large', 'larger', 'x-large', 'xx-large', 'xxx-large']
-				var idx = config.height + (config.height == 1 ? 2 : config.height == 2 ? -1 : 1) - (config.icontype == "wi" ? 1 : 0)
-				if (idx > 5) {
-					idx = 5
-				}
-				var is = iconsizes[idx]
-				config.font = { big: b, icon: is }
+				var ismult = config.type == "linear" ? 1.75 : config.height < 4 ? config.height - 1.1 : 2.5
+				var is = (sizecoef * ismult)
+				var norm = (sizecoef * 1)
+				var big = (sizecoef * b)
+				var small = (sizecoef * 0.75)
+				config.font = { normal: norm, small: small, big: big, icon: is }
 
 				var le = config.icon == "" ? 0 : iconsize
 				var wi = config.icon == "" ? config.exactwidth : config.exactwidth - iconsize
@@ -448,12 +450,13 @@ module.exports = function (RED) {
 				config.stripe = {
 					left: le,
 					y: site.sizes.sy * .52,
-					width: wi
+					width: wi,
+					sdy: smalldrift
 				}
 				side = Math.min(config.exactwidth, config.exactheight)
 				config.arc = {
 					cx: (config.exactwidth / 2),
-					cy: (side / 2) * 1.4,
+					cy: (side / 2) * 1.375,
 					r: (side / 2) - 6,
 					left: -40,
 					right: 220
