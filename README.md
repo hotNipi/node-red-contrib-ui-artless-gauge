@@ -38,7 +38,7 @@ Choose layout type. Layout can be linear or radial.
 Option to turn on differential mode. With this option selected, the colored track has center point from which the value is shown. Value of center point is not shown anywhere, as well there is no minimum or maximum marks. Value of center point is exactly between configured min and max.
 
 ### Range
-Configure minimum and maximum expected values and adjust line color. Add segments and configure colors for them if needed. Note that MIN and MAX options can not be removed.
+Configure minimum and maximum expected values and adjust line color. Add segments and configure colors for them if needed. Note that MIN and MAX options can not be removed. A small dot with segment color can be drawn at the point of segment. To show dot for segment, configure size for dot bigger that zero.
 
 ### Track color
 Color of track background line can be configured. By default, the site colors used.
@@ -66,7 +66,7 @@ There is no validation on top of incoming sectors configuration.
 
 
 ``` javascript
-var newSectors = [{t:"min",val:5,col:"#00ff00"},{t:"sec",val:8,col:"#ff0000"},{t:"max",val:30,col:"#0000ff"}]
+var newSectors = [{t:"min",val:5,col:"#00ff00",dot:3},{t:"sec",val:8,col:"#ff0000",dot:3},{t:"max",val:30,col:"#0000ff",dot:3}]
 msg.control = {unit:"degrees",label:"Temperature",icon:"fa-thermometer",sectors:newSectors}
 ```
  

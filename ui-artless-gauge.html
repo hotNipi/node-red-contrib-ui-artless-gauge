@@ -89,11 +89,13 @@ SOFTWARE.
                 value: [{
                     val: 0,
                     col: '#ff9900',
-                    t: "min"
+                    t: "min",
+                    dot: 0
                 }, {
                     val: 10,
                     col: '#ff9900',
-                    t: "max"
+                    t: "max",
+                    dot: 0
                 }],
                 validate: function (v) {
                     configError = ""
@@ -219,9 +221,10 @@ SOFTWARE.
                 header: $("<div>").css({
                     padding: "6px"
                 }).append($.parseHTML(`
-                    <div style='width:120px; text-align:center; display: inline-grid'><b>Value</b></div> 
-                    <div style='width:80px; text-align:center; display: inline-grid'><b>Color</b></div>
-                    <div id='error-ruleinfo' style='width:180px; color:red; text-align:center; font-weight:bold; display:inline-grid'></div>  
+                    <div style='width:140px; text-align:center; display: inline-grid'><b>Value</b></div> 
+                    <div style='width:90px; text-align:center; display: inline-grid'><b>Color</b></div>
+                    <div style='width:60px; text-align:center; display: inline-grid'><b>Dot</b></div>
+                    <div id='error-ruleinfo' style='width:auto; color:red; text-align:center; font-weight:bold; display:inline-grid'></div>  
                     `)),
                 addItem: function (container, index, rule) {
                     if (!rule.hasOwnProperty('t')) {
@@ -234,6 +237,8 @@ SOFTWARE.
                     var row = $('<div/>').appendTo(container);
                     var valField
                     var colorField
+                    var dotField
+                    var dotSuffix
                     valField = $('<input/>', {
                         class: "node-input-rule-value",
                         style: "width:120px;",
@@ -251,9 +256,23 @@ SOFTWARE.
                         type: "color"
                     })
                         .appendTo(row)
+                    dotField = $('<input/>', {
+                        value: rule.dot || 0,
+                        class: "node-input-rule-dot",
+                        style: "width:60px; margin-left:8px;",
+                        type: "number",
+                        min: '0',
+                        max: '5',
+                        size: '1'
+                    })
+                        .appendTo(row)
+                    $("<div style='width:20px; text-align:center; display: inline-grid'>px</div>").appendTo(row);
+
 
                     valField.typedInput('type', getTypeDef(rule.t));
                     valField.typedInput('value', rule.val);
+
+
 
 
 
@@ -327,12 +346,14 @@ SOFTWARE.
                 var min = {
                     val: 0,
                     col: '#ff9900',
-                    t: "min"
+                    t: "min",
+                    dot: 0
                 };
                 var max = {
                     val: 10,
                     col: '#ff9900',
-                    t: "max"
+                    t: "max",
+                    dot: 0
                 };
                 this.sectors = [min, max];
             }
@@ -363,6 +384,7 @@ SOFTWARE.
             node.sectors = [];
             var convert = function (rule) {
                 rule.val = parseFloat(rule.val)
+                rule.dot = parseInt(rule.dot)
                 return rule
             }
             list.each(function (i) {
@@ -370,11 +392,13 @@ SOFTWARE.
                 var t = rule.find(".node-input-rule-value").typedInput('type')
                 var v = rule.find(".node-input-rule-value").typedInput('value')
                 var c = rule.find(".node-input-rule-color").val();
+                var d = rule.find(".node-input-rule-dot").val()
 
                 var r = convert({
                     val: v,
                     col: c,
-                    t: t
+                    t: t,
+                    dot: d
                 })
                 node.sectors.push(r);
             });
@@ -474,7 +498,10 @@ Choose layout type. Layout can be linear or radial.
 Option to turn on differential mode. With this option selected, the colored track has center point from which the value is shown. Value of center point is not shown anywhere, as well there is no minimum or maximum marks. Value of center point is exactly between configured min and max.
 
 <h3> Range</h3>
-Configure minimum and maximum expected values and adjust line color. Add segments and configure colors for them if needed. Note that Min and Max options can not be removed.
+Configure minimum and maximum expected values and adjust line color. 
+Add segments and configure colors for them if needed. Note that Min and Max options can not be removed.
+<p>A small dot with segment color can be drawn at the point of segment. 
+To show dot for segment, configure size for dot bigger that zero.
 
 <h3> Track color</h3>
 Color of track background line can be configured. By default, the site colors used.
@@ -501,7 +528,7 @@ But any sector update clears all previously configured sectors except the min an
 There is no validation on top of incoming sectors configuration. 
 
 <pre>
-var newSectors = [{t:"min",val:5,col:"#00ff00"},{t:"sec",val:8,col:"#ff0000"},{t:"max",val:30,col:"#0000ff"}]
+var newSectors = [{t:"min",val:5,col:"#00ff00"},{t:"sec",val:8,col:"#ff0000",dot:3},{t:"max",val:30,col:"#0000ff"}]
 msg.control = {unit:"degrees",label:"Temperature",icon:"fa-thermometer",sectors:newSectors}
 </pre>
 

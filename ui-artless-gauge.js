@@ -88,7 +88,8 @@ module.exports = function (RED) {
 					width="0" height="3"	
 					style="stroke:none";
 					fill="${config.color}"				
-				/>				
+				/>
+				<g id="ag_dots_{{unique}}" style="outline: none; border: 0;"></g>				
 			</svg>`
 
 		var radial = String.raw`				
@@ -111,6 +112,7 @@ module.exports = function (RED) {
 				/>				
 				<path id="ag_str_bg_{{unique}}" style="fill:none"; stroke="${config.bgrColor}" stroke-width="1" />
 				<path id="ag_str_line_{{unique}}" style="fill:none"; stroke="${config.color}" stroke-width="3" />
+				<g id="ag_dots_{{unique}}" style="outline: none; border: 0;"></g>
 			</svg>`
 
 		var layout = config.type == "linear" ? linear : radial
@@ -191,6 +193,7 @@ module.exports = function (RED) {
 								sec = config.sectors.find(el => el.t == 'min')
 								sec.val = insec.val
 								sec.col = insec.col
+								sec.dot = insec.dot || 0
 								config.min = insec.val
 								config.color = insec.col
 							}
@@ -200,6 +203,7 @@ module.exports = function (RED) {
 								sec = config.sectors.find(el => el.t == 'max')
 								sec.val = insec.val
 								sec.col = insec.col
+								sec.dot = insec.dot || 0
 								config.max = insec.val
 							}
 							input.sectors.forEach(el => addSectors(el))
@@ -438,10 +442,10 @@ module.exports = function (RED) {
 
 				config.icontype = getIconType()
 				var ismult = config.type == "linear" ? 1.75 : config.height < 4 ? config.height - 1.1 : 2.5
-				var is = (sizecoef * ismult)
-				var norm = (sizecoef * 1)
-				var big = (sizecoef * b)
-				var small = (sizecoef * 0.75)
+				var is = parseFloat(sizecoef * ismult).toFixed(1)
+				var norm = parseFloat(sizecoef * 1).toFixed(1)
+				var big = parseFloat(sizecoef * b).toFixed(1)
+				var small = parseFloat(sizecoef * 0.75).toFixed(1)
 				config.font = { normal: norm, small: small, big: big, icon: is }
 
 				var le = config.icon == "" ? 0 : iconsize
@@ -566,9 +570,12 @@ module.exports = function (RED) {
 								updateTexts(u, data.config.unit, data.config.label)
 
 								if (data.config.type === 'radial') {
-									$scope.arc = data.config.arc
-									createArcBgr(data.config.arc)
+									if ($scope.arc == null) {
+										$scope.arc = data.config.arc
+										createArcBgr(data.config.arc)
+									}
 								}
+								updateSegmentDots(data.config.sectors)
 								var adjust = { h: data.config.height, eh: data.config.exactheight }
 								updateIcon(data.config.icontype, data.config.icon, data.config.type, adjust)
 								if (waitingpayload) {
@@ -598,6 +605,71 @@ module.exports = function (RED) {
 						var createArcBgr = function (arc) {
 							var el = document.getElementById("ag_str_bg_" + $scope.unique)
 							el.setAttribute("d", arcPath(arc.cx, arc.cy, arc.r, arc.left, arc.right));
+						}
+
+						var updateSegmentDots = function (sectors) {
+							var cont = document.getElementById("ag_dots_" + $scope.unique);
+							if (!cont) {
+								return
+							}
+							if (cont.children.length > 0) {
+								while (cont.firstChild) {
+									cont.removeChild(cont.firstChild);
+								}
+							}
+							if (!sectors) {
+								return
+							}
+
+							var svgns = "http://www.w3.org/2000/svg"
+							var min = sectors.find(el => el.t == 'min').val
+							var max = sectors.find(el => el.t == 'max').val
+							function drawDotRadial(data) {
+								if (!data.dot || data.dot == 0) {
+									return
+								}
+								var p = 100 - (((data.val - min) * 100) / (max - min))
+								var pr = (p * pathLength) / 100
+								var pt = arc.getPointAtLength(pr);
+								var circle = document.createElementNS(svgns, 'circle');
+								circle.setAttributeNS(null, 'cx', pt.x);
+								circle.setAttributeNS(null, 'cy', pt.y);
+								circle.setAttributeNS(null, 'r', data.dot);
+								circle.setAttributeNS(null, 'style', 'fill:' + data.col + ';');
+								cont.appendChild(circle);
+							}
+							function drawDotLinear(data) {
+								if (!data.dot || data.dot == 0) {
+									return
+								}
+								var p = ((data.val - min) * 100) / (max - min)
+								var pr = (p * pathWidth) / 100
+								var pt = line.getPointAtLength(pr);
+								if (data.t == "min") {
+									pt.x += data.dot
+								}
+								if (data.t == 'max') {
+									pt.x -= data.dot
+								}
+
+								var circle = document.createElementNS(svgns, 'circle');
+								circle.setAttributeNS(null, 'cx', pt.x);
+								circle.setAttributeNS(null, 'cy', pt.y);
+								circle.setAttributeNS(null, 'r', data.dot);
+								circle.setAttributeNS(null, 'style', 'fill:' + data.col + ';');
+								cont.appendChild(circle);
+							}
+							if ($scope.type === 'radial') {
+								var arc = document.getElementById("ag_str_bg_" + $scope.unique)
+								var pathLength = arc.getTotalLength()
+								sectors.forEach(s => drawDotRadial(s))
+							}
+							else {
+								var line = document.getElementById("ag_str_bg_" + $scope.unique)
+								var pathWidth = $(line).width()
+								sectors.forEach(s => drawDotLinear(s))
+							}
+
 						}
 
 						var updateTexts = function (arr, unit, label) {
