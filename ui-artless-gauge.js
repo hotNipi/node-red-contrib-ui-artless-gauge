@@ -719,7 +719,7 @@ module.exports = function (RED) {
 									if (diff > -2) {
 										var d = diff < 0 ? 0 : diff
 										var istyl = parseFloat(window.getComputedStyle(document.querySelector(".ag-icon-" + $scope.unique)).fontSize)
-										$(ic).css("font-size", (istyl - d - 2) + "px");
+										$(ic).css("font-size", (istyl - d - 4) + "px");
 									}
 									ib = ic.getBBox()
 									var ih = ib.height
@@ -730,7 +730,11 @@ module.exports = function (RED) {
 									if (type == 'mi') {
 										ny += 2
 									}
+
+									var nx = Math.floor((linebox.x - ib.width) / 2)
+									if (nx < 0) { nx = 0 }
 									$(ic).attr('y', ny);
+									$(ic).attr('x', nx);
 								}
 								if (layout == 'radial') {
 									var arcbox = document.getElementById("ag_str_bg_" + $scope.unique).getBBox()
