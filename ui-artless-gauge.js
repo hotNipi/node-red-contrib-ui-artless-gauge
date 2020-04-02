@@ -711,6 +711,7 @@ module.exports = function (RED) {
 							var ic = document.getElementById("ag_icon_" + $scope.unique);
 							if (ic) {
 								$(ic).text(icontext);
+								$(ic).css("font-size", "");
 								var ib = ic.getBBox()
 								if (layout == 'linear') {
 									var linebox = document.getElementById("ag_str_bg_" + $scope.unique).getBBox()
