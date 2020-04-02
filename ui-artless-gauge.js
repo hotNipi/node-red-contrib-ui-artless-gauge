@@ -713,6 +713,14 @@ module.exports = function (RED) {
 								$(ic).text(icontext);
 								var ib = ic.getBBox()
 								if (layout == 'linear') {
+									var linebox = document.getElementById("ag_str_bg_" + $scope.unique).getBBox()
+									var diff = ib.width - linebox.x
+									if (diff > -2) {
+										var d = diff < 0 ? 0 : diff
+										var istyl = parseFloat(window.getComputedStyle(document.querySelector(".ag-icon-" + $scope.unique)).fontSize)
+										$(ic).css("font-size", (istyl - d - 2) + "px");
+									}
+									ib = ic.getBBox()
 									var ih = ib.height
 									var ny = ih + ((adjust.eh - ih) / 2)
 									if (type == 'wi') {
