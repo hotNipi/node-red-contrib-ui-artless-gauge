@@ -513,7 +513,7 @@ module.exports = function (RED) {
 
 						msg.payload = ensureNumber(msg.payload, config.decimals.fixed)
 						fem.payload = {
-							value: msg.payload,
+							value: msg.payload.toFixed(config.decimals.fixed),
 							pos: calculatePercPos(msg.payload),
 							col: calculateColor(msg.payload)
 						}
