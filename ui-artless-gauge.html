@@ -120,6 +120,7 @@ SOFTWARE.
                     //return true
                 }
             },
+            lineWidth: { value: 3 },
             bgcolorFromTheme: {
                 value: true
             }
@@ -194,6 +195,10 @@ SOFTWARE.
                 this.layout = 'linear';
                 $('#node-input-layout').val('Linear');
             }
+            if (this.lineWidth === undefined) {
+                this.lineWidth = 3;
+                $('#node-input-lineWidth').val('3px');
+            }
 
 
             $('#node-input-colorFromTheme').change(function () {
@@ -262,7 +267,7 @@ SOFTWARE.
                         style: "width:60px; margin-left:8px;",
                         type: "number",
                         min: '0',
-                        max: '5',
+                        max: '6',
                         size: '1'
                     })
                         .appendTo(row)
@@ -444,6 +449,14 @@ SOFTWARE.
         <ol id="node-input-rule-container"></ol>    
     </div>
 </br>  
+    <div class='form-row'>
+        <label for='node-input-lineWidth'><i class='fa fa-list'></i> Line width</label>
+        <select id='node-input-lineWidth' style='width:70px !important'>
+            <option value=3>3px</option>
+            <option value=5>5px</option>
+            <option value=7>7px</option>
+        </select>
+    </div>
     <div class='form-row' id='node-input-linebgcolor'>
         <label for='node-input-bgcolorFromTheme' style='padding-top:6px; padding-bottom:6px'><i class='fa fa-paint-brush'></i> Track color</span></label>
         <input type="checkbox" id="node-input-bgcolorFromTheme" checked style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;">Use theme color

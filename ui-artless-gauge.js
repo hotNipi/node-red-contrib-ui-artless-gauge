@@ -65,8 +65,8 @@ module.exports = function (RED) {
 
 		var linear = String.raw`				
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
-				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="start" dominant-baseline="baseline" x="` + config.stripe.left + `" y="${config.stripe.y - 7}">${config.label}</text>
-				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="end" dominant-baseline="baseline" x="${config.exactwidth - 3}" y="${config.stripe.y - 6}"></text>
+				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="start" dominant-baseline="baseline" x="` + config.stripe.left + `" y="${config.stripe.y - 5 - (config.lineWidth / 2)}">${config.label}</text>
+				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="end" dominant-baseline="baseline" x="${config.exactwidth - 3}" y="${config.stripe.y - 4 - (config.lineWidth / 2)}"></text>
 				<text id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="${config.stripe.left}" y="${config.stripe.y + config.stripe.sdy}"
 					text-anchor="end" dominant-baseline="baseline">
 					<tspan x="${config.stripe.left}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
@@ -84,8 +84,8 @@ module.exports = function (RED) {
 					style="stroke:none";
 					fill="${config.bgrColor}"				
 				/>	
-				<rect id="ag_str_line_{{unique}}" x="${initpos}" y="${config.stripe.y - 1}" 
-					width="0" height="3"	
+				<rect id="ag_str_line_{{unique}}" x="${initpos}" y="${config.stripe.y - (config.lineWidth / 2)}" 
+					width="0" height="${config.lineWidth}"	
 					style="stroke:none";
 					fill="${config.color}"				
 				/>
@@ -101,9 +101,9 @@ module.exports = function (RED) {
 				
 				<text ng-if="${config.width > 2}" id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="0" y="0"
 					text-anchor="end" dominant-baseline="baseline">
-					<tspan y="0" dy="${config.arc.cy * .75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 - config.arc.r * .7}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
+					<tspan y="0" dy="${config.arc.cy * .75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 - config.arc.r * .68}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
 					<tspan y="0" dy="${(config.arc.cy + config.stripe.sdy - config.arc.r)}" x="${config.exactwidth / 2 + 1.5}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
-					<tspan y="0" dy="${config.arc.cy * .75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 + config.arc.r * .7}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
+					<tspan y="0" dy="${config.arc.cy * .75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 + config.arc.r * .68}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
 				</text>
 				<rect ng-if="${config.differential == true}" x="${(config.exactwidth / 2)}" y="${(config.arc.cy - 7 - config.arc.r)}" 
 					width="1" height="7"	
@@ -111,7 +111,7 @@ module.exports = function (RED) {
 					fill="${config.bgrColor}";				
 				/>				
 				<path id="ag_str_bg_{{unique}}" style="fill:none"; stroke="${config.bgrColor}" stroke-width="1" />
-				<path id="ag_str_line_{{unique}}" style="fill:none"; stroke="${config.color}" stroke-width="3" />
+				<path id="ag_str_line_{{unique}}" style="fill:none"; stroke="${config.color}" stroke-width="${config.lineWidth}" />
 				<g id="ag_dots_{{unique}}" style="outline: none; border: 0;"></g>
 			</svg>`
 
@@ -430,7 +430,9 @@ module.exports = function (RED) {
 				var sizecoef = site.sizes.sy / 48
 				var iconsize = (30 * sizecoef) + 4
 				var smalldrift = config.type == 'radial' ? config.height == 2 ? (13 * sizecoef) + 1 : (16 * sizecoef) + 1 : (13 * sizecoef) + 1
-
+				if (config.lineWidth == 7 && config.type == 'linear') {
+					smalldrift += 1
+				}
 				var fp = {
 					minin: 40,
 					maxin: config.exactwidth * 2,
