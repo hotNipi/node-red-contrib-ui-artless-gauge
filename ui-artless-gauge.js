@@ -443,7 +443,7 @@ module.exports = function (RED) {
 				var b = config.type == 'radial' ? range(side, fp, 'clamp', false) : 1.28
 
 				config.icontype = getIconType()
-				var ismult = config.type == "linear" ? 1.5 : config.height < 4 ? config.height - 1.25 : 2.5
+				var ismult = config.type == "linear" ? 1.4 : config.height < 4 ? config.height - 1.25 : 2.5
 				var is = parseFloat(sizecoef * ismult).toFixed(1)
 				var norm = parseFloat(sizecoef * 1).toFixed(1)
 				var big = parseFloat(sizecoef * b).toFixed(1)
