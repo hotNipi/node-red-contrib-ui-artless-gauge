@@ -272,6 +272,7 @@ module.exports = function (RED) {
 						if (config.differential == true) {
 							var vp, wcp
 							var centervalue = (config.min + config.max) / 2
+
 							var dp = {
 								minin: config.min,
 								maxin: config.max,
@@ -279,6 +280,7 @@ module.exports = function (RED) {
 								maxout: config.exactwidth
 							}
 							var centerpoint = range(centervalue, dp, 'clamp', true)
+
 							if (v == centervalue) {
 								return {
 									x: centerpoint - 1,
@@ -509,7 +511,7 @@ module.exports = function (RED) {
 							fem.config = modifyConfig(msg.control)
 						}
 
-						if (!msg.payload) {
+						if (msg.payload === undefined || msg.payload === null) {
 							msg.payload = config.min
 						}
 
