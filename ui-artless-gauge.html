@@ -31,13 +31,8 @@ SOFTWARE.
         color: 'rgb( 63, 173, 181)',
         configError: '',
         defaults: {
-            group: {
-                type: 'ui_group',
-                required: true
-            },
-            order: {
-                value: 0
-            },
+            group: {type: 'ui_group',required: true},
+            order: {value: 0},
             width: {
                 value: 0,
                 validate: function (v) {
@@ -50,53 +45,18 @@ SOFTWARE.
                     return valid;
                 }
             },
-            height: {
-                value: 0
-            },
-            name: {
-                value: ''
-            },
-            icon: {
-                value: ''
-            },
-            label: {
-                value: 'Gauge'
-            },
-            unit: {
-                value: ''
-            },
-            layout: {
-                value: 'linear'
-            },
-            decimals: {
-                value: 0,
-                required: false,
-                validate: RED.validators.number()
-            },
-            differential: {
-                value: false
-            },
-            minmax: {
-                value: false
-            },
-            colorTrack: {
-                value: '#555555'
-            },
-            colorFromTheme: {
-                value: true
-            },
-            sectors: {
-                value: [{
-                    val: 0,
-                    col: '#ff9900',
-                    t: "min",
-                    dot: 0
-                }, {
-                    val: 10,
-                    col: '#ff9900',
-                    t: "max",
-                    dot: 0
-                }],
+            height: {value: 0},
+            name: {value: ''},
+            icon: {value: ''},
+            label: {value: 'Gauge'},
+            unit: {value: ''},
+            layout: {value: 'linear'},
+            decimals: {value: 0,required: false,validate: RED.validators.number()},
+            differential: {value: false},
+            minmax: {value: false},
+            colorTrack: {value: '#555555'},
+            colorFromTheme: {value: true},
+            sectors: {value: [{val: 0,col: '#ff9900',t: "min",dot: 0}, {val: 10,col: '#ff9900',t: "max",dot: 0}],
                 validate: function (v) {
                     configError = ""
                     var unique = [...new Set(v.map(s => s.val))]
@@ -121,9 +81,8 @@ SOFTWARE.
                 }
             },
             lineWidth: { value: 3 },
-            bgcolorFromTheme: {
-                value: true
-            }
+            bgcolorFromTheme: {value: true},
+            diffCenter:{value:'',required:false}
         },
         inputs: 1,
         outputs: 0,
@@ -187,6 +146,21 @@ SOFTWARE.
             if (this.differential === undefined) {
                 $("#node-input-differential").prop('checked', false);
             }
+            $('#node-input-differential').change(function () {
+                if (this.checked == false) {
+                    $('#node-input-diffCenter').hide();
+                    $('#node-input-diffCenterSpan').hide();
+                } else {
+                    $('#node-input-diffCenter').show();
+                    $('#node-input-diffCenterSpan').show();
+                }
+            });
+
+            if (this.diffCenter === undefined) {
+                this.diffCenter = '';
+                $('#node-input-diffCenter').val('');
+            }
+
             if (this.minmax === undefined) {
                 $("#node-input-minmax").prop('checked', false);
             }
@@ -439,7 +413,9 @@ SOFTWARE.
     </div> 
     <div class='form-row' id='node-input-diffmode'>
         <label for='node-input-differential'><i class='fa fa-gear'></i> Mode</span></label>
-        <input type="checkbox" id="node-input-differential" style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;">differential       
+        <input type="checkbox" id="node-input-differential" style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;">differential
+        <span for='node-input-decimals' id='node-input-diffCenterSpan' style='margin-left:20px;'>center</span>
+        <input type='text' id='node-input-diffCenter' style='width:80px' placeholder='' dir=''>       
     </div>   
     
     <div class='form-row'>

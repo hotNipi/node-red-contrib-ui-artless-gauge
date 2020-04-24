@@ -61,7 +61,7 @@ module.exports = function (RED) {
 					
 													
 		</style>`
-		var initpos = config.differential == true ? config.stripe.left + (config.stripe.width / 2) : config.stripe.left
+		var initpos = config.differential == true ? config.center.point : config.stripe.left
 
 		var linear = String.raw`				
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
@@ -70,7 +70,8 @@ module.exports = function (RED) {
 				<text id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="${config.stripe.left}" y="${config.stripe.y + config.stripe.sdy}"
 					text-anchor="end" dominant-baseline="baseline">
 					<tspan x="${config.stripe.left}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
-					<tspan x="${config.stripe.left + 1.5 + (config.stripe.width / 2)}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
+					<tspan ng-if="${config.differential == false}" x="${config.stripe.left + 1.5 + (config.stripe.width / 2)}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
+					<tspan ng-if="${config.differential == true}" x="${config.center.point + 1.5}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
 					<tspan x="${config.exactwidth - 3}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
 				</text>
 				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="start" dominant-baseline="baseline" x="0" y="${config.stripe.y + 6}">icon</text>	
@@ -104,12 +105,8 @@ module.exports = function (RED) {
 					<tspan y="0" dy="${config.arc.cy * .75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 - config.arc.r * .68}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
 					<tspan y="0" dy="${(config.arc.cy + config.stripe.sdy - config.arc.r)}" x="${config.exactwidth / 2 + 1.5}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
 					<tspan y="0" dy="${config.arc.cy * .75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 + config.arc.r * .68}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
-				</text>
-				<rect ng-if="${config.differential == true}" x="${(config.exactwidth / 2)}" y="${(config.arc.cy - 7 - config.arc.r)}" 
-					width="1" height="7"	
-					style="stroke:none";
-					fill="${config.bgrColor}";				
-				/>				
+				</text>				
+				<path ng-if="${config.differential == true}" id="ag_str_mark_{{unique}}" style="fill:none"; stroke="${config.bgrColor}" stroke-width="7" />				
 				<path id="ag_str_bg_{{unique}}" style="fill:none"; stroke="${config.bgrColor}" stroke-width="1" />
 				<path id="ag_str_line_{{unique}}" style="fill:none"; stroke="${config.color}" stroke-width="${config.lineWidth}" />
 				<g id="ag_dots_{{unique}}" style="outline: none; border: 0;"></g>
@@ -271,33 +268,25 @@ module.exports = function (RED) {
 					if (config.type == 'linear') {
 						if (config.differential == true) {
 							var vp, wcp
-							var centervalue = (config.min + config.max) / 2
-
 							var dp = {
 								minin: config.min,
 								maxin: config.max,
 								minout: config.stripe.left,
 								maxout: config.exactwidth
 							}
-							var centerpoint = range(centervalue, dp, 'clamp', true)
+							var centerpoint = range(config.center.value, dp, 'clamp', true)
 
-							if (v == centervalue) {
-								return {
-									x: centerpoint - 1,
-									w: 2
-								}
-							} else if (v < centervalue) {
+							if (v == config.center.value) {
+								return {x: centerpoint - 1,w: 2}
+							} 
+							else if (v < config.center.value) {
 								vp = range(v, dp, 'clamp', true)
 								wcp = centerpoint - vp
 							} else {
 								vp = centerpoint
 								wcp = range(v, dp, 'clamp', true) - vp
 							}
-							return {
-								x: vp,
-								w: wcp,
-								c: centerpoint
-							}
+							return {x: vp,w: wcp,c: centerpoint}
 						}
 						var p = {
 							minin: config.min,
@@ -311,16 +300,15 @@ module.exports = function (RED) {
 						}
 					}
 					if (config.differential == true) {
-						var lv, rv
-						var centervalue = (config.min + config.max) / 2
+						var lv, rv;
 						var dp = {
 							minin: config.min,
 							maxin: config.max,
 							minout: config.arc.left,
 							maxout: config.arc.right
 						}
-						var centerpoint = range(centervalue, dp, 'clamp', true)
-						if (v == centervalue) {
+						var centerpoint = range(config.center.value, dp, 'clamp', true)
+						if (v == config.center.value) {
 							return {
 								cx: config.arc.cx,
 								cy: config.arc.cy,
@@ -328,13 +316,12 @@ module.exports = function (RED) {
 								left: centerpoint - 1,
 								right: centerpoint + 1
 							}
-						} else if (v < centervalue) {
+						} else if (v < config.center.value) {
 							lv = range(v, dp, 'clamp', true)
 							rv = centerpoint
 						} else {
 							lv = centerpoint
 							rv = range(v, dp, 'clamp', true)
-
 						}
 						return {
 							cx: config.arc.cx,
@@ -489,6 +476,36 @@ module.exports = function (RED) {
 					hor: '6px',
 					vert: (site.sizes.sy / 16) + 'px'
 				}
+				config.center = {point:config.stripe.left,value:""}
+				if(config.differential == true){
+					
+					if(config.diffCenter === ""){
+						config.center.value = (config.min + config.max) / 2
+					}
+					else{
+						var cval = parseFloat(config.diffCenter)
+						if(isNaN(cval)){
+							config.center.value = (config.min + config.max) / 2
+						}
+						else{
+							if(cval > config.min && cval < config.max){
+								config.center.value = cval
+							}
+							else{
+								config.center.value = (config.min + config.max) / 2
+							}
+						}
+					}
+					var dp
+					if(config.type == "linear"){
+						dp = {minin: config.min,maxin: config.max,minout: config.stripe.left,maxout: config.exactwidth}
+						config.center.point = range(config.center.value, dp, 'clamp', true)
+					}
+					else{
+						dp = {minin: config.min,maxin: config.max,minout: config.arc.left,maxout: config.arc.right}
+						config.center.point = range(config.center.value, dp, 'clamp', true)
+					}
+				}
 
 				var html = HTML(config);
 
@@ -564,7 +581,7 @@ module.exports = function (RED) {
 										cv = data.config.unit
 									}
 									if (data.config.differential == true) {
-										cv = ((data.config.min + data.config.max) / 2).toFixed(data.config.decimals)
+										cv = (data.config.center.value).toFixed(data.config.decimals)
 										if (data.config.type == "linear" && data.config.unit != "") {
 											cv = data.config.unit
 										}
@@ -577,6 +594,9 @@ module.exports = function (RED) {
 									if ($scope.arc == null) {
 										$scope.arc = data.config.arc
 										createArcBgr(data.config.arc)
+										if(data.config.differential == true){
+											createArcMark(data.config.arc,data.config.center)
+										}
 									}
 								}
 								updateSegmentDots(data.config.sectors)
@@ -610,6 +630,22 @@ module.exports = function (RED) {
 							var el = document.getElementById("ag_str_bg_" + $scope.unique)
 							el.setAttribute("d", arcPath(arc.cx, arc.cy, arc.r, arc.left, arc.right));
 						}
+
+						var createArcMark = function (arc,center) {
+							var el = document.getElementById("ag_str_mark_" + $scope.unique)
+							el.setAttribute("d", arcPath(arc.cx, arc.cy, arc.r+3.5, center.point-0.5, center.point+0.5));
+							
+							el = document.getElementById("ag_alt_1_" + $scope.unique);							
+							var p = convert(arc.cx,arc.cy+10,arc.r-5,center.point)
+							var diff = Math.abs(arc.cx - p.x)							
+							var a = diff < 20 ? "middle" : p.x > arc.cx ? "end" : "start" 
+							
+							el.setAttribute('dy',p.y) 
+							el.setAttribute('x',p.x) 
+							el.setAttribute('text-anchor',a)
+						}
+
+						
 
 						var updateSegmentDots = function (sectors) {
 							var cont = document.getElementById("ag_dots_" + $scope.unique);
@@ -751,7 +787,6 @@ module.exports = function (RED) {
 									}
 									$(ic).attr('y', ny);
 								}
-
 							}
 						}
 
@@ -769,58 +804,18 @@ module.exports = function (RED) {
 								var currentx = gsap.getProperty(el, 'X')
 								if (currentx != null) {
 									if ((currentx == p.pos.c && p.pos.x < p.pos.c) || (currentx < p.pos.c && p.pos.x == p.pos.c)) {
-										gsap.to(el, {
-											duration: .5,
-											attr: {
-												width: 1,
-												x: p.pos.c
-											},
-											ease: "power2.in"
-										});
-										gsap.to(el, {
-											duration: .5,
-											delay: 0.5,
-											attr: {
-												width: p.pos.w,
-												x: p.pos.x
-											},
-											ease: "power2.out"
-										});
+										gsap.to(el, {duration: .5,attr: {width: 1,x: p.pos.c}, ease: "power2.in"});
+										gsap.to(el, {duration: .5,delay: 0.5,attr: {width: p.pos.w,x: p.pos.x},ease: "power2.out"});
 									} else {
-										gsap.to(el, {
-											duration: 1,
-											attr: {
-												width: p.pos.w,
-												x: p.pos.x
-											},
-											ease: "power2.inOut"
-										});
+										gsap.to(el, {duration: 1,attr: {width: p.pos.w,x: p.pos.x},ease: "power2.inOut"});
 									}
 								} else {
-									gsap.to(el, {
-										duration: 1,
-										attr: {
-											width: p.pos.w,
-											x: p.pos.x
-										},
-										ease: "power2.inOut"
-									});
+									gsap.to(el, {duration: 1,attr: {width: p.pos.w,x: p.pos.x},ease: "power2.inOut"});
 								}
 							} else {
-								gsap.to(el, {
-									duration: 1,
-									attr: {
-										width: p.pos.w,
-										x: p.pos.x
-									},
-									ease: "power2.inOut"
-								});
+								gsap.to(el, {duration: 1,attr: {width: p.pos.w,x: p.pos.x},ease: "power2.inOut"});
 							}
-							gsap.to(el, {
-								duration: .5,
-								delay: .5,
-								fill: p.col
-							})
+							gsap.to(el, {duration: .5,delay: .5,fill: p.col})
 						}
 
 						var updateGaugeRadial = function (p) {
@@ -833,49 +828,16 @@ module.exports = function (RED) {
 							}
 							if (p.pos.cp) {
 								if (($scope.arc.left < p.pos.cp && p.pos.left == p.pos.cp) || ($scope.arc.right > p.pos.cp && p.pos.right == p.pos.cp)) {
-									gsap.to($scope.arc, {
-										right: p.pos.cp,
-										left: p.pos.cp,
-										duration: .5,
-										ease: "power2.in",
-										onUpdate: drawArcLine,
-										onUpdateParams: [$scope.arc]
-									})
-									gsap.to($scope.arc, {
-										right: p.pos.right,
-										left: p.pos.left,
-										duration: .5,
-										delay: .5,
-										ease: "power2.out",
-										onUpdate: drawArcLine,
-										onUpdateParams: [$scope.arc]
-									})
+									gsap.to($scope.arc, {right: p.pos.cp,left: p.pos.cp,duration: .5,ease: "power2.in",onUpdate: drawArcLine,onUpdateParams: [$scope.arc]})
+									gsap.to($scope.arc, {right: p.pos.right,left: p.pos.left,duration: .5,delay: .5,ease: "power2.out",onUpdate: drawArcLine,onUpdateParams: [$scope.arc]})
 								} else {
-									gsap.to($scope.arc, {
-										right: p.pos.right,
-										left: p.pos.left,
-										duration: 1,
-										ease: "power2.inOut",
-										onUpdate: drawArcLine,
-										onUpdateParams: [$scope.arc]
-									})
+									gsap.to($scope.arc, {right: p.pos.right,left: p.pos.left,duration: 1,ease: "power2.inOut",onUpdate: drawArcLine,onUpdateParams: [$scope.arc]})
 								}
 							} else {
-								gsap.to($scope.arc, {
-									right: p.pos.right,
-									left: p.pos.left,
-									duration: 1,
-									ease: "power2.inOut",
-									onUpdate: drawArcLine,
-									onUpdateParams: [$scope.arc]
-								})
+								gsap.to($scope.arc, {right: p.pos.right,left: p.pos.left,duration: 1,ease: "power2.inOut",onUpdate: drawArcLine,onUpdateParams: [$scope.arc]})
 							}
 							var el = "#ag_str_line_" + $scope.unique
-							gsap.to(el, {
-								duration: .5,
-								delay: .5,
-								stroke: p.col
-							})
+							gsap.to(el, {duration: .5,delay: .5,stroke: p.col})
 						}
 
 						var drawArcLine = function (p) {
@@ -913,10 +875,7 @@ module.exports = function (RED) {
 							if (!msg) {
 								return;
 							}
-
 							update(msg)
-
-
 						});
 						$scope.$on('$destroy', function () {
 							if ($scope.timeout != null) {
