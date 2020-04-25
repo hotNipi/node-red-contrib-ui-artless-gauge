@@ -31,8 +31,8 @@ SOFTWARE.
         color: 'rgb( 63, 173, 181)',
         configError: '',
         defaults: {
-            group: {type: 'ui_group',required: true},
-            order: {value: 0},
+            group: { type: 'ui_group', required: true },
+            order: { value: 0 },
             width: {
                 value: 0,
                 validate: function (v) {
@@ -45,18 +45,19 @@ SOFTWARE.
                     return valid;
                 }
             },
-            height: {value: 0},
-            name: {value: ''},
-            icon: {value: ''},
-            label: {value: 'Gauge'},
-            unit: {value: ''},
-            layout: {value: 'linear'},
-            decimals: {value: 0,required: false,validate: RED.validators.number()},
-            differential: {value: false},
-            minmax: {value: false},
-            colorTrack: {value: '#555555'},
-            colorFromTheme: {value: true},
-            sectors: {value: [{val: 0,col: '#ff9900',t: "min",dot: 0}, {val: 10,col: '#ff9900',t: "max",dot: 0}],
+            height: { value: 0 },
+            name: { value: '' },
+            icon: { value: '' },
+            label: { value: 'Gauge' },
+            unit: { value: '' },
+            layout: { value: 'linear' },
+            decimals: { value: 0, required: false, validate: RED.validators.number() },
+            differential: { value: false },
+            minmax: { value: false },
+            colorTrack: { value: '#555555' },
+            colorFromTheme: { value: true },
+            sectors: {
+                value: [{ val: 0, col: '#ff9900', t: "min", dot: 0 }, { val: 10, col: '#ff9900', t: "max", dot: 0 }],
                 validate: function (v) {
                     configError = ""
                     var unique = [...new Set(v.map(s => s.val))]
@@ -81,8 +82,8 @@ SOFTWARE.
                 }
             },
             lineWidth: { value: 3 },
-            bgcolorFromTheme: {value: true},
-            diffCenter:{value:'',required:false}
+            bgcolorFromTheme: { value: true },
+            diffCenter: { value: '', required: false }
         },
         inputs: 1,
         outputs: 0,
@@ -461,9 +462,7 @@ SOFTWARE.
     <p>Artless gauge is gauge with minimal design. Gauge has two layouts - linear and radial. 
         Both layouts support regular mode and differential mode. 
         With differential mode, the indicating colored track is drawn from center to side. 
-        There is no tick marks or values presented near the gauge track.
-
-    <p>
+        
 <h2>> Configuration</h2>
 <h3> Size</h3>
 For linear layout the supported height is 1 unit.
@@ -484,7 +483,9 @@ Icon field does not support any html for size adjustments.
 Choose layout type. Layout can be linear or radial.
 
 <h3> Mode</h3>
-Option to turn on differential mode. With this option selected, the colored track has center point from which the value is shown. Value of center point is not shown anywhere, as well there is no minimum or maximum marks. Value of center point is exactly between configured min and max.
+Option to turn on differential mode. With this option selected, the colored track has 
+center point from which the value is shown.Value of center point can be adjusted. 
+If center value is not defined, the center point is exactly between configured min and max.
 
 <h3> Range</h3>
 Configure minimum and maximum expected values and adjust line color. 

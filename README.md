@@ -13,7 +13,7 @@
 ## Description
 
 
-Artless gauge is gauge with minimal design. Gauge has two layouts - linear and radial. Both layouts support regular mode and differential mode. With differential mode, the indicating colored track is drawn from center to side. There are no tick marks or values presented near the gauge track. 
+Artless gauge is gauge with minimal design. Gauge has two layouts - linear and radial. Both layouts support regular mode and differential mode. With differential mode, the indicating colored track is drawn from center to side. 
 
 
 ![Node-RED dashboard widget node-red-contrib-ui-artless-gauge](images/node-red-dashboard-widget-artless-gauge.JPG)
@@ -35,7 +35,7 @@ Icon field does not support any html for icon appearance adjustments.
 Choose layout type. Layout can be linear or radial.
 
 ### Mode
-Option to turn on differential mode. With this option selected, the colored track has center point from which the value is shown. Value of center point is not shown anywhere, as well there is no minimum or maximum marks. Value of center point is exactly between configured min and max.
+Option to turn on differential mode. With this option selected, the colored track has center point from which the value is shown. Value of center point can be adjusted. If center value is not defined, the center point is exactly between configured min and max.
 
 ### Range
 Configure minimum and maximum expected values and adjust line color. Add segments and configure colors for them if needed. Note that MIN and MAX options can not be removed. A small dot with segment color can be drawn at the point of segment. To show dot for segment, configure size for dot bigger that zero.
