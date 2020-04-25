@@ -277,8 +277,8 @@ module.exports = function (RED) {
 							var centerpoint = range(config.center.value, dp, 'clamp', true)
 
 							if (v == config.center.value) {
-								return {x: centerpoint - 1,w: 2}
-							} 
+								return { x: centerpoint - 1, w: 2 }
+							}
 							else if (v < config.center.value) {
 								vp = range(v, dp, 'clamp', true)
 								wcp = centerpoint - vp
@@ -286,7 +286,7 @@ module.exports = function (RED) {
 								vp = centerpoint
 								wcp = range(v, dp, 'clamp', true) - vp
 							}
-							return {x: vp,w: wcp,c: centerpoint}
+							return { x: vp, w: wcp, c: centerpoint }
 						}
 						var p = {
 							minin: config.min,
@@ -476,33 +476,33 @@ module.exports = function (RED) {
 					hor: '6px',
 					vert: (site.sizes.sy / 16) + 'px'
 				}
-				config.center = {point:config.stripe.left,value:""}
-				if(config.differential == true){
-					
-					if(config.diffCenter === ""){
+				config.center = { point: config.stripe.left, value: "" }
+				if (config.differential == true) {
+
+					if (config.diffCenter === "") {
 						config.center.value = (config.min + config.max) / 2
 					}
-					else{
+					else {
 						var cval = parseFloat(config.diffCenter)
-						if(isNaN(cval)){
+						if (isNaN(cval)) {
 							config.center.value = (config.min + config.max) / 2
 						}
-						else{
-							if(cval > config.min && cval < config.max){
+						else {
+							if (cval > config.min && cval < config.max) {
 								config.center.value = cval
 							}
-							else{
+							else {
 								config.center.value = (config.min + config.max) / 2
 							}
 						}
 					}
 					var dp
-					if(config.type == "linear"){
-						dp = {minin: config.min,maxin: config.max,minout: config.stripe.left,maxout: config.exactwidth}
+					if (config.type == "linear") {
+						dp = { minin: config.min, maxin: config.max, minout: config.stripe.left, maxout: config.exactwidth }
 						config.center.point = range(config.center.value, dp, 'clamp', true)
 					}
-					else{
-						dp = {minin: config.min,maxin: config.max,minout: config.arc.left,maxout: config.arc.right}
+					else {
+						dp = { minin: config.min, maxin: config.max, minout: config.arc.left, maxout: config.arc.right }
 						config.center.point = range(config.center.value, dp, 'clamp', true)
 					}
 				}
@@ -547,6 +547,7 @@ module.exports = function (RED) {
 						$scope.inited = false
 						$scope.type = null
 						$scope.arc = null
+						$scope.diffpoint = null
 						var waitingpayload = null
 
 						$scope.init = function (p) {
@@ -571,6 +572,13 @@ module.exports = function (RED) {
 							if (data.config) {
 
 								$scope.type = data.config.type
+
+								if (data.config.differential == true) {
+									$scope.diffpoint = data.config.center.value
+								}
+								console.log(data.config)
+
+
 								updateContainerStyle(main, data.config.padding)
 
 
@@ -594,8 +602,8 @@ module.exports = function (RED) {
 									if ($scope.arc == null) {
 										$scope.arc = data.config.arc
 										createArcBgr(data.config.arc)
-										if(data.config.differential == true){
-											createArcMark(data.config.arc,data.config.center)
+										if (data.config.differential == true) {
+											createArcMark(data.config.arc, data.config.center)
 										}
 									}
 								}
@@ -631,21 +639,21 @@ module.exports = function (RED) {
 							el.setAttribute("d", arcPath(arc.cx, arc.cy, arc.r, arc.left, arc.right));
 						}
 
-						var createArcMark = function (arc,center) {
+						var createArcMark = function (arc, center) {
 							var el = document.getElementById("ag_str_mark_" + $scope.unique)
-							el.setAttribute("d", arcPath(arc.cx, arc.cy, arc.r+3.5, center.point-0.5, center.point+0.5));
-							
-							el = document.getElementById("ag_alt_1_" + $scope.unique);							
-							var p = convert(arc.cx,arc.cy+10,arc.r-5,center.point)
-							var diff = Math.abs(arc.cx - p.x)							
-							var a = diff < 20 ? "middle" : p.x > arc.cx ? "end" : "start" 
-							
-							el.setAttribute('dy',p.y) 
-							el.setAttribute('x',p.x) 
-							el.setAttribute('text-anchor',a)
+							el.setAttribute("d", arcPath(arc.cx, arc.cy, arc.r + 3.5, center.point - 0.5, center.point + 0.5));
+
+							el = document.getElementById("ag_alt_1_" + $scope.unique);
+							var p = convert(arc.cx, arc.cy + 10, arc.r - 5, center.point)
+							var diff = Math.abs(arc.cx - p.x)
+							var a = diff < 20 ? "middle" : p.x > arc.cx ? "end" : "start"
+
+							el.setAttribute('dy', p.y)
+							el.setAttribute('x', p.x)
+							el.setAttribute('text-anchor', a)
 						}
 
-						
+
 
 						var updateSegmentDots = function (sectors) {
 							var cont = document.getElementById("ag_dots_" + $scope.unique);
@@ -664,7 +672,7 @@ module.exports = function (RED) {
 							var svgns = "http://www.w3.org/2000/svg"
 							var min = sectors.find(el => el.t == 'min').val
 							var max = sectors.find(el => el.t == 'max').val
-							function drawDotRadial(data) {
+							function drawDotRadial(data, idx, all) {
 								if (!data.dot || data.dot == 0) {
 									return
 								}
@@ -675,13 +683,18 @@ module.exports = function (RED) {
 								circle.setAttributeNS(null, 'cx', pt.x);
 								circle.setAttributeNS(null, 'cy', pt.y);
 								circle.setAttributeNS(null, 'r', data.dot);
-								circle.setAttributeNS(null, 'style', 'fill:' + data.col + ';');
+								var col = data.col
+								if ($scope.diffpoint != null && data.val < $scope.diffpoint && idx > 0) {
+									col = all[idx - 1].col
+								}
+								circle.setAttributeNS(null, 'style', 'fill:' + col + ';');
 								cont.appendChild(circle);
 							}
-							function drawDotLinear(data) {
+							function drawDotLinear(data, idx, all) {
 								if (!data.dot || data.dot == 0) {
 									return
 								}
+								console.log(data, idx, $scope.diffpoint)
 								var p = ((data.val - min) * 100) / (max - min)
 								var pr = (p * pathWidth) / 100
 								var pt = line.getPointAtLength(pr);
@@ -696,18 +709,24 @@ module.exports = function (RED) {
 								circle.setAttributeNS(null, 'cx', pt.x);
 								circle.setAttributeNS(null, 'cy', pt.y);
 								circle.setAttributeNS(null, 'r', data.dot);
-								circle.setAttributeNS(null, 'style', 'fill:' + data.col + ';');
+								var col = data.col
+								if ($scope.diffpoint != null && data.val < $scope.diffpoint && idx > 0) {
+
+									col = all[idx - 1].col
+									console.log("heureca", col)
+								}
+								circle.setAttributeNS(null, 'style', 'fill:' + col + ';');
 								cont.appendChild(circle);
 							}
 							if ($scope.type === 'radial') {
 								var arc = document.getElementById("ag_str_bg_" + $scope.unique)
 								var pathLength = arc.getTotalLength()
-								sectors.forEach(s => drawDotRadial(s))
+								sectors.forEach(drawDotRadial)
 							}
 							else {
 								var line = document.getElementById("ag_str_bg_" + $scope.unique)
 								var pathWidth = $(line).width()
-								sectors.forEach(s => drawDotLinear(s))
+								sectors.forEach(drawDotLinear)
 							}
 
 						}
@@ -804,18 +823,18 @@ module.exports = function (RED) {
 								var currentx = gsap.getProperty(el, 'X')
 								if (currentx != null) {
 									if ((currentx == p.pos.c && p.pos.x < p.pos.c) || (currentx < p.pos.c && p.pos.x == p.pos.c)) {
-										gsap.to(el, {duration: .5,attr: {width: 1,x: p.pos.c}, ease: "power2.in"});
-										gsap.to(el, {duration: .5,delay: 0.5,attr: {width: p.pos.w,x: p.pos.x},ease: "power2.out"});
+										gsap.to(el, { duration: .5, attr: { width: 1, x: p.pos.c }, ease: "power2.in" });
+										gsap.to(el, { duration: .5, delay: 0.5, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.out" });
 									} else {
-										gsap.to(el, {duration: 1,attr: {width: p.pos.w,x: p.pos.x},ease: "power2.inOut"});
+										gsap.to(el, { duration: 1, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
 									}
 								} else {
-									gsap.to(el, {duration: 1,attr: {width: p.pos.w,x: p.pos.x},ease: "power2.inOut"});
+									gsap.to(el, { duration: 1, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
 								}
 							} else {
-								gsap.to(el, {duration: 1,attr: {width: p.pos.w,x: p.pos.x},ease: "power2.inOut"});
+								gsap.to(el, { duration: 1, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
 							}
-							gsap.to(el, {duration: .5,delay: .5,fill: p.col})
+							gsap.to(el, { duration: .5, delay: .5, fill: p.col })
 						}
 
 						var updateGaugeRadial = function (p) {
@@ -828,16 +847,16 @@ module.exports = function (RED) {
 							}
 							if (p.pos.cp) {
 								if (($scope.arc.left < p.pos.cp && p.pos.left == p.pos.cp) || ($scope.arc.right > p.pos.cp && p.pos.right == p.pos.cp)) {
-									gsap.to($scope.arc, {right: p.pos.cp,left: p.pos.cp,duration: .5,ease: "power2.in",onUpdate: drawArcLine,onUpdateParams: [$scope.arc]})
-									gsap.to($scope.arc, {right: p.pos.right,left: p.pos.left,duration: .5,delay: .5,ease: "power2.out",onUpdate: drawArcLine,onUpdateParams: [$scope.arc]})
+									gsap.to($scope.arc, { right: p.pos.cp, left: p.pos.cp, duration: .5, ease: "power2.in", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
+									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: .5, delay: .5, ease: "power2.out", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
 								} else {
-									gsap.to($scope.arc, {right: p.pos.right,left: p.pos.left,duration: 1,ease: "power2.inOut",onUpdate: drawArcLine,onUpdateParams: [$scope.arc]})
+									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: 1, ease: "power2.inOut", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
 								}
 							} else {
-								gsap.to($scope.arc, {right: p.pos.right,left: p.pos.left,duration: 1,ease: "power2.inOut",onUpdate: drawArcLine,onUpdateParams: [$scope.arc]})
+								gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: 1, ease: "power2.inOut", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
 							}
 							var el = "#ag_str_line_" + $scope.unique
-							gsap.to(el, {duration: .5,delay: .5,stroke: p.col})
+							gsap.to(el, { duration: .5, delay: .5, stroke: p.col })
 						}
 
 						var drawArcLine = function (p) {
