@@ -576,8 +576,6 @@ module.exports = function (RED) {
 								if (data.config.differential == true) {
 									$scope.diffpoint = data.config.center.value
 								}
-								console.log(data.config)
-
 
 								updateContainerStyle(main, data.config.padding)
 
@@ -694,7 +692,7 @@ module.exports = function (RED) {
 								if (!data.dot || data.dot == 0) {
 									return
 								}
-								console.log(data, idx, $scope.diffpoint)
+
 								var p = ((data.val - min) * 100) / (max - min)
 								var pr = (p * pathWidth) / 100
 								var pt = line.getPointAtLength(pr);
@@ -713,7 +711,6 @@ module.exports = function (RED) {
 								if ($scope.diffpoint != null && data.val < $scope.diffpoint && idx > 0) {
 
 									col = all[idx - 1].col
-									console.log("heureca", col)
 								}
 								circle.setAttributeNS(null, 'style', 'fill:' + col + ';');
 								cont.appendChild(circle);
