@@ -506,7 +506,7 @@ module.exports = function (RED) {
 						config.center.point = range(config.center.value, dp, 'clamp', true)
 					}
 				}
-
+				config.property = config.property || "payload";
 				var html = HTML(config);
 
 				done = ui.addWidget({
@@ -523,20 +523,22 @@ module.exports = function (RED) {
 
 					beforeEmit: function (msg) {
 
+
 						var fem = {}
 						if (msg.control) {
 							fem.config = modifyConfig(msg.control)
 						}
+						var val = RED.util.getMessageProperty(msg, config.property);
 
-						if (msg.payload === undefined || msg.payload === null) {
-							msg.payload = config.min
+						if (val === undefined || val === null) {
+							val = config.min
 						}
 
-						msg.payload = ensureNumber(msg.payload, config.decimals.fixed)
+						val = ensureNumber(val, config.decimals.fixed)
 						fem.payload = {
-							value: msg.payload.toFixed(config.decimals.fixed),
-							pos: calculatePercPos(msg.payload),
-							col: calculateColor(msg.payload)
+							value: val.toFixed(config.decimals.fixed),
+							pos: calculatePercPos(val),
+							col: calculateColor(val)
 						}
 						return { msg: fem };
 					},

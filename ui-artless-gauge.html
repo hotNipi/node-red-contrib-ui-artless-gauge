@@ -56,6 +56,7 @@ SOFTWARE.
             minmax: { value: false },
             colorTrack: { value: '#555555' },
             colorFromTheme: { value: true },
+            property: { value: "payload", required: true },
             sectors: {
                 value: [{ val: 0, col: '#ff9900', t: "min", dot: 0 }, { val: 10, col: '#ff9900', t: "max", dot: 0 }],
                 validate: function (v) {
@@ -143,6 +144,10 @@ SOFTWARE.
                 height: '#node-input-height',
                 group: '#node-input-group'
             });
+            if (this.property === undefined) {
+                $("#node-input-property").val("payload");
+            }
+            $("#node-input-property").typedInput({ default: 'msg', types: ['msg'] });
 
             if (this.differential === undefined) {
                 $("#node-input-differential").prop('checked', false);
@@ -395,7 +400,11 @@ SOFTWARE.
         <input type='hidden' id='node-input-width'>
         <input type='hidden' id='node-input-height'>
         <button class='editor-button' id='node-input-size'></button>
-    </div>      
+    </div> 
+    <div class="form-row">
+        <label for="node-input-property"><i class="fa fa-arrow-right"></i> Input</label>
+        <input type="text" id="node-input-property" style="width:70%;"/>
+    </div>
 </br> 
     <div class='form-row' id='node-input-el-label'>
         <label for='node-input-label'><i class='icon-tag'></i> Label</label>
