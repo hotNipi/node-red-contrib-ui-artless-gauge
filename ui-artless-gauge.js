@@ -641,16 +641,20 @@ module.exports = function (RED) {
 
 						var createArcMark = function (arc, center) {
 							var el = document.getElementById("ag_str_mark_" + $scope.unique)
-							el.setAttribute("d", arcPath(arc.cx, arc.cy, arc.r + 3.5, center.point - 0.5, center.point + 0.5));
-
+							if (el) {
+								el.setAttribute("d", arcPath(arc.cx, arc.cy, arc.r + 3.5, center.point - 0.5, center.point + 0.5));
+							}
 							el = document.getElementById("ag_alt_1_" + $scope.unique);
-							var p = convert(arc.cx, arc.cy + 10, arc.r - 5, center.point)
-							var diff = Math.abs(arc.cx - p.x)
-							var a = diff < 20 ? "middle" : p.x > arc.cx ? "end" : "start"
+							if (el) {
+								var p = convert(arc.cx, arc.cy + 10, arc.r - 5, center.point)
+								var diff = Math.abs(arc.cx - p.x)
+								var a = diff < 20 ? "middle" : p.x > arc.cx ? "end" : "start"
 
-							el.setAttribute('dy', p.y)
-							el.setAttribute('x', p.x)
-							el.setAttribute('text-anchor', a)
+								el.setAttribute('dy', p.y)
+								el.setAttribute('x', p.x)
+								el.setAttribute('text-anchor', a)
+							}
+
 						}
 
 
