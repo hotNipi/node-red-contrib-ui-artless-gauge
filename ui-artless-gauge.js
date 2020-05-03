@@ -65,8 +65,13 @@ module.exports = function (RED) {
 
 		var linear = String.raw`				
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
-				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="start" dominant-baseline="baseline" x="` + config.stripe.left + `" y="${config.stripe.y - 5 - (config.lineWidth / 2)}">${config.label}</text>
-				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="end" dominant-baseline="baseline" x="${config.exactwidth - 3}" y="${config.stripe.y - 4 - (config.lineWidth / 2)}"></text>
+				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" 
+				text-anchor="start" dominant-baseline="baseline" 
+				x="` + config.stripe.left + `" y="${config.stripe.y - 5 - (config.lineWidth / 2)}">${config.label}</text>
+				<text  x="${config.exactwidth - 3}" y="${config.stripe.y - 4 - (config.lineWidth / 2)}">
+				<tspan id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="end" dominant-baseline="baseline"></tspan>
+				<tspan ng-if="${config.minmax == true && config.unit != ""}" class="ag-txt-{{unique}}" id="ag_alt_3_{{unique}}" text-anchor="end"></tspan>
+				</text>
 				<text id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="${config.stripe.left}" y="${config.stripe.y + config.stripe.sdy}"
 					text-anchor="end" dominant-baseline="baseline">
 					<tspan x="${config.stripe.left}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
@@ -307,7 +312,7 @@ module.exports = function (RED) {
 							minout: config.arc.left,
 							maxout: config.arc.right
 						}
-						var centerpoint = range(config.center.value, dp, 'clamp', true)
+						var centerpoint = range(config.center.value, dp, 'clamp', false)
 						if (v == config.center.value) {
 							return {
 								cx: config.arc.cx,
@@ -584,19 +589,17 @@ module.exports = function (RED) {
 
 								var u = data.config.type == "linear" ? ["", "", data.config.unit] : ["", "", ""]
 								var cv = ""
+								var euv = ""
 								if (data.config.minmax) {
-									if (data.config.type == "linear") {
-										cv = data.config.unit
+									if (data.config.type == "linear" && data.config.unit != "") {
+										euv = data.config.unit
 									}
 									if (data.config.differential == true) {
-										cv = (data.config.center.value).toFixed(data.config.decimals)
-										if (data.config.type == "linear" && data.config.unit != "") {
-											cv = data.config.unit
-										}
+										cv = (data.config.center.value).toFixed(data.config.decimals.fixed)
 									}
 									u = [data.config.min, cv, data.config.max]
 								}
-								updateTexts(u, data.config.unit, data.config.label)
+								updateTexts(u, data.config.unit, data.config.label, euv)
 
 								if (data.config.type === 'radial') {
 									if ($scope.arc == null) {
@@ -734,7 +737,7 @@ module.exports = function (RED) {
 
 						}
 
-						var updateTexts = function (arr, unit, label) {
+						var updateTexts = function (arr, unit, label, extraunit) {
 							var ic = document.getElementById("ag_alt_" + $scope.unique);
 							if (ic) {
 								for (var i = 0; i < 3; i++) {
@@ -742,9 +745,15 @@ module.exports = function (RED) {
 									$(ic).text(arr[i]);
 								}
 							}
+
 							ic = document.getElementById("ag_unit_" + $scope.unique);
 							if (ic) {
 								$(ic).text(unit);
+							}
+							ic = document.getElementById("ag_alt_3_" + $scope.unique);
+							if (ic) {
+								console.log(ic, extraunit)
+								$(ic).text(extraunit);
 							}
 							ic = document.getElementById("ag_label_" + $scope.unique);
 							if (ic) {
