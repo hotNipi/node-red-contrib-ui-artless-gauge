@@ -555,9 +555,13 @@ module.exports = function (RED) {
 						$scope.type = null
 						$scope.arc = null
 						$scope.diffpoint = null
+						$scope.vis = 'visible'
 						var waitingpayload = null
 
 						$scope.init = function (p) {
+							document.addEventListener("visibilitychange", function () {
+								$scope.vis = document.visibilityState || 'visible'
+							});
 							update(p)
 						}
 						var update = function (data) {
@@ -752,7 +756,6 @@ module.exports = function (RED) {
 							}
 							ic = document.getElementById("ag_alt_3_" + $scope.unique);
 							if (ic) {
-								console.log(ic, extraunit)
 								$(ic).text(extraunit);
 							}
 							ic = document.getElementById("ag_label_" + $scope.unique);
@@ -830,23 +833,24 @@ module.exports = function (RED) {
 							if (p.pos.left) {
 								return
 							}
+							var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
 							var el = "#ag_str_line_" + $scope.unique
 							if (p.pos.c) {
 								var currentx = gsap.getProperty(el, 'X')
 								if (currentx != null) {
 									if ((currentx == p.pos.c && p.pos.x < p.pos.c) || (currentx < p.pos.c && p.pos.x == p.pos.c)) {
-										gsap.to(el, { duration: .5, attr: { width: 1, x: p.pos.c }, ease: "power2.in" });
-										gsap.to(el, { duration: .5, delay: 0.5, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.out" });
+										gsap.to(el, { duration: dur.half, attr: { width: 1, x: p.pos.c }, ease: "power2.in" });
+										gsap.to(el, { duration: dur.half, delay: dur.half, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.out" });
 									} else {
-										gsap.to(el, { duration: 1, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
+										gsap.to(el, { duration: dur.full, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
 									}
 								} else {
-									gsap.to(el, { duration: 1, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
+									gsap.to(el, { duration: dur.full, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
 								}
 							} else {
-								gsap.to(el, { duration: 1, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
+								gsap.to(el, { duration: dur.full, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
 							}
-							gsap.to(el, { duration: .5, delay: .5, fill: p.col })
+							gsap.to(el, { duration: dur.half, delay: dur.half, fill: p.col })
 						}
 
 						var updateGaugeRadial = function (p) {
@@ -854,21 +858,23 @@ module.exports = function (RED) {
 							if (ic) {
 								$(ic).text(p.value);
 							}
+
 							if (p.pos.x) {
 								return
 							}
+							var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
 							if (p.pos.cp) {
 								if (($scope.arc.left < p.pos.cp && p.pos.left == p.pos.cp) || ($scope.arc.right > p.pos.cp && p.pos.right == p.pos.cp)) {
-									gsap.to($scope.arc, { right: p.pos.cp, left: p.pos.cp, duration: .5, ease: "power2.in", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
-									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: .5, delay: .5, ease: "power2.out", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
+									gsap.to($scope.arc, { right: p.pos.cp, left: p.pos.cp, duration: dur.half, ease: "power2.in", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
+									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.half, delay: dur.half, ease: "power2.out", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
 								} else {
-									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: 1, ease: "power2.inOut", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
+									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.full, ease: "power2.inOut", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
 								}
 							} else {
-								gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: 1, ease: "power2.inOut", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
+								gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.full, ease: "power2.inOut", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
 							}
 							var el = "#ag_str_line_" + $scope.unique
-							gsap.to(el, { duration: .5, delay: .5, stroke: p.col })
+							gsap.to(el, { duration: dur.half, delay: dur.half, stroke: p.col })
 						}
 
 						var drawArcLine = function (p) {
