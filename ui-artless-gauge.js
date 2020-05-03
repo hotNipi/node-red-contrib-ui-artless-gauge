@@ -85,7 +85,7 @@ module.exports = function (RED) {
 					style="stroke:none";
 					fill="${config.bgrColor}"					
 				/>
-				<rect ng-if="${config.differential == true}"  x="${initpos}" y="${config.stripe.y - 7}" 
+				<rect id="ag_str_mark_{{unique}}" ng-if="${config.differential == true}"  x="${initpos}" y="${config.stripe.y - 7}" 
 					width="1" height="7"	
 					style="stroke:none";
 					fill="${config.bgrColor}"				
@@ -150,6 +150,7 @@ module.exports = function (RED) {
 			var calculatePercPos = null;
 			var calculateColor = null;
 			var modifyConfig = null;
+			var calculateCenter = null;
 
 			if (checkConfig(node, config)) {
 				ensureNumber = function (input, dets) {
@@ -174,6 +175,39 @@ module.exports = function (RED) {
 						input = parseInt(input)
 					}
 					return input;
+				}
+
+				calculateCenter = function (input) {
+					config.center = { point: config.stripe.left, value: "" }
+					if (config.differential == true) {
+
+						if (input === "") {
+							config.center.value = Math.round((config.min + config.max) / 2)
+						}
+						else {
+							var cval = parseFloat(input)
+							if (isNaN(cval)) {
+								config.center.value = Math.round((config.min + config.max) / 2)
+							}
+							else {
+								if (cval > config.min && cval < config.max) {
+									config.center.value = cval
+								}
+								else {
+									config.center.value = Math.round((config.min + config.max) / 2)
+								}
+							}
+						}
+						var dp
+						if (config.type == "linear") {
+							dp = { minin: config.min, maxin: config.max, minout: config.stripe.left, maxout: config.exactwidth }
+							config.center.point = range(config.center.value, dp, 'clamp', true)
+						}
+						else {
+							dp = { minin: config.min, maxin: config.max, minout: config.arc.left, maxout: config.arc.right }
+							config.center.point = range(config.center.value, dp, 'clamp', true)
+						}
+					}
 				}
 
 				modifyConfig = function (input) {
@@ -227,6 +261,20 @@ module.exports = function (RED) {
 					if (input.unit) {
 						config.unit = input.unit
 						ret = config
+					}
+					if (input.decimals !== undefined) {
+						config.decimals.fixed = parseInt(input.decimals)
+						ret = config
+					}
+					if (config.differential == true) {
+						if (input.center !== undefined) {
+							calculateCenter(input.center)
+							ret = config
+						}
+						else {
+							calculateCenter(config.diffCenter)
+							ret = config
+						}
 					}
 					return ret
 				}
@@ -475,42 +523,15 @@ module.exports = function (RED) {
 				config.sectors.sort(function (a, b) {
 					return a.val - b.val
 				});
+				calculateCenter(config.diffCenter)
 
-				config.decimals = isNaN(parseFloat(config.decimals)) ? { fixed: 1 } : { fixed: parseInt(config.decimals) }
+				config.decimals = { fixed: parseInt(config.decimals) }
+
 				config.padding = {
 					hor: '6px',
 					vert: (site.sizes.sy / 16) + 'px'
 				}
-				config.center = { point: config.stripe.left, value: "" }
-				if (config.differential == true) {
 
-					if (config.diffCenter === "") {
-						config.center.value = (config.min + config.max) / 2
-					}
-					else {
-						var cval = parseFloat(config.diffCenter)
-						if (isNaN(cval)) {
-							config.center.value = (config.min + config.max) / 2
-						}
-						else {
-							if (cval > config.min && cval < config.max) {
-								config.center.value = cval
-							}
-							else {
-								config.center.value = (config.min + config.max) / 2
-							}
-						}
-					}
-					var dp
-					if (config.type == "linear") {
-						dp = { minin: config.min, maxin: config.max, minout: config.stripe.left, maxout: config.exactwidth }
-						config.center.point = range(config.center.value, dp, 'clamp', true)
-					}
-					else {
-						dp = { minin: config.min, maxin: config.max, minout: config.arc.left, maxout: config.arc.right }
-						config.center.point = range(config.center.value, dp, 'clamp', true)
-					}
-				}
 				config.property = config.property || "payload";
 				var html = HTML(config);
 
@@ -599,19 +620,23 @@ module.exports = function (RED) {
 										euv = data.config.unit
 									}
 									if (data.config.differential == true) {
-										cv = (data.config.center.value).toFixed(data.config.decimals.fixed)
+										cv = (data.config.center.value)//.toFixed(data.config.decimals.fixed)
 									}
 									u = [data.config.min, cv, data.config.max]
 								}
 								updateTexts(u, data.config.unit, data.config.label, euv)
 
 								if (data.config.type === 'radial') {
-									if ($scope.arc == null) {
-										$scope.arc = data.config.arc
-										createArcBgr(data.config.arc)
-										if (data.config.differential == true) {
-											createArcMark(data.config.arc, data.config.center)
-										}
+
+									$scope.arc = data.config.arc
+									createArcBgr(data.config.arc)
+									if (data.config.differential == true) {
+										createArcMark(data.config.arc, data.config.center)
+									}
+								}
+								else {
+									if (data.config.differential == true) {
+										adjustCenter(data.config.center.point)
 									}
 								}
 								updateSegmentDots(data.config.sectors)
@@ -631,6 +656,8 @@ module.exports = function (RED) {
 							}
 						}
 
+
+
 						var updateContainerStyle = function (el, padding) {
 							el = el.parentElement
 							if (el && el.classList.contains('nr-dashboard-template')) {
@@ -638,6 +665,16 @@ module.exports = function (RED) {
 									el.style.paddingLeft = el.style.paddingRight = padding.hor
 									el.style.paddingTop = el.style.paddingBottom = padding.vert
 								}
+							}
+						}
+						var adjustCenter = function (c) {
+							var el = document.getElementById("ag_alt_1_" + $scope.unique)
+							if (el) {
+								el.setAttribute('x', c + 1.5)
+							}
+							el = document.getElementById("ag_str_mark_" + $scope.unique)
+							if (el) {
+								el.setAttribute('x', c)
 							}
 						}
 
