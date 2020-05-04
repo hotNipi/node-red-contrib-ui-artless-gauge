@@ -627,8 +627,11 @@ module.exports = function (RED) {
 								updateTexts(u, data.config.unit, data.config.label, euv)
 
 								if (data.config.type === 'radial') {
+									if ($scope.arc == null) {
+										$scope.arc = data.config.arc
+									}
 
-									$scope.arc = data.config.arc
+
 									createArcBgr(data.config.arc)
 									if (data.config.differential == true) {
 										createArcMark(data.config.arc, data.config.center)
