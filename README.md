@@ -22,7 +22,10 @@ Artless gauge is gauge with minimal design. Gauge has two layouts - linear and r
 ## Configuration
 ### Size
 For linear layout the supported height is 1 unit.
-For radial mode the minimal size is 2x2 units. Supported size configuration for radial layout is sqaure (3x3, 4x4, ...). Widget forces different size combinations to be square, based on shortest side.
+For radial mode the minimal size is 2x2 units. Supported size configuration for radial layout is square (3x3, 4x4, ...). Widget forces different size combinations to be square, based on shortest side.
+
+### Input 
+Configured input property (default is <code>msg.payload</code>) should carry single numeric value.
 
 ### Label
 Label can be any string. Label field does not support any html for color or size adjustments.
@@ -49,11 +52,10 @@ For differential mode, also the center value is shown.
 With radial layout the tickmarks can be shown only if layout size is 3x3 units or more.
 
 ### Format
+#### Unit
 Unit is displayed near the value field. Unit can be any string.
+#### Decimals 
 Value is always rounded according to the configured decimals. Default is zero so value presented as integer.  
-
-## Input 
-<code>msg.payload</code> should carry single numeric value.
 
 ## Change the configuration at runtime
 
@@ -63,14 +65,24 @@ Note, that min and max must be part of sectors property.
 Change of min or max will not affect sectors if they were configured. But any sector update clears all previously configured sectors except the min and max.
 There is no validation on top of incoming sectors configuration.
 
+#### Configurable options and value types
 
+``` javascript
+sectors - Array of Object´s
+unit - String
+label - String
+icon - String
+center - Number
+decimals - Number
+```
+#### Example
 ``` javascript
 var newSectors = [{t:"min",val:5,col:"#00ff00",dot:3},{t:"sec",val:8,col:"#ff0000",dot:3},{t:"max",val:30,col:"#0000ff",dot:3}]
 msg.control = {unit:"degrees",label:"Temperature",icon:"fa-thermometer",center:4, decimals:1, sectors:newSectors}
 ```
  
 
-### Licence
+## Licence
 
 This node uses GreenSock animation library GSAP licenced with Standard GreenSock License for non-commercial use https://greensock.com/standard-license/
 
