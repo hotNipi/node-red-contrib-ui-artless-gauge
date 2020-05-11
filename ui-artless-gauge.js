@@ -548,8 +548,6 @@ module.exports = function (RED) {
 					storeFrontEndInputAsState: true,
 
 					beforeEmit: function (msg) {
-
-
 						var fem = {}
 						if (msg.control) {
 							fem.config = modifyConfig(msg.control)
@@ -580,9 +578,7 @@ module.exports = function (RED) {
 						var waitingpayload = null
 
 						$scope.init = function (p) {
-							document.addEventListener("visibilitychange", function () {
-								$scope.vis = document.visibilityState || 'visible'
-							});
+							document.addEventListener("visibilitychange", visibility);
 							update(p)
 						}
 						var update = function (data) {
@@ -602,16 +598,11 @@ module.exports = function (RED) {
 							$scope.inited = true
 							$scope.timeout = null
 							if (data.config) {
-
 								$scope.type = data.config.type
-
 								if (data.config.differential == true) {
 									$scope.diffpoint = data.config.center.value
 								}
-
 								updateContainerStyle(main, data.config.padding)
-
-
 								var u = data.config.type == "linear" ? ["", "", data.config.unit] : ["", "", ""]
 								var cv = ""
 								var euv = ""
@@ -630,8 +621,6 @@ module.exports = function (RED) {
 									if ($scope.arc == null) {
 										$scope.arc = data.config.arc
 									}
-
-
 									createArcBgr(data.config.arc)
 									if (data.config.differential == true) {
 										createArcMark(data.config.arc, data.config.center)
@@ -659,10 +648,14 @@ module.exports = function (RED) {
 							}
 						}
 
-
+						var visibility = function(){
+							$scope.vis = document.visibilityState || 'visible'
+						}
 
 						var updateContainerStyle = function (el, padding) {
-							el = el.parentElement
+							if(el){
+								el = el.parentElement
+							}							
 							if (el && el.classList.contains('nr-dashboard-template')) {
 								if ($(el).css('paddingLeft') == '0px') {
 									el.style.paddingLeft = el.style.paddingRight = padding.hor
@@ -683,7 +676,9 @@ module.exports = function (RED) {
 
 						var createArcBgr = function (arc) {
 							var el = document.getElementById("ag_str_bg_" + $scope.unique)
-							el.setAttribute("d", arcPath(arc.cx, arc.cy, arc.r, arc.left, arc.right));
+							if(el){
+								el.setAttribute("d", arcPath(arc.cx, arc.cy, arc.r, arc.left, arc.right));
+							}
 						}
 
 						var createArcMark = function (arc, center) {
@@ -701,11 +696,7 @@ module.exports = function (RED) {
 								el.setAttribute('x', p.x)
 								el.setAttribute('text-anchor', a)
 							}
-
 						}
-
-
-
 						var updateSegmentDots = function (sectors) {
 							var cont = document.getElementById("ag_dots_" + $scope.unique);
 							if (!cont) {
@@ -719,7 +710,6 @@ module.exports = function (RED) {
 							if (!sectors) {
 								return
 							}
-
 							var svgns = "http://www.w3.org/2000/svg"
 							var min = sectors.find(el => el.t == 'min').val
 							var max = sectors.find(el => el.t == 'max').val
@@ -778,7 +768,6 @@ module.exports = function (RED) {
 								var pathWidth = $(line).width()
 								sectors.forEach(drawDotLinear)
 							}
-
 						}
 
 						var updateTexts = function (arr, unit, label, extraunit) {
@@ -865,7 +854,6 @@ module.exports = function (RED) {
 						}
 
 						var updateGaugeLinear = function (p) {
-
 							var ic = document.getElementById("ag_value_" + $scope.unique);
 							if (ic) {
 								$(ic).text(p.value);
@@ -898,7 +886,6 @@ module.exports = function (RED) {
 							if (ic) {
 								$(ic).text(p.value);
 							}
-
 							if (p.pos.x) {
 								return
 							}
@@ -959,6 +946,7 @@ module.exports = function (RED) {
 								clearTimeout($scope.timeout)
 								$scope.timeout = null
 							}
+							document.removeEventListener("visibilitychange", visibility);
 						});
 					}
 				});

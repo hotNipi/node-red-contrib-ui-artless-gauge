@@ -475,7 +475,12 @@ SOFTWARE.
 <h2>> Configuration</h2>
 <h3> Size</h3>
 For linear layout the supported height is 1 unit.
-For radial mode the minimal size is 2x2 units. Supported size configuration for radial layout is square (3x3, 4x4, ...). Widget forces different size combinations to be square based on shortest side.
+For radial mode the minimal size is 2x2 units. 
+Supported size configuration for radial layout is square (3x3, 4x4, ...). 
+Widget forces different size combinations to be square based on shortest side.
+
+<h2> Input </h2>
+Configured input property (default is msg.payload) should carry single numeric value.
 
 <h3> Label</h3>
 Label can be any string. Label field does not support any html for color or size adjustments.
@@ -498,7 +503,8 @@ If center value is not defined, the center point is exactly between configured m
 
 <h3> Range</h3>
 Configure minimum and maximum expected values and adjust line color. 
-Add segments and configure colors for them if needed. Note that Min and Max options can not be removed.
+Add segments and configure colors for them if needed. 
+Note that Min and Max options can not be removed.
 <p>A small dot with segment color can be drawn at the point of segment. 
 To show dot for segment, configure size for dot bigger that zero.
 
@@ -512,11 +518,13 @@ For differential mode, also the center value is shown.
 
 
 <h3> Format</h3>
+<h4> Unit</h4>
 Unit is displayed near the value field. Unit can be any string.
-Value is always rounded according to the configured decimals. Default is zero so value presented as integer.  
 
-<h2> Input </h2>
-<code>msg.payload</code> should carry single numeric value.
+<h4> Decimals</h4>
+Value is always rounded according to the configured decimals. 
+Default is zero so value presented as integer.  
+
 
 <h2> Change the configuration at runtime</h2>
 
@@ -526,10 +534,20 @@ Change of min or max will not affect sectors if they were configured.
 But any sector update clears all previously configured sectors except the min and max.
 There is no validation on top of incoming sectors configuration. 
 
-<pre>
-var newSectors = [{t:"min",val:5,col:"#00ff00"},{t:"sec",val:8,col:"#ff0000",dot:3},{t:"max",val:30,col:"#0000ff"}]
-msg.control = {unit:"degrees",label:"Temperature",icon:"fa-thermometer",center:4, decimals:1, sectors:newSectors}
-</pre>
+<h3>Configurable options and value types</h3>
+<code>
+    sectors - Array of Object´s<br>
+    unit - String<br>
+    label - String<br>
+    icon - String<br>
+    center - Number<br>
+    decimals - Number<br>
+</code>
+<h3>Example</h3>    
+<code style="white-space:unset" >
+    var newSectors = [{t:"min",val:5,col:"#00ff00",dot:3},{t:"sec",val:8,col:"#ff0000",dot:3},{t:"max",val:30,col:"#0000ff",dot:3}]
+    msg.control = {unit:"degrees",label:"Temperature",icon:"fa-thermometer",center:4, decimals:1, sectors:newSectors}
+</code>
 
 <h2> Licence</h2>
 This node uses GreenSock animation library GSAP licenced with Standard GreenSock License for non-commercial use <a href="https://greensock.com/standard-license/"">https://greensock.com/standard-license</a>
