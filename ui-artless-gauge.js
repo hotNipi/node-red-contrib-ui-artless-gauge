@@ -817,38 +817,47 @@ module.exports = function (RED) {
 								$(ic).css("font-size", "");
 								var ib = ic.getBBox()
 								if (layout == 'linear') {
-									var linebox = document.getElementById("ag_str_bg_" + $scope.unique).getBBox()
-									var diff = ib.width - linebox.x
-									if (diff > -2) {
-										var d = diff < 0 ? 0 : diff
-										var istyl = parseFloat(window.getComputedStyle(document.querySelector(".ag-icon-" + $scope.unique)).fontSize)
-										$(ic).css("font-size", (istyl - d - 4) + "px");
+									var line = document.getElementById("ag_str_bg_" + $scope.unique)
+									if(line){							
+										var linebox = line.getBBox()									
+										var diff = ib.width - linebox.x
+										if (diff > -2) {
+											var d = diff < 0 ? 0 : diff
+											var ics = document.querySelector(".ag-icon-" + $scope.unique)
+											if(ics){
+												var istyl = parseFloat(window.getComputedStyle(ics).fontSize)
+												$(ic).css("font-size", (istyl - d - 4) + "px");
+											}											
+										}
+										ib = ic.getBBox()
+										var ih = ib.height
+										var ny = ih + ((adjust.eh - ih) / 2)
+										if (type == 'wi') {
+											ny -= 3
+										}
+										if (type == 'mi') {
+											ny += 2
+										}
+										var nx = Math.floor((linebox.x - ib.width) / 2)
+										if (nx < 0) { nx = 0 }
+										$(ic).attr('y', ny);
+										$(ic).attr('x', nx);
 									}
-									ib = ic.getBBox()
-									var ih = ib.height
-									var ny = ih + ((adjust.eh - ih) / 2)
-									if (type == 'wi') {
-										ny -= 3
-									}
-									if (type == 'mi') {
-										ny += 2
-									}
-
-									var nx = Math.floor((linebox.x - ib.width) / 2)
-									if (nx < 0) { nx = 0 }
-									$(ic).attr('y', ny);
-									$(ic).attr('x', nx);
+									
 								}
 								if (layout == 'radial') {
-									var arcbox = document.getElementById("ag_str_bg_" + $scope.unique).getBBox()
-									ny = arcbox.y + arcbox.height
-									if (type == 'mi') {
-										ny += 3
-									}
-									if (type == 'wi') {
-										ny -= 3
-									}
-									$(ic).attr('y', ny);
+									var arcel = document.getElementById("ag_str_bg_" + $scope.unique)
+									if(arcel){
+										var arcbox = arcel.getBBox()
+										ny = arcbox.y + arcbox.height
+										if (type == 'mi') {
+											ny += 3
+										}
+										if (type == 'wi') {
+											ny -= 3
+										}
+										$(ic).attr('y', ny);
+									}									
 								}
 							}
 						}
