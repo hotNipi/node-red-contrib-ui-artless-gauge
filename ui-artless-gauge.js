@@ -297,7 +297,7 @@ module.exports = function (RED) {
 					}
 					return opts
 				}
-				range = function (n, p, a, r) {
+				range = function (n, p, a, r, c) {
 					if (a == "clamp") {
 						if (n < p.minin) {
 							n = p.minin;
@@ -314,6 +314,11 @@ module.exports = function (RED) {
 					if (r) {
 						v = Math.round(v);
 					}
+					else {
+						if(c){
+							v = parseFloat(v.toFixed(c))
+						}						
+					}
 					return v
 				}
 
@@ -327,17 +332,17 @@ module.exports = function (RED) {
 								minout: config.stripe.left,
 								maxout: config.exactwidth
 							}
-							var centerpoint = range(config.center.value, dp, 'clamp', true)
+							var centerpoint = range(config.center.value, dp, 'clamp', true, 4)
 
 							if (v == config.center.value) {
 								return { x: centerpoint - 1, w: 2 }
 							}
 							else if (v < config.center.value) {
-								vp = range(v, dp, 'clamp', true)
+								vp = range(v, dp, 'clamp', true, 4)
 								wcp = centerpoint - vp
 							} else {
 								vp = centerpoint
-								wcp = range(v, dp, 'clamp', true) - vp
+								wcp = range(v, dp, 'clamp', true, 4) - vp
 							}
 							return { x: vp, w: wcp, c: centerpoint }
 						}
@@ -349,7 +354,7 @@ module.exports = function (RED) {
 						}
 						return {
 							x: config.stripe.left,
-							w: range(v, p, 'clamp', true)
+							w: range(v, p, 'clamp', true, 4)
 						}
 					}
 					if (config.differential == true) {
@@ -360,7 +365,7 @@ module.exports = function (RED) {
 							minout: config.arc.left,
 							maxout: config.arc.right
 						}
-						var centerpoint = range(config.center.value, dp, 'clamp', false)
+						var centerpoint = range(config.center.value, dp, 'clamp', false, 4)
 						if (v == config.center.value) {
 							return {
 								cx: config.arc.cx,
@@ -370,11 +375,11 @@ module.exports = function (RED) {
 								right: centerpoint + 1
 							}
 						} else if (v < config.center.value) {
-							lv = range(v, dp, 'clamp', true)
+							lv = range(v, dp, 'clamp', true, 4)
 							rv = centerpoint
 						} else {
 							lv = centerpoint
-							rv = range(v, dp, 'clamp', true)
+							rv = range(v, dp, 'clamp', true, 4)
 						}
 						return {
 							cx: config.arc.cx,
@@ -397,7 +402,7 @@ module.exports = function (RED) {
 						cy: config.arc.cy,
 						r: config.arc.r,
 						left: config.arc.left,
-						right: range(v, p, 'clamp', true)
+						right: range(v, p, 'clamp', true, 4)
 					}
 
 				}
@@ -899,6 +904,7 @@ module.exports = function (RED) {
 								return
 							}
 							var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
+							console.log($scope.arc,p.pos)
 							if (p.pos.cp) {
 								if (($scope.arc.left < p.pos.cp && p.pos.left == p.pos.cp) || ($scope.arc.right > p.pos.cp && p.pos.right == p.pos.cp)) {
 									gsap.to($scope.arc, { right: p.pos.cp, left: p.pos.cp, duration: dur.half, ease: "power2.in", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
