@@ -904,7 +904,6 @@ module.exports = function (RED) {
 								return
 							}
 							var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
-							console.log($scope.arc,p.pos)
 							if (p.pos.cp) {
 								if (($scope.arc.left < p.pos.cp && p.pos.left == p.pos.cp) || ($scope.arc.right > p.pos.cp && p.pos.right == p.pos.cp)) {
 									gsap.to($scope.arc, { right: p.pos.cp, left: p.pos.cp, duration: dur.half, ease: "power2.in", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
