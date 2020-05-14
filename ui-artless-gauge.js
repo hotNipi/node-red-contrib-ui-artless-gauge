@@ -579,24 +579,16 @@ module.exports = function (RED) {
 						$scope.type = null
 						$scope.arc = null
 						$scope.diffpoint = null
-						$scope.vis = 'visible'
-						var waitingpayload = null
+						$scope.vis = 'visible'						
+						$scope.waitingmessage = null
 
 						$scope.init = function (p) {
 							document.addEventListener("visibilitychange", visibility);
 							update(p)
 						}
 						var update = function (data) {
-							var main = document.getElementById("ag_svg_" + $scope.unique);
-							if (data.payload && (!main || !$scope.inited)) {
-								if (data.config) {
-									$scope.timeout = setTimeout(update.bind(null, data), 40);
-									return
-								}
-								waitingpayload = data
-								return
-							}
-							if (!main && data.config) {
+							var main = document.getElementById("ag_svg_" + $scope.unique);							
+							if (!main && $scope.inited == false && data.config) {
 								$scope.timeout = setTimeout(update.bind(null, data), 40);
 								return
 							}
@@ -638,11 +630,7 @@ module.exports = function (RED) {
 								}
 								updateSegmentDots(data.config.sectors)
 								var adjust = { h: data.config.height, eh: data.config.exactheight }
-								updateIcon(data.config.icontype, data.config.icon, data.config.type, adjust)
-								if (waitingpayload) {
-									data.payload = waitingpayload.payload
-									waitingpayload = null;
-								}
+								updateIcon(data.config.icontype, data.config.icon, data.config.type, adjust)								
 							}
 							if (data.payload) {
 								if ($scope.type === 'radial') {
@@ -650,6 +638,12 @@ module.exports = function (RED) {
 								} else {
 									updateGaugeLinear(data.payload)
 								}
+							}
+							if($scope.waitingmessage != null){	
+								var d = {}
+								Object.assign(d, $scope.waitingmessage)
+								$scope.waitingmessage = null														
+								$scope.timeout = setTimeout(update.bind(null, d), 20);
 							}
 						}
 
@@ -952,6 +946,10 @@ module.exports = function (RED) {
 						$scope.$watch('msg', function (msg) {
 							if (!msg) {
 								return;
+							}
+							if($scope.inited == false){
+								$scope.waitingmessage = msg
+								return
 							}
 							update(msg)
 						});
