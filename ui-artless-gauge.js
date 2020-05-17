@@ -118,9 +118,9 @@ module.exports = function (RED) {
 			</svg>`
 
 		var layout = config.type == "linear" ? linear : radial
-		var scripts = String.raw`<script src="ui-artless-gauge/js/gsap.min.js"></script>`
+		//var scripts = String.raw`<script src="ui-artless-gauge/js/gsap.min.js"></script>`
 
-		return String.raw`${styles}${scripts}${layout}`;
+		return String.raw`${styles}${layout}`;
 	}
 
 	function checkConfig(node, conf) {
@@ -581,17 +581,24 @@ module.exports = function (RED) {
 						$scope.diffpoint = null
 						$scope.vis = 'visible'						
 						$scope.waitingmessage = null
+						$scope.gsaploaded = false
 
-						$scope.init = function (p) {
+						$scope.init = function (p) {					
+							if(!document.querySelector('script[src="ui-artless-gauge/js/gsap.min.js"]')){
+								loadScript("ui-artless-gauge/js/gsap.min.js")
+							}else{
+								$scope.gsaploaded = true
+							}						
 							document.addEventListener("visibilitychange", visibility);
 							update(p)
 						}
 						var update = function (data) {
 							var main = document.getElementById("ag_svg_" + $scope.unique);							
-							if (!main && $scope.inited == false && data.config) {
+							if ((!main && $scope.inited == false && data.config) || !$scope.gsaploaded) {
 								$scope.timeout = setTimeout(update.bind(null, data), 40);
 								return
 							}
+							
 							$scope.inited = true
 							$scope.timeout = null
 							if (data.config) {
@@ -645,6 +652,18 @@ module.exports = function (RED) {
 								$scope.waitingmessage = null														
 								$scope.timeout = setTimeout(update.bind(null, d), 20);
 							}
+						}
+
+						var loadScript = function (s) {
+							console.log('loadscript',s)
+							var head = document.getElementsByTagName('head')[0];
+							var script = document.createElement('script');
+							script.type = 'text/javascript';
+							script.src = s;
+							head.appendChild(script);
+							script.onload = () => {								
+								$scope.gsaploaded = true							
+							}      
 						}
 
 						var visibility = function(){
