@@ -583,9 +583,9 @@ module.exports = function (RED) {
 						$scope.waitingmessage = null
 						$scope.gsaploaded = false
 
-						$scope.init = function (p) {					
-							if(!document.querySelector('script[src="ui-artless-gauge/js/gsap.min.js"]')){
-								loadScript("ui-artless-gauge/js/gsap.min.js")
+						$scope.init = function (p) {												
+							if(!document.getElementById('greensock-gsap-3')){
+								loadScript('greensock-gsap-3','ui-artless-gauge/js/gsap.min.js')
 							}else{
 								$scope.gsaploaded = true
 							}						
@@ -654,12 +654,13 @@ module.exports = function (RED) {
 							}
 						}
 
-						var loadScript = function (s) {
-							console.log('loadscript',s)
+						var loadScript = function (id,path) {
+							//console.log('loadscript',path)
 							var head = document.getElementsByTagName('head')[0];
 							var script = document.createElement('script');
 							script.type = 'text/javascript';
-							script.src = s;
+							script.id = id
+							script.src = path;
 							head.appendChild(script);
 							script.onload = () => {								
 								$scope.gsaploaded = true							
@@ -881,18 +882,18 @@ module.exports = function (RED) {
 						}
 
 						var updateGaugeLinear = function (p) {
-							try {
-								var ic = document.getElementById("ag_value_" + $scope.unique);
-								if (ic) {
-									$(ic).text(p.value);
-								}
-								if (p.pos.left) {
-									return
-								}
+							var ic = document.getElementById("ag_value_" + $scope.unique);
+							if (ic) {
+								$(ic).text(p.value);
+							}
+							if (p.pos.left) {
+								return
+							}
+							try {								
 								var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
 								var el = "#ag_str_line_" + $scope.unique
 								if (p.pos.c) {
-									var currentx = gsap.getProperty(el, 'X')
+									var currentx = gsap.getProperty(el, 'X')									
 									if (currentx != null) {
 										if ((currentx == p.pos.c && p.pos.x < p.pos.c) || (currentx < p.pos.c && p.pos.x == p.pos.c)) {
 											gsap.to(el, { duration: dur.half, attr: { width: 1, x: p.pos.c }, ease: "power2.in" });
@@ -909,19 +910,24 @@ module.exports = function (RED) {
 								gsap.to(el, { duration: dur.half, delay: dur.half, fill: p.col })
 								
 							} catch (error) {
-								
+								var el = document.getElementById("ag_str_line_" + $scope.unique)
+								if (el) {
+									el.setAttribute("width",p.pos.w);
+									el.setAttribute("x",p.pos.x);
+									el.setAttribute("fill",p.col);
+								}
 							}							
 						}
 
 						var updateGaugeRadial = function (p) {
-							try {
-								var ic = document.getElementById("ag_value_" + $scope.unique);
-								if (ic) {
-									$(ic).text(p.value);
-								}
-								if (p.pos.x) {
-									return
-								}
+							var ic = document.getElementById("ag_value_" + $scope.unique);
+							if (ic) {
+								$(ic).text(p.value);
+							}
+							if (p.pos.x) {
+								return
+							}
+							try {								
 								var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
 								if (p.pos.cp) {
 									if (($scope.arc.left < p.pos.cp && p.pos.left == p.pos.cp) || ($scope.arc.right > p.pos.cp && p.pos.right == p.pos.cp)) {
@@ -937,9 +943,14 @@ module.exports = function (RED) {
 								gsap.to(el, { duration: dur.half, delay: dur.half, stroke: p.col })
 									
 							} catch (error) {
-								
-							}
-							
+								$scope.arc.left = p.pos.left
+								$scope.arc.right = p.pos.right
+								var el = document.getElementById("ag_str_line_" + $scope.unique)
+								if (el) {
+									el.setAttribute("stroke",p.col);
+								}
+								drawArcLine($scope.arc)
+							}							
 						}
 
 						var drawArcLine = function (p) {
