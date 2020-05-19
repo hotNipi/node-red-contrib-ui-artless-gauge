@@ -581,21 +581,19 @@ module.exports = function (RED) {
 						$scope.diffpoint = null
 						$scope.vis = 'visible'						
 						$scope.waitingmessage = null
-						$scope.gsaploaded = false
+						
 
 						$scope.init = function (p) {												
 							if(!document.getElementById('greensock-gsap-3')){
 								loadScript('greensock-gsap-3','ui-artless-gauge/js/gsap.min.js')
-							}else{
-								$scope.gsaploaded = true
-							}						
+							}					
 							document.addEventListener("visibilitychange", visibility);
 							update(p)
 						}
 						var update = function (data) {
 							var main = document.getElementById("ag_svg_" + $scope.unique);							
-							if ((!main && $scope.inited == false && data.config) || !$scope.gsaploaded) {
-								$scope.timeout = setTimeout(update.bind(null, data), 40);
+							if (!main && $scope.inited == false && data.config) {								
+								$scope.timeout = setTimeout(update.bind(this, data), 40);
 								return
 							}
 							
@@ -639,18 +637,20 @@ module.exports = function (RED) {
 								var adjust = { h: data.config.height, eh: data.config.exactheight }
 								updateIcon(data.config.icontype, data.config.icon, data.config.type, adjust)								
 							}
+							
+							if($scope.waitingmessage != null){	
+								var d = {}
+								Object.assign(d, $scope.waitingmessage)
+								$scope.waitingmessage = null																					
+								$scope.timeout = setTimeout(update.bind(this, d), 20);
+								return
+							}
 							if (data.payload) {
 								if ($scope.type === 'radial') {
 									updateGaugeRadial(data.payload)
 								} else {
 									updateGaugeLinear(data.payload)
 								}
-							}
-							if($scope.waitingmessage != null){	
-								var d = {}
-								Object.assign(d, $scope.waitingmessage)
-								$scope.waitingmessage = null														
-								$scope.timeout = setTimeout(update.bind(null, d), 20);
 							}
 						}
 
@@ -661,10 +661,7 @@ module.exports = function (RED) {
 							script.type = 'text/javascript';
 							script.id = id
 							script.src = path;
-							head.appendChild(script);
-							script.onload = () => {								
-								$scope.gsaploaded = true							
-							}      
+							head.appendChild(script);							      
 						}
 
 						var visibility = function(){
