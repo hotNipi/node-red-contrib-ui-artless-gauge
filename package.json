@@ -1,6 +1,6 @@
 {
     "name": "node-red-contrib-ui-artless-gauge",
-    "version": "0.1.39",
+    "version": "0.1.40",
     "description": "A Node-RED dashboard ui node. Gauge with minimal design",
     "main": "ui-artless-gauge.js",
     "node-red": {
