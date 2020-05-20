@@ -87,12 +87,12 @@ module.exports = function (RED) {
 				/>
 				<rect id="ag_str_mark_{{unique}}" ng-if="${config.differential == true}"  x="${initpos}" y="${config.stripe.y - 7}" 
 					width="1" height="7"	
-					style="stroke:none";
+					style="stroke:none"
 					fill="${config.bgrColor}"				
 				/>	
 				<rect id="ag_str_line_{{unique}}" x="${initpos}" y="${config.stripe.y - (config.lineWidth / 2)}" 
 					width="0" height="${config.lineWidth}"	
-					style="stroke:none";
+					style="stroke:none"
 					fill="${config.color}"				
 				/>
 				<g id="ag_dots_{{unique}}" style="outline: none; border: 0;"></g>				
@@ -118,7 +118,6 @@ module.exports = function (RED) {
 			</svg>`
 
 		var layout = config.type == "linear" ? linear : radial
-		//var scripts = String.raw`<script src="ui-artless-gauge/js/gsap.min.js"></script>`
 
 		return String.raw`${styles}${layout}`;
 	}
@@ -132,8 +131,7 @@ module.exports = function (RED) {
 	}
 
 	var ui = undefined;
-
-
+	
 	function ArtlessGaugeNode(config) {
 		try {
 			var node = this;
@@ -581,7 +579,6 @@ module.exports = function (RED) {
 						$scope.diffpoint = null
 						$scope.vis = 'visible'						
 						$scope.waitingmessage = null
-						
 
 						$scope.init = function (p) {												
 							if(!document.getElementById('greensock-gsap-3')){
@@ -590,13 +587,13 @@ module.exports = function (RED) {
 							document.addEventListener("visibilitychange", visibility);
 							update(p)
 						}
+						
 						var update = function (data) {
 							var main = document.getElementById("ag_svg_" + $scope.unique);							
-							if (!main && $scope.inited == false && data.config) {								
-								$scope.timeout = setTimeout(update.bind(this, data), 40);
+							if (!main && $scope.inited == false && data.config) {															
+								$scope.timeout = setTimeout(() => {update(data)},40);
 								return
-							}
-							
+							}							
 							$scope.inited = true
 							$scope.timeout = null
 							if (data.config) {
@@ -613,7 +610,7 @@ module.exports = function (RED) {
 										euv = data.config.unit
 									}
 									if (data.config.differential == true) {
-										cv = (data.config.center.value)//.toFixed(data.config.decimals.fixed)
+										cv = (data.config.center.value)
 									}
 									u = [data.config.min, cv, data.config.max]
 								}
@@ -641,9 +638,17 @@ module.exports = function (RED) {
 							if($scope.waitingmessage != null){	
 								var d = {}
 								Object.assign(d, $scope.waitingmessage)
-								$scope.waitingmessage = null																					
-								$scope.timeout = setTimeout(update.bind(this, d), 20);
-								return
+								$scope.waitingmessage = null
+								if(d.config){
+									console.log('reinit for waiting msg '+d.config)
+									$scope.timeout =setTimeout(() => {update(d)},40);
+									return
+								}
+								else{
+									if(!data.payload){
+										data.payload = d.payload
+									}
+								}
 							}
 							if (data.payload) {
 								if ($scope.type === 'radial') {
@@ -655,7 +660,6 @@ module.exports = function (RED) {
 						}
 
 						var loadScript = function (id,path) {
-							//console.log('loadscript',path)
 							var head = document.getElementsByTagName('head')[0];
 							var script = document.createElement('script');
 							script.type = 'text/javascript';
@@ -812,69 +816,78 @@ module.exports = function (RED) {
 						var updateIcon = function (type, iconclass, layout, adjust) {
 							var icontext = ""
 							if (iconclass != "") {
-								if (type == 'angular-material') {
-									icontext = String.fromCharCode(parseInt(iconclass, 16))
+								try {
+									if (type == 'angular-material') {
+										icontext = String.fromCharCode(parseInt(iconclass, 16))
+									}
+									if (type == 'mi') {
+										icontext = iconclass.split("-")[1]
+									} else {
+										var testI = document.createElement('i');
+										var char;
+										testI.className = type + ' ' + iconclass;
+										document.body.appendChild(testI);
+										char = window.getComputedStyle(testI, ':before').content.replace(/'|"/g, '');
+										testI.remove();
+										icontext = String.fromCharCode(char.charCodeAt(0))
+									}
+								} catch (error) {
+									icontext = ""
 								}
-								if (type == 'mi') {
-									icontext = iconclass.split("-")[1]
-								} else {
-									var testI = document.createElement('i');
-									var char;
-									testI.className = type + ' ' + iconclass;
-									document.body.appendChild(testI);
-									char = window.getComputedStyle(testI, ':before').content.replace(/'|"/g, '');
-									testI.remove();
-									icontext = String.fromCharCode(char.charCodeAt(0))
-								}
+								
 							}
 							var ic = document.getElementById("ag_icon_" + $scope.unique);
-							if (ic) {
-								$(ic).text(icontext);
-								$(ic).css("font-size", "");
-								var ib = ic.getBBox()
-								if (layout == 'linear') {
-									var line = document.getElementById("ag_str_bg_" + $scope.unique)
-									if(line){							
-										var linebox = line.getBBox()									
-										var diff = ib.width - linebox.x
-										if (diff > -2) {
-											var d = diff < 0 ? 0 : diff
-											var ics = document.querySelector(".ag-icon-" + $scope.unique)
-											if(ics){
-												var istyl = parseFloat(window.getComputedStyle(ics).fontSize)
-												$(ic).css("font-size", (istyl - d - 4) + "px");
-											}											
+							if (ic && icontext != "") {
+								try {
+									$(ic).text(icontext);
+									$(ic).css("font-size", "");
+									var ib = ic.getBBox()
+									if (layout == 'linear') {
+										var line = document.getElementById("ag_str_bg_" + $scope.unique)
+										if(line){							
+											var linebox = line.getBBox()									
+											var diff = ib.width - linebox.x
+											if (diff > -2) {
+												var d = diff < 0 ? 0 : diff
+												var ics = document.querySelector(".ag-icon-" + $scope.unique)
+												if(ics){
+													var istyl = parseFloat(window.getComputedStyle(ics).fontSize)
+													$(ic).css("font-size", (istyl - d - 4) + "px");
+												}											
+											}
+											ib = ic.getBBox()
+											var ih = ib.height
+											var ny = ih + ((adjust.eh - ih) / 2)
+											if (type == 'wi') {
+												ny -= 3
+											}
+											if (type == 'mi') {
+												ny += 2
+											}
+											var nx = Math.floor((linebox.x - ib.width) / 2)
+											if (nx < 0) { nx = 0 }
+											$(ic).attr('y', ny);
+											$(ic).attr('x', nx);
 										}
-										ib = ic.getBBox()
-										var ih = ib.height
-										var ny = ih + ((adjust.eh - ih) / 2)
-										if (type == 'wi') {
-											ny -= 3
-										}
-										if (type == 'mi') {
-											ny += 2
-										}
-										var nx = Math.floor((linebox.x - ib.width) / 2)
-										if (nx < 0) { nx = 0 }
-										$(ic).attr('y', ny);
-										$(ic).attr('x', nx);
+										
 									}
-									
-								}
-								if (layout == 'radial') {
-									var arcel = document.getElementById("ag_str_bg_" + $scope.unique)
-									if(arcel){
-										var arcbox = arcel.getBBox()
-										ny = arcbox.y + arcbox.height
-										if (type == 'mi') {
-											ny += 3
-										}
-										if (type == 'wi') {
-											ny -= 3
-										}
-										$(ic).attr('y', ny);
-									}									
-								}
+									if (layout == 'radial') {
+										var arcel = document.getElementById("ag_str_bg_" + $scope.unique)
+										if(arcel){
+											var arcbox = arcel.getBBox()
+											ny = arcbox.y + arcbox.height
+											if (type == 'mi') {
+												ny += 3
+											}
+											if (type == 'wi') {
+												ny -= 3
+											}
+											$(ic).attr('y', ny);
+										}									
+									}
+								} catch (error) {
+									$(ic).text('');
+								}								
 							}
 						}
 
@@ -888,20 +901,24 @@ module.exports = function (RED) {
 							}
 							try {								
 								var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
-								var el = "#ag_str_line_" + $scope.unique
+								var double = false
+								var currentx = null
 								if (p.pos.c) {
-									var currentx = gsap.getProperty(el, 'X')									
+									var el = document.getElementById("ag_str_line_" + $scope.unique)
+									if(el){
+										var currentx = document.getElementById("ag_str_line_" + $scope.unique).getAttribute('x')
+									}																		
 									if (currentx != null) {
 										if ((currentx == p.pos.c && p.pos.x < p.pos.c) || (currentx < p.pos.c && p.pos.x == p.pos.c)) {
-											gsap.to(el, { duration: dur.half, attr: { width: 1, x: p.pos.c }, ease: "power2.in" });
-											gsap.to(el, { duration: dur.half, delay: dur.half, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.out" });
-										} else {
-											gsap.to(el, { duration: dur.full, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
+											double = true
 										}
-									} else {
-										gsap.to(el, { duration: dur.full, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
-									}
-								} else {
+									} 
+								} 
+								if(double){
+									gsap.to(el, { duration: dur.half, attr: { width: 1, x: p.pos.c }, ease: "power2.in" });
+									gsap.to(el, { duration: dur.half, delay: dur.half, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.out" });
+								}
+								else{
 									gsap.to(el, { duration: dur.full, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
 								}
 								gsap.to(el, { duration: dur.half, delay: dur.half, fill: p.col })
@@ -924,22 +941,26 @@ module.exports = function (RED) {
 							if (p.pos.x) {
 								return
 							}
-							try {								
+							try {
+								var double = false								
 								var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
 								if (p.pos.cp) {
 									if (($scope.arc.left < p.pos.cp && p.pos.left == p.pos.cp) || ($scope.arc.right > p.pos.cp && p.pos.right == p.pos.cp)) {
-										gsap.to($scope.arc, { right: p.pos.cp, left: p.pos.cp, duration: dur.half, ease: "power2.in", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
-										gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.half, delay: dur.half, ease: "power2.out", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
-									} else {
-										gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.full, ease: "power2.inOut", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
+										double = true										
 									}
-								} else {
+								} 
+								if(double){
+									gsap.to($scope.arc, { right: p.pos.cp, left: p.pos.cp, duration: dur.half, ease: "power2.in", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
+									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.half, delay: dur.half, ease: "power2.out", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
+								}
+								else {
 									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.full, ease: "power2.inOut", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
 								}
 								var el = "#ag_str_line_" + $scope.unique
 								gsap.to(el, { duration: dur.half, delay: dur.half, stroke: p.col })
 									
-							} catch (error) {
+							}
+							catch (error) {
 								$scope.arc.left = p.pos.left
 								$scope.arc.right = p.pos.right
 								var el = document.getElementById("ag_str_line_" + $scope.unique)
