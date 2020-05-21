@@ -867,12 +867,13 @@ module.exports = function (RED) {
 											ib = ic.getBBox()
 											var ih = ib.height
 											var ny = ih + ((adjust.eh - ih) / 2)
-											if (type == 'wi') {
-												ny -= 3
+											var mult  = adjust.eh / 36											
+											 if (type == 'wi') {
+												ny -= 3 * mult
 											}
 											if (type == 'mi') {
-												ny += 2
-											}											
+												ny += 2 * mult
+											}	 										
 											$(ic).attr('y', ny);
 											$(ic).attr('x', 0);
 										}
