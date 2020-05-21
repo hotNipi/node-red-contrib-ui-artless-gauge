@@ -79,7 +79,7 @@ module.exports = function (RED) {
 					<tspan ng-if="${config.differential == true}" x="${config.center.point + 1.5}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
 					<tspan x="${config.exactwidth - 3}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
 				</text>
-				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="start" dominant-baseline="baseline" x="0" y="${config.stripe.y + 6}">icon</text>	
+				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="start" dominant-baseline="baseline" x="0" y="${config.stripe.y + 6}"></text>	
 				<rect id="ag_str_bg_{{unique}}" x="` + config.stripe.left + `" y="` + config.stripe.y + `" 
 					width="${config.stripe.width}" height="1"	
 					style="stroke:none";
@@ -103,7 +103,7 @@ module.exports = function (RED) {
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${(config.arc.cy - config.arc.r) - config.height * 4}">${config.label}</text>
 				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .9}"></text>
 				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .9 + config.stripe.sdy}"></text>
-				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .75 + config.arc.r}">icon</text>
+				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .75 + config.arc.r}"></text>
 				
 				<text ng-if="${config.width > 2}" id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="0" y="0"
 					text-anchor="end" dominant-baseline="baseline">
@@ -488,7 +488,7 @@ module.exports = function (RED) {
 				var b = config.type == 'radial' ? range(side, fp, 'clamp', false) : 1.28
 
 				config.icontype = getIconType()
-				var ismult = config.type == "linear" ? 1.4 : config.height < 4 ? config.height - 1.25 : 2.5
+				var ismult = config.type == "linear" ? config.icontype == "wi" ? 1.2 : 1.4 : config.height < 4 ? config.height - 1.25 : 2.5
 				var is = parseFloat(sizecoef * ismult).toFixed(1)
 				var norm = parseFloat(sizecoef * 1).toFixed(1)
 				var big = parseFloat(sizecoef * b).toFixed(1)
@@ -665,7 +665,16 @@ module.exports = function (RED) {
 							script.type = 'text/javascript';
 							script.id = id
 							script.src = path;
-							head.appendChild(script);							      
+							head.appendChild(script);
+							script.onload = function(){
+								try {									
+									gsap.config({
+										nullTargetWarn: false										
+									  });
+								} catch (error) {
+									//console.log('gsap configuration not changed')
+								}								
+							}							      
 						}
 
 						var visibility = function(){
@@ -839,20 +848,20 @@ module.exports = function (RED) {
 							var ic = document.getElementById("ag_icon_" + $scope.unique);
 							if (ic && icontext != "") {
 								try {
-									$(ic).text(icontext);
-									$(ic).css("font-size", "");
+									$(ic).text(icontext);									
 									var ib = ic.getBBox()
-									if (layout == 'linear') {
+									if (layout == 'linear') {										
 										var line = document.getElementById("ag_str_bg_" + $scope.unique)
 										if(line){							
 											var linebox = line.getBBox()									
-											var diff = ib.width - linebox.x
+											var diff = ib.width - linebox.x											
+											
 											if (diff > -2) {
 												var d = diff < 0 ? 0 : diff
 												var ics = document.querySelector(".ag-icon-" + $scope.unique)
 												if(ics){
 													var istyl = parseFloat(window.getComputedStyle(ics).fontSize)
-													$(ic).css("font-size", (istyl - d - 4) + "px");
+													$(ic).css("font-size", (istyl - d) + "px");													
 												}											
 											}
 											ib = ic.getBBox()
@@ -863,11 +872,9 @@ module.exports = function (RED) {
 											}
 											if (type == 'mi') {
 												ny += 2
-											}
-											var nx = Math.floor((linebox.x - ib.width) / 2)
-											if (nx < 0) { nx = 0 }
+											}											
 											$(ic).attr('y', ny);
-											$(ic).attr('x', nx);
+											$(ic).attr('x', 0);
 										}
 										
 									}
@@ -899,14 +906,14 @@ module.exports = function (RED) {
 							if (p.pos.left) {
 								return
 							}
+							var el = document.getElementById("ag_str_line_" + $scope.unique)
 							try {								
 								var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
 								var double = false
-								var currentx = null
-								if (p.pos.c) {
-									var el = document.getElementById("ag_str_line_" + $scope.unique)
+								var currentx = null								
+								if (p.pos.c) {									
 									if(el){
-										var currentx = document.getElementById("ag_str_line_" + $scope.unique).getAttribute('x')
+										var currentx = el.getAttribute('x')
 									}																		
 									if (currentx != null) {
 										if ((currentx == p.pos.c && p.pos.x < p.pos.c) || (currentx < p.pos.c && p.pos.x == p.pos.c)) {
@@ -914,17 +921,18 @@ module.exports = function (RED) {
 										}
 									} 
 								} 
-								if(double){
-									gsap.to(el, { duration: dur.half, attr: { width: 1, x: p.pos.c }, ease: "power2.in" });
-									gsap.to(el, { duration: dur.half, delay: dur.half, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.out" });
-								}
-								else{
-									gsap.to(el, { duration: dur.full, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
-								}
-								gsap.to(el, { duration: dur.half, delay: dur.half, fill: p.col })
+								if(el){
+									if(double){
+										gsap.to(el, { duration: dur.half, attr: { width: 1, x: p.pos.c }, ease: "power2.in" });
+										gsap.to(el, { duration: dur.half, delay: dur.half, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.out" });
+									}
+									else{
+										gsap.to(el, { duration: dur.full, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
+									}
+									gsap.to(el, { duration: dur.half, delay: dur.half, fill: p.col })
+								}								
 								
-							} catch (error) {
-								var el = document.getElementById("ag_str_line_" + $scope.unique)
+							} catch (error) {								
 								if (el) {
 									el.setAttribute("width",p.pos.w);
 									el.setAttribute("x",p.pos.x);
@@ -941,6 +949,10 @@ module.exports = function (RED) {
 							if (p.pos.x) {
 								return
 							}
+							if(!$scope.arc){
+								return
+							}
+							var el = document.getElementById("ag_str_line_" + $scope.unique)
 							try {
 								var double = false								
 								var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
@@ -956,18 +968,17 @@ module.exports = function (RED) {
 								else {
 									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.full, ease: "power2.inOut", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
 								}
-								var el = "#ag_str_line_" + $scope.unique
-								gsap.to(el, { duration: dur.half, delay: dur.half, stroke: p.col })
-									
+								if(el){
+									gsap.to(el, { duration: dur.half, delay: dur.half, stroke: p.col })
+								}
 							}
 							catch (error) {
 								$scope.arc.left = p.pos.left
-								$scope.arc.right = p.pos.right
-								var el = document.getElementById("ag_str_line_" + $scope.unique)
+								$scope.arc.right = p.pos.right								
 								if (el) {
 									el.setAttribute("stroke",p.col);
-								}
-								drawArcLine($scope.arc)
+									drawArcLine($scope.arc)
+								}								
 							}							
 						}
 
