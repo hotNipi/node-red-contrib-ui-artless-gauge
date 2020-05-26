@@ -505,9 +505,10 @@ module.exports = function (RED) {
 					sdy: smalldrift
 				}
 				side = Math.min(config.exactwidth, config.exactheight)
+				var ya = config.height == 2 ? 1.4 : 1.32
 				config.arc = {
 					cx: (config.exactwidth / 2),
-					cy: (side / 2) * 1.375,
+					cy: (side / 2) * ya,
 					r: (side / 2) - 6,
 					left: -40,
 					right: 220
