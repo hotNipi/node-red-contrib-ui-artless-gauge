@@ -632,7 +632,7 @@ module.exports = function (RED) {
 									}
 								}
 								updateSegmentDots(data.config.sectors)
-								var adjust = { h: data.config.height, eh: data.config.exactheight }
+								var adjust = { h: data.config.height, eh: data.config.exactheight ,left:data.config.stripe.left}
 								updateIcon(data.config.icontype, data.config.icon, data.config.type, adjust)								
 							}
 							
@@ -874,9 +874,10 @@ module.exports = function (RED) {
 											}
 											if (type == 'mi') {
 												ny += 2 * mult
-											}	 										
+											}
+											var nx = (adjust.left - ib.width) / 2	 										
 											$(ic).attr('y', ny);
-											$(ic).attr('x', 0);
+											$(ic).attr('x', nx);
 										}
 										
 									}
@@ -958,14 +959,16 @@ module.exports = function (RED) {
 							try {
 								var double = false								
 								var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
-								if (p.pos.cp) {
-									if (($scope.arc.left < p.pos.cp && p.pos.left == p.pos.cp) || ($scope.arc.right > p.pos.cp && p.pos.right == p.pos.cp)) {
+								
+								if (p.pos.cp && $scope.last) {
+									if (($scope.last.left < p.pos.cp && p.pos.left == p.pos.cp) || ($scope.last.right > p.pos.cp && p.pos.right == p.pos.cp)) {
 										double = true										
 									}
-								} 
+								}
+								$scope.last = {left:p.pos.left ,right:p.pos.right}								
 								if(double){
 									gsap.to($scope.arc, { right: p.pos.cp, left: p.pos.cp, duration: dur.half, ease: "power2.in", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
-									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.half, delay: dur.half, ease: "power2.out", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
+									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.half, delay: dur.half, ease: "power2.out", onUpdate: drawArcLine, onUpdateParams: [$scope.arc]})
 								}
 								else {
 									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.full, ease: "power2.inOut", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
