@@ -894,7 +894,8 @@ module.exports = function (RED) {
 												ny -= 3
 											}
 											$(ic).attr('y', ny);
-										}									
+										}
+										$(ic).attr('opacity',1)									
 									}
 								} catch (error) {
 									$(ic).text('');
