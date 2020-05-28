@@ -849,37 +849,38 @@ module.exports = function (RED) {
 							var ic = document.getElementById("ag_icon_" + $scope.unique);
 							if (ic && icontext != "") {
 								try {
-									$(ic).text(icontext);									
-									var ib = ic.getBBox()
-									if (layout == 'linear') {										
-										var line = document.getElementById("ag_str_bg_" + $scope.unique)
-										if(line){							
-											var linebox = line.getBBox()									
-											var diff = ib.width - linebox.x											
-											
-											if (diff > -2) {
-												var d = diff < 0 ? 0 : diff
-												var ics = document.querySelector(".ag-icon-" + $scope.unique)
-												if(ics){
-													var istyl = parseFloat(window.getComputedStyle(ics).fontSize)
-													$(ic).css("font-size", (istyl - d) + "px");													
-												}											
-											}
-											ib = ic.getBBox()
+									$(ic).text(icontext);
+									$(ic).attr('opacity',0)																	
+									var ib = ic.getBBox()									
+									if (layout == 'linear') {																											
+										var diff = ib.width - adjust.left
+										if (diff > -2) {
+											var d = diff < 0 ? 0 : diff
+											var ics = document.querySelector(".ag-icon-" + $scope.unique)
+											if(ics){
+												var istyl = parseFloat(window.getComputedStyle(ics).fontSize)
+												$(ic).css("font-size", (istyl - d) + "px");													
+											}											
+										}
+										setTimeout(function(){
+											ib = ic.getBBox()										
 											var ih = ib.height
 											var ny = ih + ((adjust.eh - ih) / 2)
 											var mult  = adjust.eh / 36											
-											 if (type == 'wi') {
+												if (type == 'wi') {
 												ny -= 3 * mult
 											}
 											if (type == 'mi') {
 												ny += 2 * mult
-											}
-											var nx = (adjust.left - ib.width) / 2	 										
+											}										
+											var nx = ib.x																					
+											if(ib.width < adjust.left){
+												nx = (adjust.left - ib.width) / 2
+											}																					
 											$(ic).attr('y', ny);
 											$(ic).attr('x', nx);
-										}
-										
+											$(ic).attr('opacity',1)												
+										},50)	
 									}
 									if (layout == 'radial') {
 										var arcel = document.getElementById("ag_str_bg_" + $scope.unique)
