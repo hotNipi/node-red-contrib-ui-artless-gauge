@@ -277,22 +277,23 @@ module.exports = function (RED) {
 					return ret
 				}
 				getSiteProperties = function () {
-					var opts = null;
-					if (typeof ui.getSizes === "function") {
-						opts = {};
-						opts.sizes = ui.getSizes();
-						opts.theme = ui.getTheme();
-					}
-					if (opts === null) {
-						node.log("Couldn't reach to the site parameters. Using hardcoded default parameters!")
-						opts = {}
-						opts.sizes = { sx: 48, sy: 48, gx: 4, gy: 4, cx: 4, cy: 4, px: 4, py: 4 }
-						opts.theme = {
-							'widget-backgroundColor': {
-								value: "#097479"
-							}
+					var opts = {}
+					opts.sizes = { sx: 48, sy: 48, gx: 4, gy: 4, cx: 4, cy: 4, px: 4, py: 4 }
+					opts.theme = {
+						'group-borderColor': {
+							value: "#097479"
 						}
 					}
+					
+					if (typeof ui.getSizes === "function") {						
+						if(ui.getSizes()){
+							opts.sizes = ui.getSizes();
+						}
+						if(ui.getTheme()){
+							
+							opts.theme = ui.getTheme();
+						}
+					}				
 					return opts
 				}
 				range = function (n, p, a, r, c) {
@@ -513,7 +514,6 @@ module.exports = function (RED) {
 					left: -40,
 					right: 220
 				}
-
 				config.bgrColor = site.theme['group-borderColor'].value
 
 				if (config.bgcolorFromTheme == false) {
