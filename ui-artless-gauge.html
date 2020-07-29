@@ -22,10 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 -->
 <script type='text/javascript'>
-    var ERR_MINMAX = "MIN should be less than MAX!"
-    var ERR_UNIQUE = "All values must be unique!"
-    var ERR_SOME_NAN = "Bad sector configuration!"
-    var ERR_SOME_OVER = "Sector out of range!"
+    var ARTLESS_ERR_MINMAX = "MIN should be less than MAX!"
+    var ARTLESS_ERR_UNIQUE = "All values must be unique!"
+    var ARTLESS_ERR_SOME_NAN = "Bad sector configuration!"
+    var ARTLESS_ERR_SOME_OVER = "Sector out of range!"
     RED.nodes.registerType('ui_artlessgauge', {
         category: 'dashboard',
         color: 'rgb( 63, 173, 181)',
@@ -66,16 +66,16 @@ SOFTWARE.
                     var mi = v.find(el => el.t == 'min')
                     var ma = v.find(el => el.t == 'max')
                     if (mi.val > ma.val) {
-                        configError = ERR_MINMAX
+                        configError = ARTLESS_ERR_MINMAX
                         valid = false
                     } else if (v.length != unique.length) {
-                        configError = ERR_UNIQUE
+                        configError = ARTLESS_ERR_UNIQUE
                         valid = false
                     } else if (v.some(el => isNaN(el.val))) {
-                        configError = ERR_SOME_NAN
+                        configError = ARTLESS_ERR_SOME_NAN
                         valid = false
                     } else if (v.some(el => el.val > ma.val)) {
-                        configError = ERR_SOME_OVER
+                        configError = ARTLESS_ERR_SOME_OVER
                         valid = false
                     }
                     return valid                    
@@ -373,13 +373,13 @@ SOFTWARE.
                 var mi = v.find(el => el.t == 'min')
                 var ma = v.find(el => el.t == 'max')
                 if (mi.val > ma.val) {
-                    configError = ERR_MINMAX
+                    configError = ARTLESS_ERR_MINMAX
                 } else if (v.length != unique.length) {
-                    configError = ERR_UNIQUE
+                    configError = ARTLESS_ERR_UNIQUE
                 } else if (v.some(el => isNaN(el.val))) {
-                    configError = ERR_SOME_NAN
+                    configError = ARTLESS_ERR_SOME_NAN
                 } else if (v.some(el => el.val > ma.val)) {
-                    configError = ERR_SOME_OVER
+                    configError = ARTLESS_ERR_SOME_OVER
                 }
             }
             revalidate(this.sectors)
