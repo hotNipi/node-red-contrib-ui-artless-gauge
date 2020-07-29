@@ -78,8 +78,7 @@ SOFTWARE.
                         configError = ERR_SOME_OVER
                         valid = false
                     }
-                    return valid
-                    //return true
+                    return valid                    
                 }
             },
             lineWidth: { value: 3 },
@@ -139,11 +138,46 @@ SOFTWARE.
                 $('.red-ui-editableList-border').toggleClass('input-error', (error != ""));
             }
 
+            function checkLineOptions() {               
+                var opts = [3,5,7]
+                if($('#node-input-layout').val() == 'radial'){
+                    var m = Math.min($('#node-input-width').val(),$('#node-input-height').val())                    
+                    if(m > 3){
+                        opts = [3,5,7,9,11,13,15]
+                    }
+                }
+                var last = $('#node-input-lineWidth').val()
+                
+                if(last == null){
+                   last = this.lineWidth || 3
+                }
+                              
+                $('#node-input-lineWidth').children().remove();
+                $.each(opts, function(key,value) {
+                    $('#node-input-lineWidth')
+                        .append($("<option></option>")
+                        .attr("value",value)
+                        .text(value+"px"));
+                });
+                if ($("#node-input-lineWidth option[value="+last+"]").length > 0 ){
+                    $("#node-input-lineWidth").children("[value="+last+"]").attr('selected', true);
+                    this.lineWidth = last;
+                }
+                else{
+                    $("#node-input-lineWidth").children("[value=3]").attr('selected', true);
+                    this.lineWidth = 3;
+                }
+            }
+
             $('#node-input-size').elementSizer({
                 width: '#node-input-width',
                 height: '#node-input-height',
                 group: '#node-input-group'
             });
+            if (this.layout === undefined) {
+                this.layout = 'linear';
+                $('#node-input-layout').val('Linear');
+            }
             if (this.property === undefined) {
                 $("#node-input-property").val("payload");
             }
@@ -170,16 +204,11 @@ SOFTWARE.
             if (this.minmax === undefined) {
                 $("#node-input-minmax").prop('checked', false);
             }
-
-            if (this.layout === undefined) {
-                this.layout = 'linear';
-                $('#node-input-layout').val('Linear');
-            }
+            
             if (this.lineWidth === undefined) {
                 this.lineWidth = 3;
                 $('#node-input-lineWidth').val('3px');
             }
-
 
             $('#node-input-colorFromTheme').change(function () {
                 if (this.checked == true) {
@@ -247,7 +276,7 @@ SOFTWARE.
                         style: "width:60px; margin-left:8px;",
                         type: "number",
                         min: '0',
-                        max: '6',
+                        max: '12',
                         size: '1'
                     })
                         .appendTo(row)
@@ -256,11 +285,6 @@ SOFTWARE.
 
                     valField.typedInput('type', getTypeDef(rule.t));
                     valField.typedInput('value', rule.val);
-
-
-
-
-
                     sortList()
 
                     colorField.on('change', function (type, value) {
@@ -362,6 +386,16 @@ SOFTWARE.
             $("#node-input-rule-container").editableList('addItems', this.sectors);
             ruleInfo(configError)
 
+            $('#node-input-layout').change(function(){
+                window.setTimeout(checkLineOptions,20)
+            })
+            $('#node-input-width').change(function(){
+                window.setTimeout(checkLineOptions,30)
+            })
+            $('#node-input-height').change(function(){
+                window.setTimeout(checkLineOptions,40)
+            })
+
         },
         oneditsave: function () {
             var list = $("#node-input-rule-container").editableList('items');
@@ -441,6 +475,10 @@ SOFTWARE.
             <option value=3>3px</option>
             <option value=5>5px</option>
             <option value=7>7px</option>
+            <option value=9>9px</option>
+            <option value=11>11px</option>
+            <option value=13>13px</option>
+            <option value=15>15px</option>            
         </select>
     </div>
     <div class='form-row' id='node-input-linebgcolor'>

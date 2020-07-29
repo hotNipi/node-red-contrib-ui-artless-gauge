@@ -470,12 +470,13 @@ module.exports = function (RED) {
 					config.width = smallest
 					config.height = smallest
 				}
+				//config.lineWidth = 15
 
 				config.exactwidth = parseInt(site.sizes.sx * config.width + site.sizes.cx * (config.width - 1)) - 12;
 				config.exactheight = parseInt(site.sizes.sy * config.height + site.sizes.cy * (config.height - 1)) - 12;
-				var sizecoef = site.sizes.sy / 48
-				var iconsize = (30 * sizecoef) + 4
-				var smalldrift = config.type == 'radial' ? config.height == 2 ? (13 * sizecoef) + 1 : (16 * sizecoef) + 1 : (13 * sizecoef) + 1
+				config.sizecoef = site.sizes.sy / 48
+				var iconsize = (30 * config.sizecoef) + 4
+				var smalldrift = config.type == 'radial' ? config.height == 2 ? (13 * config.sizecoef) + 1 : (16 * config.sizecoef) + 1 : (13 * config.sizecoef) + 1
 				if (config.lineWidth == 7 && config.type == 'linear') {
 					smalldrift += 1
 				}
@@ -490,10 +491,10 @@ module.exports = function (RED) {
 
 				config.icontype = getIconType()
 				var ismult = config.type == "linear" ? config.icontype == "wi" ? 1.2 : 1.4 : config.height < 4 ? config.height - 1.25 : 2.5
-				var is = parseFloat(sizecoef * ismult).toFixed(1)
-				var norm = parseFloat(sizecoef * 1).toFixed(1)
-				var big = parseFloat(sizecoef * b).toFixed(1)
-				var small = parseFloat(sizecoef * 0.75).toFixed(1)
+				var is = parseFloat(config.sizecoef * ismult).toFixed(1)
+				var norm = parseFloat(config.sizecoef * 1).toFixed(1)
+				var big = parseFloat(config.sizecoef * b).toFixed(1)
+				var small = parseFloat(config.sizecoef * 0.75).toFixed(1)
 				config.font = { normal: norm, small: small, big: big, icon: is }
 
 				var le = config.icon == "" ? 0 : iconsize
@@ -510,7 +511,7 @@ module.exports = function (RED) {
 				config.arc = {
 					cx: (config.exactwidth / 2),
 					cy: (side / 2) * ya,
-					r: (side / 2) - 6,
+					r: (side / 2) - config.lineWidth,
 					left: -40,
 					right: 220
 				}
@@ -580,6 +581,8 @@ module.exports = function (RED) {
 						$scope.diffpoint = null
 						$scope.vis = 'visible'						
 						$scope.waitingmessage = null
+						$scope.lineWidth = 3
+						$scope.sizecoef = 1
 
 						$scope.init = function (p) {												
 							if(!document.getElementById('greensock-gsap-3')){
@@ -598,6 +601,8 @@ module.exports = function (RED) {
 							$scope.inited = true
 							$scope.timeout = null
 							if (data.config) {
+								$scope.lineWidth = data.config.lineWidth
+								$scope.sizecoef = data.config.sizecoef
 								$scope.type = data.config.type
 								if (data.config.differential == true) {
 									$scope.diffpoint = data.config.center.value
@@ -718,7 +723,7 @@ module.exports = function (RED) {
 							}
 							el = document.getElementById("ag_alt_1_" + $scope.unique);
 							if (el) {
-								var p = convert(arc.cx, arc.cy + 10, arc.r - 5, center.point)
+								var p = convert(arc.cx, arc.cy + 10, arc.r - Math.max(5,$scope.lineWidth*$scope.sizecoef), center.point)
 								var diff = Math.abs(arc.cx - p.x)
 								var a = diff < 20 ? "middle" : p.x > arc.cx ? "end" : "start"
 
