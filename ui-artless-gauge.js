@@ -460,7 +460,7 @@ module.exports = function (RED) {
 				config.width = parseInt(config.width)
 				config.height = parseInt(config.height)
 				if (config.type == 'linear') {
-					config.height = 1
+					config.height = config.height > 2 ? 2 : config.height
 				}
 				if (config.type == 'radial') {
 					var smallest = Math.min(...[config.width, config.height])
@@ -476,9 +476,12 @@ module.exports = function (RED) {
 				config.exactheight = parseInt(site.sizes.sy * config.height + site.sizes.cy * (config.height - 1)) - 12;
 				config.sizecoef = site.sizes.sy / 48
 				var iconsize = (30 * config.sizecoef) + 4
+				if (config.lineWidth >= 7 && config.type == 'linear') {
+					iconsize *=1.5
+				}
 				var smalldrift = config.type == 'radial' ? config.height == 2 ? (13 * config.sizecoef) + 1 : (16 * config.sizecoef) + 1 : (13 * config.sizecoef) + 1
-				if (config.lineWidth == 7 && config.type == 'linear') {
-					smalldrift += 1
+				if (config.lineWidth > 7 && config.type == 'linear') {
+					smalldrift += config.lineWidth/2 * config.sizecoef
 				}
 				var fp = {
 					minin: 40,
@@ -487,12 +490,16 @@ module.exports = function (RED) {
 					maxout: (1 + (config.height == 2 ? 1 : config.height)) * .9
 				}
 				var side = Math.min((site.sizes.sy * config.height), (site.sizes.sx * config.width))
-				var b = config.type == 'radial' ? range(side, fp, 'clamp', false) : 1.28
+				var b = config.type == 'radial' ? range(side, fp, 'clamp', false) : config.height == 2 ? 2 : 1.28
+				var n = config.type == 'radial' ? 1 : config.height == 2 ? 1.28 : 1
 
 				config.icontype = getIconType()
 				var ismult = config.type == "linear" ? config.icontype == "wi" ? 1.2 : 1.4 : config.height < 4 ? config.height - 1.25 : 2.5
+				if (config.lineWidth > 7 && config.type == 'linear') {
+					ismult *=1.5
+				}
 				var is = parseFloat(config.sizecoef * ismult).toFixed(1)
-				var norm = parseFloat(config.sizecoef * 1).toFixed(1)
+				var norm = parseFloat(config.sizecoef * n).toFixed(1)
 				var big = parseFloat(config.sizecoef * b).toFixed(1)
 				var small = parseFloat(config.sizecoef * 0.75).toFixed(1)
 				config.font = { normal: norm, small: small, big: big, icon: is }
@@ -502,7 +509,7 @@ module.exports = function (RED) {
 
 				config.stripe = {
 					left: le,
-					y: site.sizes.sy * .52,
+					y: site.sizes.sy * config.height * .52,
 					width: wi,
 					sdy: smalldrift
 				}

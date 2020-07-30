@@ -21,7 +21,7 @@ Artless gauge is gauge with minimal design. Gauge has two layouts - linear and r
 
 ## Configuration
 ### Size
-For linear layout the supported height is 1 unit.
+For linear layout the supported height is up to 2 units. 
 For radial mode the minimal size is 2x2 units. Supported size configuration for radial layout is square (3x3, 4x4, ...). Widget forces different size combinations to be square, based on shortest side.
 
 ### Input 
@@ -42,6 +42,9 @@ Option to turn on differential mode. With this option selected, the colored trac
 
 ### Range
 Configure minimum and maximum expected values and adjust line color. Add segments and configure colors for them if needed. Note that MIN and MAX options can not be removed. A small dot with segment color can be drawn at the point of segment. To show dot for segment, configure size for dot bigger that zero.
+
+### Line width
+You can adjust thickness of the colored bar. The range of possible values depends on layout and configured size.
 
 ### Track color
 Color of track background line can be configured. By default, the site colors used.

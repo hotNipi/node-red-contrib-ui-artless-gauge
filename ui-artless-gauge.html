@@ -146,6 +146,11 @@ SOFTWARE.
                         opts = [3,5,7,9,11,13,15]
                     }
                 }
+                else{
+                    if($('#node-input-height').val() == 2){
+                        opts = [3,5,7,9,11,13,15,17,19,21,23,25]
+                    }
+                }
                 var last = $('#node-input-lineWidth').val()
                 
                 if(last == null){
@@ -479,6 +484,11 @@ SOFTWARE.
             <option value=11>11px</option>
             <option value=13>13px</option>
             <option value=15>15px</option>            
+            <option value=17>17px</option>            
+            <option value=19>19px</option>            
+            <option value=21>21px</option>            
+            <option value=23>23px</option>            
+            <option value=25>25px</option>            
         </select>
     </div>
     <div class='form-row' id='node-input-linebgcolor'>
@@ -545,6 +555,9 @@ Add segments and configure colors for them if needed.
 Note that Min and Max options can not be removed.
 <p>A small dot with segment color can be drawn at the point of segment. 
 To show dot for segment, configure size for dot bigger that zero.
+
+<h3>Line width</h3>
+You can adjust thickness of the colored bar. The range of possible values depends on layout and configured size.
 
 <h3> Track color</h3>
 Color of track background line can be configured. By default, the site colors used.
