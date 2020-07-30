@@ -476,7 +476,7 @@ module.exports = function (RED) {
 				config.exactheight = parseInt(site.sizes.sy * config.height + site.sizes.cy * (config.height - 1)) - 12;
 				config.sizecoef = site.sizes.sy / 48
 				var iconsize = (30 * config.sizecoef) + 4
-				if (config.lineWidth >= 7 && config.type == 'linear') {
+				if (config.lineWidth > 7 && config.type == 'linear') {
 					iconsize *=1.5
 				}
 				var smalldrift = config.type == 'radial' ? config.height == 2 ? (13 * config.sizecoef) + 1 : (16 * config.sizecoef) + 1 : (13 * config.sizecoef) + 1
