@@ -31,8 +31,13 @@ Configured input property (default is <code>msg.payload</code>) should carry sin
 Label can be any string. Label field does not support any html for color or size adjustments.
 
 ### Icon
-Supported icons are same as for dashboard: [Font Awesome 4.7](https://fontawesome.com/v4.7.0/icons/), [Material Icons](https://material.io/resources/icons/?style=baseline) and [Weather icons lite](https://github.com/Paul-Reed/weather-icons-lite). 
-Icon field does not support any html for icon appearance adjustments.
+Supported icons are same as for dashboard: [Font Awesome 4.7](https://fontawesome.com/v4.7.0/icons/), [Material Icons](https://material.io/resources/icons/?style=baseline) and [Weather icons lite](https://github.com/Paul-Reed/weather-icons-lite). If your setup has internet connection, you can also use [Iconify icons](https://iconify.design/). To use Iconify icons, use prefix <code>iconify-</code> and you'll need to add the API to the dashboard site head
+
+```javascript
+<script src="https://code.iconify.design/1/1.0.7/iconify.min.js"></script>
+``` 
+
+Icon field does not support any html or CSS for icon appearance adjustments.
 
 ### Layout
 Choose layout type. Layout can be linear or radial.
@@ -45,6 +50,24 @@ Configure minimum and maximum expected values and adjust line color. Add segment
 
 ### Line width
 You can adjust thickness of the colored bar. The range of possible values depends on layout and configured size.
+
+### Line style
+You can make the colored bar to be dashed line. Provided comma separated list of numbers makes pattern of dash-array.
+First number represents dash width, second number represents gap width.
+
+<code>
+    2, 2
+</code> 
+
+In addition there is option to make dash ends to be round by adding the word "round" to the end of list. 
+To get perfetly round dots, configure dash width to 0 and gap width equal or a bit larger than Line width. 
+<p>
+<code>
+    0, 8, round
+</code> 
+
+See more about [stroke dash-array](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray)
+
 
 ### Track color
 Color of track background line can be configured. By default, the site colors used.

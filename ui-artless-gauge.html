@@ -55,6 +55,7 @@ SOFTWARE.
             differential: { value: false },
             minmax: { value: false },
             colorTrack: { value: '#555555' },
+            style: { value: '' },
             colorFromTheme: { value: true },
             property: { value: "payload", required: true },
             sectors: {
@@ -182,6 +183,10 @@ SOFTWARE.
             if (this.layout === undefined) {
                 this.layout = 'linear';
                 $('#node-input-layout').val('Linear');
+            }
+            if (this.style === undefined) {
+                this.style = '';
+                $('#node-input-style').val('');
             }
             if (this.property === undefined) {
                 $("#node-input-property").val("payload");
@@ -491,6 +496,10 @@ SOFTWARE.
             <option value=25>25px</option>            
         </select>
     </div>
+    <div class='form-row'>
+        <label for='node-input-style'><i class='fa fa-paint-brush'></i> Line style</label>        
+        <input type='text' id='node-input-style' style='width:120px' placeholder='2, 2' dir=''>        
+    </div>  
     <div class='form-row' id='node-input-linebgcolor'>
         <label for='node-input-bgcolorFromTheme' style='padding-top:6px; padding-bottom:6px'><i class='fa fa-paint-brush'></i> Track color</span></label>
         <input type="checkbox" id="node-input-bgcolorFromTheme" checked style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;">Use theme color
@@ -539,7 +548,10 @@ Supported icons are same as for dashboard:
 <a href="https://fontawesome.com/v4.7.0/icons/">Font Awesome 4.7</a>, 
 <a href="https://material.io/resources/icons/?style=baseline">Material Icons</a> and 
 <a href="https://github.com/Paul-Reed/weather-icons-lite">Weather icons lite</a>. 
-Icon field does not support any html for size adjustments.
+<p>If your setup has internet connection, you can also use <a href="https://iconify.design/">Iconify icons</a>.
+To use Iconify icons, use prefix <code>iconify-</code> and you'll need to add the iconify API to the dashboard site head.
+
+<p>Icon field does not support any html or CSS for icon appearance adjustments.
 
 <h3> Layout</h3>
 Choose layout type. Layout can be linear or radial.
@@ -558,6 +570,24 @@ To show dot for segment, configure size for dot bigger that zero.
 
 <h3>Line width</h3>
 You can adjust thickness of the colored bar. The range of possible values depends on layout and configured size.
+
+<h3>Line style</h3>
+You can make the colored bar to be dashed line. Provided comma separated list of numbers makes pattern of dash-array.
+First number represents dash width, second number represents gap width.
+<p>
+<code>
+    2, 2
+</code> 
+
+<p>In addition there is option to make dash ends to be round by adding the word "round" to the end of list. 
+To get perfetly round dots, configure dash width to 0 and gap width equal or a bit larger than Line width. 
+<p>
+<code>
+    0, 8, round
+</code> 
+
+<p>See more about <a href="https://iconify.design/">stroke dash-array</a>
+
 
 <h3> Track color</h3>
 Color of track background line can be configured. By default, the site colors used.

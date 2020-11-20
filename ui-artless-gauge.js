@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
 var path = require('path');
 module.exports = function (RED) {
 	function HTML(config) {
@@ -31,7 +32,14 @@ module.exports = function (RED) {
 
 		var styles = String.raw`
 		<style>
-			.ag-txt-{{unique}} {					
+			.ag-txt-{{unique}} {
+				-webkit-touch-callout: none;
+				-webkit-user-select:none;
+				-khtml-user-select:none;
+				-moz-user-select:none;
+				-ms-user-select:none;
+				-o-user-select:none;
+				user-select:none;					
 				fill: currentColor;	
 				font-size:${config.font.normal}em;				
 			}					
@@ -42,8 +50,18 @@ module.exports = function (RED) {
 				font-size:${config.font.big}em;
 			}			
 			.ag-icon-{{unique}}{
+				-webkit-touch-callout: none;
+				-webkit-user-select:none;
+				-khtml-user-select:none;
+				-moz-user-select:none;
+				-ms-user-select:none;
+				-o-user-select:none;
+				user-select:none;	
 				fill: currentColor;
 				font-size:${config.font.icon}em;				
+			}
+			.ag-icon-{{unique}}.iconify path{
+				fill:currentColor;
 			}
 			.ag-icon-{{unique}}.fa{
 				font-family:"FontAwesome";
@@ -64,7 +82,7 @@ module.exports = function (RED) {
 		var initpos = config.differential == true ? config.center.point : config.stripe.left
 
 		var linear = String.raw`				
-			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
+			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" cursor="default" pointer-events="none" ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" 
 				text-anchor="start" dominant-baseline="baseline" 
 				x="` + config.stripe.left + `" y="${config.stripe.y - 5 - (config.lineWidth / 2)}">${config.label}</text>
@@ -79,7 +97,12 @@ module.exports = function (RED) {
 					<tspan ng-if="${config.differential == true}" x="${config.center.point + 1.5}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
 					<tspan x="${config.exactwidth - 3}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
 				</text>
-				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="start" dominant-baseline="baseline" x="0" y="${config.stripe.y + 6}"></text>	
+				<text ng-if="${config.icon != "" && config.icontype !="iconify"}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="start" dominant-baseline="baseline" x="0" y="${config.stripe.y + 6}"></text>	
+				
+				<g ng-if="${config.icon != "" && config.icontype =="iconify"}" id="ag_icon_{{unique}}" transform="translate(0,0)">
+					<image class="ag-icon-{{unique}} iconify" data-icon="${config.icon.split(' ')[0].substr(8)}"></image>
+				</g>
+				
 				<rect id="ag_str_bg_{{unique}}" x="` + config.stripe.left + `" y="` + config.stripe.y + `" 
 					width="${config.stripe.width}" height="1"	
 					style="stroke:none";
@@ -89,22 +112,20 @@ module.exports = function (RED) {
 					width="1" height="7"	
 					style="stroke:none"
 					fill="${config.bgrColor}"				
-				/>	
-				<rect id="ag_str_line_{{unique}}" x="${initpos}" y="${config.stripe.y - (config.lineWidth / 2)}" 
-					width="0" height="${config.lineWidth}"	
-					style="stroke:none"
-					fill="${config.color}"				
-				/>
+				/>				
+				<path id="ag_str_line_{{unique}}" style="fill:none"; stroke="${config.color}" stroke-width="${config.lineWidth}" />				
 				<g id="ag_dots_{{unique}}" style="outline: none; border: 0;"></g>				
 			</svg>`
 
 		var radial = String.raw`				
-			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"  ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
+			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" cursor="default" pointer-events="none" ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${(config.arc.cy - config.arc.r) - config.height * 4}">${config.label}</text>
 				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .9}"></text>
 				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .9 + config.stripe.sdy}"></text>
-				<text ng-if="${config.icon != ""}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .75 + config.arc.r}"></text>
-				
+				<text ng-if="${config.icon != "" && config.icontype !="iconify"}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .75 + config.arc.r}"></text>
+				<g ng-if="${config.icon != "" && config.icontype =="iconify"}" id="ag_icon_{{unique}}" transform="translate(0,0)">
+					<image class="ag-icon-{{unique}} iconify" data-icon="${config.icon.split(' ')[0].substr(8)}"></image>
+				</g>
 				<text ng-if="${config.width > 2}" id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="0" y="0"
 					text-anchor="end" dominant-baseline="baseline">
 					<tspan y="0" dy="${config.arc.cy * .75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 - config.arc.r * .68}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
@@ -334,7 +355,7 @@ module.exports = function (RED) {
 							var centerpoint = range(config.center.value, dp, 'clamp', true, 4)
 
 							if (v == config.center.value) {
-								return { x: centerpoint - 1, w: 2 }
+								return { x: centerpoint - 1, w: 2, c: centerpoint +1}
 							}
 							else if (v < config.center.value) {
 								vp = range(v, dp, 'clamp', true, 4)
@@ -348,7 +369,7 @@ module.exports = function (RED) {
 						var p = {
 							minin: config.min,
 							maxin: config.max,
-							minout: 0,
+							minout: config.stripe.left,
 							maxout: config.stripe.width
 						}
 						return {
@@ -432,6 +453,7 @@ module.exports = function (RED) {
 					var fa = /^fa-/i;
 					var wi = /^wi-/i;
 					var mi = /^mi-/i;
+					var icf = /^iconify-/i;
 
 					if (url.test(config.icon)) {
 						t = 'image';
@@ -442,7 +464,11 @@ module.exports = function (RED) {
 						t = 'wi';
 					} else if (mi.test(config.icon)) {
 						t = 'mi';
-					} else {
+					} else if (icf.test(config.icon)) {
+						t = 'iconify';
+					}
+					
+					else {
 						t = 'angular-material';
 					}
 					return t
@@ -470,7 +496,7 @@ module.exports = function (RED) {
 					config.width = smallest
 					config.height = smallest
 				}
-				//config.lineWidth = 15
+				
 
 				config.exactwidth = parseInt(site.sizes.sx * config.width + site.sizes.cx * (config.width - 1)) - 12;
 				config.exactheight = parseInt(site.sizes.sy * config.height + site.sizes.cy * (config.height - 1)) - 12;
@@ -544,6 +570,27 @@ module.exports = function (RED) {
 					vert: (site.sizes.sy / 16) + 'px'
 				}
 
+				config.linestyle = {
+					dasharray:"",
+					linecap:'butt'
+
+				}
+				if(config.style && config.style != ''){
+					var a = config.style.split(',')
+					a.forEach(el => {
+						el.trim()
+						if(el.indexOf('round') != -1){
+							config.linestyle.linecap = 'round'
+						}
+						else{
+							if(!isNaN(parseFloat(el))){
+								config.linestyle.dasharray += parseFloat(el)+" "								
+							}
+						}
+					})					
+				}
+				
+
 				config.property = config.property || "payload";
 				var html = HTML(config);
 
@@ -590,6 +637,10 @@ module.exports = function (RED) {
 						$scope.waitingmessage = null
 						$scope.lineWidth = 3
 						$scope.sizecoef = 1
+						$scope.line = null
+						
+						
+						$scope.stripey = 0
 
 						$scope.init = function (p) {												
 							if(!document.getElementById('greensock-gsap-3')){
@@ -608,12 +659,19 @@ module.exports = function (RED) {
 							$scope.inited = true
 							$scope.timeout = null
 							if (data.config) {
+								
+								$scope.stripey = data.config.stripe.y
 								$scope.lineWidth = data.config.lineWidth
 								$scope.sizecoef = data.config.sizecoef
 								$scope.type = data.config.type
 								if (data.config.differential == true) {
 									$scope.diffpoint = data.config.center.value
 								}
+
+								if(data.config.linestyle.dasharray != ''){
+									updateLineStyle(data.config.linestyle)
+								}
+
 								updateContainerStyle(main, data.config.padding)
 								var u = data.config.type == "linear" ? ["", "", data.config.unit] : ["", "", ""]
 								var cv = ""
@@ -639,12 +697,15 @@ module.exports = function (RED) {
 									}
 								}
 								else {
+									if ($scope.line == null) {
+										$scope.line = {x:data.config.stripe.left,w:data.config.stripe.width}
+									}
 									if (data.config.differential == true) {
 										adjustCenter(data.config.center.point)
 									}
 								}
 								updateSegmentDots(data.config.sectors)
-								var adjust = { h: data.config.height, eh: data.config.exactheight ,left:data.config.stripe.left}
+								var adjust = { h: data.config.height, eh: data.config.exactheight ,ew: data.config.exactwidth, left:data.config.stripe.left,font:parseFloat(data.config.font.icon)}
 								updateIcon(data.config.icontype, data.config.icon, data.config.type, adjust)								
 							}
 							
@@ -670,6 +731,14 @@ module.exports = function (RED) {
 									updateGaugeLinear(data.payload)
 								}
 							}
+						}
+
+						var updateLineStyle = function (linestyle){							
+							var el = document.getElementById("ag_str_line_" + $scope.unique)
+							if (el) {
+								el.setAttribute("stroke-dasharray",linestyle.dasharray)
+								el.setAttribute("stroke-linecap",linestyle.linecap)
+							}							
 						}
 
 						var loadScript = function (id,path) {
@@ -844,7 +913,12 @@ module.exports = function (RED) {
 									}
 									if (type == 'mi') {
 										icontext = iconclass.split("-")[1]
-									} else {
+									}
+									if (type == 'iconify') {
+										//do nothing								
+									}
+									
+									else {
 										var testI = document.createElement('i');
 										var char;
 										testI.className = type + ' ' + iconclass;
@@ -859,59 +933,75 @@ module.exports = function (RED) {
 								
 							}
 							var ic = document.getElementById("ag_icon_" + $scope.unique);
-							if (ic && icontext != "") {
-								try {
-									$(ic).text(icontext);
-									$(ic).attr('opacity',0)																	
-									var ib = ic.getBBox()									
-									if (layout == 'linear') {																											
-										var diff = ib.width - adjust.left
-										if (diff > -2) {
-											var d = diff < 0 ? 0 : diff
-											var ics = document.querySelector(".ag-icon-" + $scope.unique)
-											if(ics){
-												var istyl = parseFloat(window.getComputedStyle(ics).fontSize)
-												$(ic).css("font-size", (istyl - d) + "px");													
-											}											
+							if (ic) {
+								if(type == 'iconify'){
+									//console.log(layout, adjust)
+									var tsx = 0
+									var tsy = 0
+									if(layout == 'linear'){
+										tsx = tsx = (adjust.left/2 - ((16*adjust.font)/2))-adjust.h
+										tsy = (adjust.eh/2 - ((16*adjust.font)/2))+adjust.h
+									}
+									else{
+										tsx = (adjust.ew/2 - ((16*adjust.font)/2))
+										tsy = adjust.eh - (16*adjust.font)
+									}
+									ic.setAttribute('transform','translate('+tsx+','+tsy+')')
+								}
+								else if(icontext != ""){
+									try {
+										$(ic).text(icontext);
+										$(ic).attr('opacity',0)																	
+										var ib = ic.getBBox()									
+										if (layout == 'linear') {																											
+											var diff = ib.width - adjust.left
+											if (diff > -2) {
+												var d = diff < 0 ? 0 : diff
+												var ics = document.querySelector(".ag-icon-" + $scope.unique)
+												if(ics){
+													var istyl = parseFloat(window.getComputedStyle(ics).fontSize)
+													$(ic).css("font-size", (istyl - d) + "px");													
+												}											
+											}
+											setTimeout(function(){
+												ib = ic.getBBox()										
+												var ih = ib.height
+												var ny = ih + ((adjust.eh - ih) / 2)
+												var mult  = adjust.eh / 36											
+													if (type == 'wi') {
+													ny -= 3 * mult
+												}
+												if (type == 'mi') {
+													ny += 2 * mult
+												}										
+												var nx = ib.x																					
+												if(ib.width < adjust.left){
+													nx = (adjust.left - ib.width) / 2
+												}																					
+												$(ic).attr('y', ny);
+												$(ic).attr('x', nx);
+												$(ic).attr('opacity',1)												
+											},50)	
 										}
-										setTimeout(function(){
-											ib = ic.getBBox()										
-											var ih = ib.height
-											var ny = ih + ((adjust.eh - ih) / 2)
-											var mult  = adjust.eh / 36											
+										if (layout == 'radial') {
+											var arcel = document.getElementById("ag_str_bg_" + $scope.unique)
+											if(arcel){
+												var arcbox = arcel.getBBox()
+												ny = arcbox.y + arcbox.height
+												if (type == 'mi') {
+													ny += 3
+												}
 												if (type == 'wi') {
-												ny -= 3 * mult
+													ny -= 3
+												}
+												$(ic).attr('y', ny);
 											}
-											if (type == 'mi') {
-												ny += 2 * mult
-											}										
-											var nx = ib.x																					
-											if(ib.width < adjust.left){
-												nx = (adjust.left - ib.width) / 2
-											}																					
-											$(ic).attr('y', ny);
-											$(ic).attr('x', nx);
-											$(ic).attr('opacity',1)												
-										},50)	
-									}
-									if (layout == 'radial') {
-										var arcel = document.getElementById("ag_str_bg_" + $scope.unique)
-										if(arcel){
-											var arcbox = arcel.getBBox()
-											ny = arcbox.y + arcbox.height
-											if (type == 'mi') {
-												ny += 3
-											}
-											if (type == 'wi') {
-												ny -= 3
-											}
-											$(ic).attr('y', ny);
+											$(ic).attr('opacity',1)									
 										}
-										$(ic).attr('opacity',1)									
+									} catch (error) {
+										$(ic).text('');
 									}
-								} catch (error) {
-									$(ic).text('');
-								}								
+								}																
 							}
 						}
 
@@ -923,39 +1013,48 @@ module.exports = function (RED) {
 							if (p.pos.left) {
 								return
 							}
+
 							var el = document.getElementById("ag_str_line_" + $scope.unique)
-							try {								
-								var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
-								var double = false
-								var currentx = null								
-								if (p.pos.c) {									
-									if(el){
-										var currentx = el.getAttribute('x')
-									}																		
-									if (currentx != null) {
-										if ((currentx == p.pos.c && p.pos.x < p.pos.c) || (currentx < p.pos.c && p.pos.x == p.pos.c)) {
-											double = true
-										}
-									} 
-								} 
-								if(el){
-									if(double){
-										gsap.to(el, { duration: dur.half, attr: { width: 1, x: p.pos.c }, ease: "power2.in" });
-										gsap.to(el, { duration: dur.half, delay: dur.half, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.out" });
-									}
-									else{
-										gsap.to(el, { duration: dur.full, attr: { width: p.pos.w, x: p.pos.x }, ease: "power2.inOut" });
-									}
-									gsap.to(el, { duration: dur.half, delay: dur.half, fill: p.col })
-								}								
-								
-							} catch (error) {								
-								if (el) {
-									el.setAttribute("width",p.pos.w);
-									el.setAttribute("x",p.pos.x);
-									el.setAttribute("fill",p.col);
+							var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
+
+							$scope.lastline = {x:p.pos.x ,w:p.pos.w} 
+							var xp = p.pos.x
+							var wp = p.pos.w										
+							if(p.pos.c){
+								xp = p.pos.c
+								wp = p.pos.x == p.pos.c ? p.pos.x + p.pos.w : p.pos.x
+							}
+							if(el){
+								try{
+									gsap.to($scope.line, { x: xp, w: wp, duration: dur.full, ease: "power2.inOut", onUpdate: drawPathLine, onUpdateParams: [$scope.line] })									
+									gsap.to(el, { duration: dur.half, delay: dur.half, stroke: p.col })				
 								}
-							}							
+								catch (error) {
+									$scope.line.x = xp
+									$scope.line.w = wp								
+									if (el) {
+										el.setAttribute("stroke",p.col);
+										drawPathLine($scope.line)
+									}								
+								}								
+							}	
+						}
+
+						var drawPathLine = function(p){
+							if (!p || !p.x === undefined || !p.w === undefined) {
+								return
+							}
+							p.x = parseFloat(p.x)
+							p.w = parseFloat(p.w)							
+							if (isNaN(p.x) || isNaN(p.w)) {
+								return
+							}
+							var el = document.getElementById("ag_str_line_" + $scope.unique)
+							if (el) {
+								var d = ["M", p.x, $scope.stripey, "L", p.w, $scope.stripey].join(" ")
+								
+								el.setAttribute("d", d);
+							}
 						}
 
 						var updateGaugeRadial = function (p) {
