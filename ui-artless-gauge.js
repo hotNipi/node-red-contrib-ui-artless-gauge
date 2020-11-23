@@ -813,7 +813,8 @@ module.exports = function (RED) {
 							if (!cont) {
 								return
 							}
-							if (cont.children.length > 0) {
+							var groupChildren = cont.children || cont.childNodes;
+							if (groupChildren.length > 0) {
 								while (cont.firstChild) {
 									cont.removeChild(cont.firstChild);
 								}
