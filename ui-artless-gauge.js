@@ -120,8 +120,10 @@ module.exports = function (RED) {
 		var radial = String.raw`				
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" cursor="default" pointer-events="none" ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${(config.arc.cy - config.arc.r) - config.height * 4}">${config.label}</text>
-				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .9}"></text>
-				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .9 + config.stripe.sdy}"></text>
+				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline"
+				 x="${config.exactwidth / 2}" y="${config.arc.cy * .9}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}"></text>
+				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline"
+				 x="${config.exactwidth / 2}" y="${config.arc.cy * .9 + config.stripe.sdy}" dy="${config.icon == "" ? config.font.icon * 2 * config.height  : 0}"></text>
 				<text ng-if="${config.icon != "" && config.icontype !="iconify"}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .75 + config.arc.r}"></text>
 				<g ng-if="${config.icon != "" && config.icontype =="iconify"}" id="ag_icon_{{unique}}" transform="translate(0,0)">
 					<image class="ag-icon-{{unique}} iconify" data-icon="${config.icon.split(' ')[0].substr(8)}"></image>
@@ -633,7 +635,7 @@ module.exports = function (RED) {
 						$scope.type = null
 						$scope.arc = null
 						$scope.diffpoint = null
-						$scope.vis = 'visible'						
+						//$scope.vis = 'visible'						
 						$scope.waitingmessage = null
 						$scope.lineWidth = 3
 						$scope.sizecoef = 1
@@ -646,7 +648,7 @@ module.exports = function (RED) {
 							if(!document.getElementById('greensock-gsap-3')){
 								loadScript('greensock-gsap-3','ui-artless-gauge/js/gsap.min.js')
 							}					
-							document.addEventListener("visibilitychange", visibility);
+							//document.addEventListener("visibilitychange", visibility);
 							update(p)
 						}
 						
@@ -759,9 +761,9 @@ module.exports = function (RED) {
 							}							      
 						}
 
-						var visibility = function(){
+						/* var visibility = function(){
 							$scope.vis = document.visibilityState || 'visible'
-						}
+						} */
 
 						var updateContainerStyle = function (el, padding) {
 							if(el){
@@ -813,12 +815,10 @@ module.exports = function (RED) {
 							if (!cont) {
 								return
 							}
-							var groupChildren = cont.children || cont.childNodes;
-							if (groupChildren.length > 0) {
-								while (cont.firstChild) {
-									cont.removeChild(cont.firstChild);
-								}
-							}
+							
+							const dots = [].slice.call(document.querySelectorAll('g#ag_dots_' + $scope.unique+' circle'));
+  							dots.forEach(dot => { dot.remove(); });
+
 							if (!sectors) {
 								return
 							}
@@ -847,7 +847,6 @@ module.exports = function (RED) {
 								if (!data.dot || data.dot == 0) {
 									return
 								}
-
 								var p = ((data.val - min) * 100) / (max - min)
 								var pr = (p * pathWidth) / 100
 								var pt = line.getPointAtLength(pr);
@@ -857,14 +856,12 @@ module.exports = function (RED) {
 								if (data.t == 'max') {
 									pt.x -= data.dot
 								}
-
 								var circle = document.createElementNS(svgns, 'circle');
 								circle.setAttributeNS(null, 'cx', pt.x);
 								circle.setAttributeNS(null, 'cy', pt.y);
 								circle.setAttributeNS(null, 'r', data.dot);
 								var col = data.col
 								if ($scope.diffpoint != null && data.val < $scope.diffpoint && idx > 0) {
-
 									col = all[idx - 1].col
 								}
 								circle.setAttributeNS(null, 'style', 'fill:' + col + ';');
@@ -872,13 +869,18 @@ module.exports = function (RED) {
 							}
 							if ($scope.type === 'radial') {
 								var arc = document.getElementById("ag_str_bg_" + $scope.unique)
-								var pathLength = arc.getTotalLength()
-								sectors.forEach(drawDotRadial)
+								if(arc){
+									var pathLength = arc.getTotalLength() || 0
+									sectors.forEach(drawDotRadial)
+								}
+								
 							}
 							else {
 								var line = document.getElementById("ag_str_bg_" + $scope.unique)
-								var pathWidth = $(line).width()
-								sectors.forEach(drawDotLinear)
+								if(line){
+									var pathWidth = $(line).width() || 0
+									sectors.forEach(drawDotLinear)
+								}								
 							}
 						}
 
@@ -1016,7 +1018,7 @@ module.exports = function (RED) {
 							}
 
 							var el = document.getElementById("ag_str_line_" + $scope.unique)
-							var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
+							var dur = { full: 1, half: 0.5 }//$scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
 
 							$scope.lastline = {x:p.pos.x ,w:p.pos.w} 
 							var xp = p.pos.x
@@ -1072,7 +1074,7 @@ module.exports = function (RED) {
 							var el = document.getElementById("ag_str_line_" + $scope.unique)
 							try {
 								var double = false								
-								var dur = $scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
+								var dur = { full: 1, half: 0.5 } //$scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
 								
 								if (p.pos.cp && $scope.last) {
 									if (($scope.last.left < p.pos.cp && p.pos.left == p.pos.cp) || ($scope.last.right > p.pos.cp && p.pos.right == p.pos.cp)) {
@@ -1147,7 +1149,7 @@ module.exports = function (RED) {
 								clearTimeout($scope.timeout)
 								$scope.timeout = null
 							}
-							document.removeEventListener("visibilitychange", visibility);
+							//document.removeEventListener("visibilitychange", visibility);
 						});
 					}
 				});
