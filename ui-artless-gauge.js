@@ -97,7 +97,8 @@ module.exports = function (RED) {
 					<tspan ng-if="${config.differential == true}" x="${config.center.point + 1.5}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
 					<tspan x="${config.exactwidth - 3}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
 				</text>
-				<text ng-if="${config.icon != "" && config.icontype !="iconify"}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="start" dominant-baseline="baseline" x="0" y="${config.stripe.y + 6}"></text>	
+				<text ng-if="${config.icon != "" && (config.icontype =="fa" || config.icontype =="wi")}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="start" dominant-baseline="baseline" x="0" y="${config.stripe.y + 6}"></text>
+				<text ng-if="${config.icon != "" && (config.icontype =="mi")}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="start" dominant-baseline="baseline" x="0" y="${config.stripe.y + 6}">${config.icon.substr(3)}</text>	
 				
 				<g ng-if="${config.icon != "" && config.icontype =="iconify"}" id="ag_icon_{{unique}}" transform="translate(0,0)">
 					<image class="ag-icon-{{unique}} iconify" data-icon="${config.icon.split(' ')[0].substr(8)}"></image>
@@ -124,7 +125,8 @@ module.exports = function (RED) {
 				 x="${config.exactwidth / 2}" y="${config.arc.cy * .9}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}"></text>
 				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline"
 				 x="${config.exactwidth / 2}" y="${config.arc.cy * .9 + config.stripe.sdy}" dy="${config.icon == "" ? config.font.icon * 2 * config.height  : 0}"></text>
-				<text ng-if="${config.icon != "" && config.icontype !="iconify"}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .75 + config.arc.r}"></text>
+				<text ng-if="${config.icon != "" && (config.icontype =="fa" || config.icontype =="wi")}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .75 + config.arc.r}"></text>
+				<text ng-if="${config.icon != "" && (config.icontype =="mi")}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .75 + config.arc.r}">${config.icon.substr(3)}</text>
 				<g ng-if="${config.icon != "" && config.icontype =="iconify"}" id="ag_icon_{{unique}}" transform="translate(0,0)">
 					<image class="ag-icon-{{unique}} iconify" data-icon="${config.icon.split(' ')[0].substr(8)}"></image>
 				</g>
@@ -708,7 +710,7 @@ module.exports = function (RED) {
 								}
 								updateSegmentDots(data.config.sectors)
 								var adjust = { h: data.config.height, eh: data.config.exactheight ,ew: data.config.exactwidth, left:data.config.stripe.left,font:parseFloat(data.config.font.icon)}
-								updateIcon(data.config.icontype, data.config.icon, data.config.type, adjust)								
+								updateIcon(data.config.icontype, data.config.icon, data.config.type, adjust)							
 							}
 							
 							if($scope.waitingmessage != null){	
@@ -953,7 +955,9 @@ module.exports = function (RED) {
 								}
 								else if(icontext != ""){
 									try {
-										$(ic).text(icontext);
+										if(type != "mi"){
+											$(ic).text(icontext);											
+										}										
 										$(ic).attr('opacity',0)																	
 										var ib = ic.getBBox()									
 										if (layout == 'linear') {																											
@@ -962,8 +966,11 @@ module.exports = function (RED) {
 												var d = diff < 0 ? 0 : diff
 												var ics = document.querySelector(".ag-icon-" + $scope.unique)
 												if(ics){
-													var istyl = parseFloat(window.getComputedStyle(ics).fontSize)
-													$(ic).css("font-size", (istyl - d) + "px");													
+													if(type != "mi"){
+														var istyl = parseFloat(window.getComputedStyle(ics).fontSize)
+														$(ic).css("font-size", (istyl - d) + "px");		
+													}
+																								
 												}											
 											}
 											setTimeout(function(){
