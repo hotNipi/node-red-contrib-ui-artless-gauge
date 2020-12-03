@@ -374,7 +374,7 @@ module.exports = function (RED) {
 							minin: config.min,
 							maxin: config.max,
 							minout: config.stripe.left,
-							maxout: config.stripe.width
+							maxout: config.exactwidth
 						}
 						return {
 							x: config.stripe.left,
@@ -845,7 +845,7 @@ module.exports = function (RED) {
 								circle.setAttributeNS(null, 'style', 'fill:' + col + ';');
 								cont.appendChild(circle);
 							}
-							function drawDotLinear(data, idx, all) {
+							function drawDotLinear(data, idx, all) {								
 								if (!data.dot || data.dot == 0) {
 									return
 								}
@@ -881,6 +881,7 @@ module.exports = function (RED) {
 								var line = document.getElementById("ag_str_bg_" + $scope.unique)
 								if(line){
 									var pathWidth = $(line).width() || 0
+									
 									sectors.forEach(drawDotLinear)
 								}								
 							}
