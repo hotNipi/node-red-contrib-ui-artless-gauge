@@ -49,35 +49,38 @@ module.exports = function (RED) {
 			.ag-txt-{{unique}}.big {
 				font-size:${config.font.big}em;
 			}			
-			.ag-icon-{{unique}}{
-				-webkit-touch-callout: none;
-				-webkit-user-select:none;
-				-khtml-user-select:none;
-				-moz-user-select:none;
-				-ms-user-select:none;
-				-o-user-select:none;
-				user-select:none;	
-				fill: currentColor;
-				font-size:${config.font.icon}em;				
+			
+			.ag-icon-container-{{unique}}{
+				position: absolute;
+				width: ${config.iconcont}px;
+				height: ${config.iconcont}px;
+				margin: auto;
+				text-align:center;				
 			}
-			.ag-icon-{{unique}}.iconify path{
-				fill:currentColor;
+			.ag-icon-container-{{unique}}.linear{				
+				text-align: center;				
+				top: 50%;				
+				transform: translateY(-50%);
 			}
-			.ag-icon-{{unique}}.fa{
-				font-family:"FontAwesome";
+			.ag-icon-container-{{unique}}.radial{				
+				bottom:  ${config.padding.vert};
+				transform: translateX(-50%);
+				left: 50%;
 			}
-			.ag-icon-{{unique}}.mi{
-				font-family:"Material Icons";
-			}
-			.ag-icon-{{unique}}.wi{
-				font-family:"weather-icons-lite";
-				font-size:${config.font.icon}em
-			}
-			.ag-icon-{{unique}}.angular-material{
-				font-family:"Material Icons";
-			}
-					
-													
+			.ag-icon-wrapper-{{unique}}.linear{
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50% , -50%);
+			}		
+			.ag-icon-wrapper-{{unique}}.radial{
+				position: absolute;
+				bottom: 0px;
+				margin-right: auto;
+				margin-left: auto;
+				left: 0px;
+				right: 0px;
+			}									
 		</style>`
 		var initpos = config.differential == true ? config.center.point : config.stripe.left
 
@@ -97,12 +100,7 @@ module.exports = function (RED) {
 					<tspan ng-if="${config.differential == true}" x="${config.center.point + 1.5}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
 					<tspan x="${config.exactwidth - 3}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
 				</text>
-				<text ng-if="${config.icon != "" && (config.icontype =="fa" || config.icontype =="wi")}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="start" dominant-baseline="baseline" x="0" y="${config.stripe.y + 6}"></text>
-				<text ng-if="${config.icon != "" && (config.icontype =="mi")}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="start" dominant-baseline="baseline" x="0" y="${config.stripe.y + 6}">${config.icon.substr(3)}</text>	
 				
-				<g ng-if="${config.icon != "" && config.icontype =="iconify"}" id="ag_icon_{{unique}}" transform="translate(0,0)">
-					<image class="ag-icon-{{unique}} iconify" data-icon="${config.icon.split(' ')[0].substr(8)}"></image>
-				</g>
 				
 				<rect id="ag_str_bg_{{unique}}" x="` + config.stripe.left + `" y="` + config.stripe.y + `" 
 					width="${config.stripe.width}" height="1"	
@@ -125,11 +123,7 @@ module.exports = function (RED) {
 				 x="${config.exactwidth / 2}" y="${config.arc.cy * .9}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}"></text>
 				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline"
 				 x="${config.exactwidth / 2}" y="${config.arc.cy * .9 + config.stripe.sdy}" dy="${config.icon == "" ? config.font.icon * 2 * config.height  : 0}"></text>
-				<text ng-if="${config.icon != "" && (config.icontype =="fa" || config.icontype =="wi")}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .75 + config.arc.r}"></text>
-				<text ng-if="${config.icon != "" && (config.icontype =="mi")}" id="ag_icon_{{unique}}" class="ag-icon-{{unique}} ${config.icontype}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${config.arc.cy * .75 + config.arc.r}">${config.icon.substr(3)}</text>
-				<g ng-if="${config.icon != "" && config.icontype =="iconify"}" id="ag_icon_{{unique}}" transform="translate(0,0)">
-					<image class="ag-icon-{{unique}} iconify" data-icon="${config.icon.split(' ')[0].substr(8)}"></image>
-				</g>
+				
 				<text ng-if="${config.width > 2}" id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="0" y="0"
 					text-anchor="end" dominant-baseline="baseline">
 					<tspan y="0" dy="${config.arc.cy * .75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 - config.arc.r * .68}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
@@ -142,9 +136,13 @@ module.exports = function (RED) {
 				<g id="ag_dots_{{unique}}" style="outline: none; border: 0;"></g>
 			</svg>`
 
+		var icondiv = String.raw`<div id="ag_icondiv_{{unique}}" class="ag-icon-container-{{unique}} ${config.type}">
+		
+		</div>
+		`	
 		var layout = config.type == "linear" ? linear : radial
 
-		return String.raw`${styles}${layout}`;
+		return String.raw`${styles}${layout}${icondiv}`;
 	}
 
 	function checkConfig(node, conf) {
@@ -505,10 +503,7 @@ module.exports = function (RED) {
 				config.exactwidth = parseInt(site.sizes.sx * config.width + site.sizes.cx * (config.width - 1)) - 12;
 				config.exactheight = parseInt(site.sizes.sy * config.height + site.sizes.cy * (config.height - 1)) - 12;
 				config.sizecoef = site.sizes.sy / 48
-				var iconsize = (30 * config.sizecoef) + 4
-				if (config.lineWidth > 7 && config.type == 'linear') {
-					iconsize *=1.5
-				}
+				
 				var smalldrift = config.type == 'radial' ? config.height == 2 ? (13 * config.sizecoef) + 1 : (16 * config.sizecoef) + 1 : (13 * config.sizecoef) + 1
 				if (config.lineWidth > 7 && config.type == 'linear') {
 					smalldrift += config.lineWidth/2 * config.sizecoef
@@ -525,17 +520,18 @@ module.exports = function (RED) {
 
 				config.icontype = getIconType()
 				var ismult = config.type == "linear" ? config.icontype == "wi" ? 1.2 : 1.4 : config.height < 4 ? config.height - 1.25 : 2.5
-				if (config.lineWidth > 7 && config.type == 'linear') {
-					ismult *=1.5
+			
+				if(config.type == 'linear' && config.height > 1){
+					ismult *=1.7
 				}
 				var is = parseFloat(config.sizecoef * ismult).toFixed(1)
 				var norm = parseFloat(config.sizecoef * n).toFixed(1)
 				var big = parseFloat(config.sizecoef * b).toFixed(1)
 				var small = parseFloat(config.sizecoef * 0.75).toFixed(1)
 				config.font = { normal: norm, small: small, big: big, icon: is }
-
-				var le = config.icon == "" ? 0 : iconsize
-				var wi = config.icon == "" ? config.exactwidth : config.exactwidth - iconsize
+				config.iconcont = Math.floor((config.exactheight/config.height) +(config.height * 8))
+				var le = config.icon == "" ? 0 : config.iconcont
+				var wi = config.icon == "" ? config.exactwidth : config.exactwidth - config.iconcont
 
 				config.stripe = {
 					left: le,
@@ -709,8 +705,8 @@ module.exports = function (RED) {
 									}
 								}
 								updateSegmentDots(data.config.sectors)
-								var adjust = { h: data.config.height, eh: data.config.exactheight ,ew: data.config.exactwidth, left:data.config.stripe.left,font:parseFloat(data.config.font.icon)}
-								updateIcon(data.config.icontype, data.config.icon, data.config.type, adjust)							
+								var adjust = {font:parseFloat(data.config.font.icon)}
+								updateIcon(data.config.icontype, data.config.icon, adjust)							
 							}
 							
 							if($scope.waitingmessage != null){	
@@ -718,7 +714,7 @@ module.exports = function (RED) {
 								Object.assign(d, $scope.waitingmessage)
 								$scope.waitingmessage = null
 								if(d.config){
-									console.log('reinit for waiting msg '+d.config)
+									//console.log('reinit for waiting msg '+d.config)
 									$scope.timeout =setTimeout(() => {update(d)},40);
 									return
 								}
@@ -762,10 +758,6 @@ module.exports = function (RED) {
 								}								
 							}							      
 						}
-
-						/* var visibility = function(){
-							$scope.vis = document.visibilityState || 'visible'
-						} */
 
 						var updateContainerStyle = function (el, padding) {
 							if(el){
@@ -910,109 +902,50 @@ module.exports = function (RED) {
 							}
 						}
 
-						var updateIcon = function (type, iconclass, layout, adjust) {
-							var icontext = ""
-							if (iconclass != "") {
-								try {
-									if (type == 'angular-material') {
-										icontext = String.fromCharCode(parseInt(iconclass, 16))
-									}
-									if (type == 'mi') {
-										icontext = iconclass.split("-")[1]
-									}
-									if (type == 'iconify') {
-										//do nothing								
-									}
-									
-									else {
-										var testI = document.createElement('i');
-										var char;
-										testI.className = type + ' ' + iconclass;
-										document.body.appendChild(testI);
-										char = window.getComputedStyle(testI, ':before').content.replace(/'|"/g, '');
-										testI.remove();
-										icontext = String.fromCharCode(char.charCodeAt(0))
-									}
-								} catch (error) {
-									icontext = ""
-								}
-								
+						var placeIcon = function(classname,content,dataicon){
+							var container = document.createElement('div')							
+							container.className = "ag-icon-wrapper-"+ $scope.unique+" "+$scope.type							
+							var icon = document.createElement('i')
+							icon.style.lineHeight = 'initial'
+							icon.className = classname
+							if(dataicon){								
+								icon.setAttribute('data-icon',dataicon)
+								container.classList.add(dataicon)
 							}
-							var ic = document.getElementById("ag_icon_" + $scope.unique);
-							if (ic) {
-								if(type == 'iconify'){
-									//console.log(layout, adjust)
-									var tsx = 0
-									var tsy = 0
-									if(layout == 'linear'){
-										tsx = tsx = (adjust.left/2 - ((16*adjust.font)/2))-adjust.h
-										tsy = (adjust.eh/2 - ((16*adjust.font)/2))+adjust.h
-									}
-									else{
-										tsx = (adjust.ew/2 - ((16*adjust.font)/2))
-										tsy = adjust.eh - (16*adjust.font)
-									}
-									ic.setAttribute('transform','translate('+tsx+','+tsy+')')
+							if(content){
+								if(content.icon){
+									icon.innerHTML = content.icon
 								}
-								else if(icontext != ""){
-									try {
-										if(type != "mi"){
-											$(ic).text(icontext);											
-										}										
-										$(ic).attr('opacity',0)																	
-										var ib = ic.getBBox()									
-										if (layout == 'linear') {																											
-											var diff = ib.width - adjust.left
-											if (diff > -2) {
-												var d = diff < 0 ? 0 : diff
-												var ics = document.querySelector(".ag-icon-" + $scope.unique)
-												if(ics){
-													if(type != "mi"){
-														var istyl = parseFloat(window.getComputedStyle(ics).fontSize)
-														$(ic).css("font-size", (istyl - d) + "px");		
-													}
-																								
-												}											
-											}
-											setTimeout(function(){
-												ib = ic.getBBox()										
-												var ih = ib.height
-												var ny = ih + ((adjust.eh - ih) / 2)
-												var mult  = adjust.eh / 36											
-													if (type == 'wi') {
-													ny -= 3 * mult
-												}
-												if (type == 'mi') {
-													ny += 2 * mult
-												}										
-												var nx = ib.x																					
-												if(ib.width < adjust.left){
-													nx = (adjust.left - ib.width) / 2
-												}																					
-												$(ic).attr('y', ny);
-												$(ic).attr('x', nx);
-												$(ic).attr('opacity',1)												
-											},50)	
-										}
-										if (layout == 'radial') {
-											var arcel = document.getElementById("ag_str_bg_" + $scope.unique)
-											if(arcel){
-												var arcbox = arcel.getBBox()
-												ny = arcbox.y + arcbox.height
-												if (type == 'mi') {
-													ny += 3
-												}
-												if (type == 'wi') {
-													ny -= 3
-												}
-												$(ic).attr('y', ny);
-											}
-											$(ic).attr('opacity',1)									
-										}
-									} catch (error) {
-										$(ic).text('');
-									}
-								}																
+								if(content.size){
+									icon.style.fontSize = content.size+"em"
+								}								
+							}							
+							container.appendChild(icon)
+							var root = document.getElementById("ag_icondiv_" + $scope.unique);
+							root.innerHTML = ""
+							root.appendChild(container)
+						}
+
+						var updateIcon = function (type, icon, adjust) {
+							if (icon == "") {return	}
+							switch (type) {
+								case 'fa':{	
+									placeIcon('fa fa-fw '+icon,{size:adjust.font})								
+									break;
+								}
+								case 'wi':{	
+									placeIcon('wi wi-fw '+icon,{size:adjust.font})								
+									break;
+								}
+								case 'mi':{	
+									placeIcon('material-icons',{size:adjust.font,icon:icon.substr(3)})								
+									break;
+								}
+								case 'iconify':{	
+									placeIcon('iconify',{size:adjust.font+0.3},icon.split(' ')[0].substr(8))								
+									break;
+								}							
+								default:{break;}									
 							}
 						}
 
