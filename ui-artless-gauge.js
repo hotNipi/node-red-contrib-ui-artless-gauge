@@ -57,6 +57,9 @@ module.exports = function (RED) {
 				margin: auto;
 				text-align:center;				
 			}
+			.ag-icon-container-{{unique}} > div > svg > path{
+				fill:currentColor !important;	
+			}
 			.ag-icon-container-{{unique}}.linear{				
 				text-align: center;				
 				top: 50%;				
@@ -122,7 +125,7 @@ module.exports = function (RED) {
 				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline"
 				 x="${config.exactwidth / 2}" y="${config.arc.cy * .9}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}"></text>
 				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline"
-				 x="${config.exactwidth / 2}" y="${config.arc.cy * .9 + config.stripe.sdy}" dy="${config.icon == "" ? config.font.icon * 2 * config.height  : 0}"></text>
+				 x="${config.exactwidth / 2}" y="${config.arc.cy * .9 + config.stripe.sdy}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}"></text>
 				
 				<text ng-if="${config.width > 2}" id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="0" y="0"
 					text-anchor="end" dominant-baseline="baseline">
@@ -139,7 +142,7 @@ module.exports = function (RED) {
 		var icondiv = String.raw`<div id="ag_icondiv_{{unique}}" class="ag-icon-container-{{unique}} ${config.type}">
 		
 		</div>
-		`	
+		`
 		var layout = config.type == "linear" ? linear : radial
 
 		return String.raw`${styles}${layout}${icondiv}`;
@@ -154,7 +157,7 @@ module.exports = function (RED) {
 	}
 
 	var ui = undefined;
-	
+
 	function ArtlessGaugeNode(config) {
 		try {
 			var node = this;
@@ -307,16 +310,16 @@ module.exports = function (RED) {
 							value: "#097479"
 						}
 					}
-					
-					if (typeof ui.getSizes === "function") {						
-						if(ui.getSizes()){
+
+					if (typeof ui.getSizes === "function") {
+						if (ui.getSizes()) {
 							opts.sizes = ui.getSizes();
 						}
-						if(ui.getTheme()){
-							
+						if (ui.getTheme()) {
+
 							opts.theme = ui.getTheme();
 						}
-					}				
+					}
 					return opts
 				}
 				range = function (n, p, a, r, c) {
@@ -337,9 +340,9 @@ module.exports = function (RED) {
 						v = Math.round(v);
 					}
 					else {
-						if(c){
+						if (c) {
 							v = parseFloat(v.toFixed(c))
-						}						
+						}
 					}
 					return v
 				}
@@ -357,7 +360,7 @@ module.exports = function (RED) {
 							var centerpoint = range(config.center.value, dp, 'clamp', true, 4)
 
 							if (v == config.center.value) {
-								return { x: centerpoint - 1, w: 2, c: centerpoint +1}
+								return { x: centerpoint - 1, w: 2, c: centerpoint + 1 }
 							}
 							else if (v < config.center.value) {
 								vp = range(v, dp, 'clamp', true, 4)
@@ -469,7 +472,7 @@ module.exports = function (RED) {
 					} else if (icf.test(config.icon)) {
 						t = 'iconify';
 					}
-					
+
 					else {
 						t = 'angular-material';
 					}
@@ -498,15 +501,15 @@ module.exports = function (RED) {
 					config.width = smallest
 					config.height = smallest
 				}
-				
+
 
 				config.exactwidth = parseInt(site.sizes.sx * config.width + site.sizes.cx * (config.width - 1)) - 12;
 				config.exactheight = parseInt(site.sizes.sy * config.height + site.sizes.cy * (config.height - 1)) - 12;
 				config.sizecoef = site.sizes.sy / 48
-				
+
 				var smalldrift = config.type == 'radial' ? config.height == 2 ? (13 * config.sizecoef) + 1 : (16 * config.sizecoef) + 1 : (13 * config.sizecoef) + 1
 				if (config.lineWidth > 7 && config.type == 'linear') {
-					smalldrift += config.lineWidth/2 * config.sizecoef
+					smalldrift += config.lineWidth / 2 * config.sizecoef
 				}
 				var fp = {
 					minin: 40,
@@ -520,16 +523,16 @@ module.exports = function (RED) {
 
 				config.icontype = getIconType()
 				var ismult = config.type == "linear" ? config.icontype == "wi" ? 1.2 : 1.4 : config.height < 4 ? config.height - 1.25 : 2.5
-			
-				if(config.type == 'linear' && config.height > 1){
-					ismult *=1.7
+
+				if (config.type == 'linear' && config.height > 1) {
+					ismult *= 1.7
 				}
 				var is = parseFloat(config.sizecoef * ismult).toFixed(1)
 				var norm = parseFloat(config.sizecoef * n).toFixed(1)
 				var big = parseFloat(config.sizecoef * b).toFixed(1)
 				var small = parseFloat(config.sizecoef * 0.75).toFixed(1)
 				config.font = { normal: norm, small: small, big: big, icon: is }
-				config.iconcont = Math.floor((config.exactheight/config.height) +(config.height * 8))
+				config.iconcont = Math.floor((config.exactheight / config.height) + (config.height * 8))
 				var le = config.icon == "" ? 0 : config.iconcont
 				var wi = config.icon == "" ? config.exactwidth : config.exactwidth - config.iconcont
 
@@ -571,25 +574,25 @@ module.exports = function (RED) {
 				}
 
 				config.linestyle = {
-					dasharray:"",
-					linecap:'butt'
+					dasharray: "",
+					linecap: 'butt'
 
 				}
-				if(config.style && config.style != ''){
+				if (config.style && config.style != '') {
 					var a = config.style.split(',')
 					a.forEach(el => {
 						el.trim()
-						if(el.indexOf('round') != -1){
+						if (el.indexOf('round') != -1) {
 							config.linestyle.linecap = 'round'
 						}
-						else{
-							if(!isNaN(parseFloat(el))){
-								config.linestyle.dasharray += parseFloat(el)+" "								
+						else {
+							if (!isNaN(parseFloat(el))) {
+								config.linestyle.dasharray += parseFloat(el) + " "
 							}
 						}
-					})					
+					})
 				}
-				
+
 
 				config.property = config.property || "payload";
 				var html = HTML(config);
@@ -638,28 +641,28 @@ module.exports = function (RED) {
 						$scope.lineWidth = 3
 						$scope.sizecoef = 1
 						$scope.line = null
-						
-						
+
+
 						$scope.stripey = 0
 
-						$scope.init = function (p) {												
-							if(!document.getElementById('greensock-gsap-3')){
-								loadScript('greensock-gsap-3','ui-artless-gauge/js/gsap.min.js')
-							}					
+						$scope.init = function (p) {
+							if (!document.getElementById('greensock-gsap-3')) {
+								loadScript('greensock-gsap-3', 'ui-artless-gauge/js/gsap.min.js')
+							}
 							//document.addEventListener("visibilitychange", visibility);
 							update(p)
 						}
-						
+
 						var update = function (data) {
-							var main = document.getElementById("ag_svg_" + $scope.unique);							
-							if (!main && $scope.inited == false && data.config) {															
-								$scope.timeout = setTimeout(() => {update(data)},40);
+							var main = document.getElementById("ag_svg_" + $scope.unique);
+							if (!main && $scope.inited == false && data.config) {
+								$scope.timeout = setTimeout(() => { update(data) }, 40);
 								return
-							}							
+							}
 							$scope.inited = true
 							$scope.timeout = null
 							if (data.config) {
-								
+
 								$scope.stripey = data.config.stripe.y
 								$scope.lineWidth = data.config.lineWidth
 								$scope.sizecoef = data.config.sizecoef
@@ -668,7 +671,7 @@ module.exports = function (RED) {
 									$scope.diffpoint = data.config.center.value
 								}
 
-								if(data.config.linestyle.dasharray != ''){
+								if (data.config.linestyle.dasharray != '') {
 									updateLineStyle(data.config.linestyle)
 								}
 
@@ -698,28 +701,28 @@ module.exports = function (RED) {
 								}
 								else {
 									if ($scope.line == null) {
-										$scope.line = {x:data.config.stripe.left,w:data.config.stripe.width}
+										$scope.line = { x: data.config.stripe.left, w: data.config.stripe.width }
 									}
 									if (data.config.differential == true) {
 										adjustCenter(data.config.center.point)
 									}
 								}
 								updateSegmentDots(data.config.sectors)
-								var adjust = {font:parseFloat(data.config.font.icon)}
-								updateIcon(data.config.icontype, data.config.icon, adjust)							
+								var adjust = { font: parseFloat(data.config.font.icon) }
+								updateIcon(data.config.icontype, data.config.icon, adjust)
 							}
-							
-							if($scope.waitingmessage != null){	
+
+							if ($scope.waitingmessage != null) {
 								var d = {}
 								Object.assign(d, $scope.waitingmessage)
 								$scope.waitingmessage = null
-								if(d.config){
+								if (d.config) {
 									//console.log('reinit for waiting msg '+d.config)
-									$scope.timeout =setTimeout(() => {update(d)},40);
+									$scope.timeout = setTimeout(() => { update(d) }, 40);
 									return
 								}
-								else{
-									if(!data.payload){
+								else {
+									if (!data.payload) {
 										data.payload = d.payload
 									}
 								}
@@ -733,36 +736,36 @@ module.exports = function (RED) {
 							}
 						}
 
-						var updateLineStyle = function (linestyle){							
+						var updateLineStyle = function (linestyle) {
 							var el = document.getElementById("ag_str_line_" + $scope.unique)
 							if (el) {
-								el.setAttribute("stroke-dasharray",linestyle.dasharray)
-								el.setAttribute("stroke-linecap",linestyle.linecap)
-							}							
+								el.setAttribute("stroke-dasharray", linestyle.dasharray)
+								el.setAttribute("stroke-linecap", linestyle.linecap)
+							}
 						}
 
-						var loadScript = function (id,path) {
+						var loadScript = function (id, path) {
 							var head = document.getElementsByTagName('head')[0];
 							var script = document.createElement('script');
 							script.type = 'text/javascript';
 							script.id = id
 							script.src = path;
 							head.appendChild(script);
-							script.onload = function(){
-								try {									
+							script.onload = function () {
+								try {
 									gsap.config({
-										nullTargetWarn: false										
-									  });
+										nullTargetWarn: false
+									});
 								} catch (error) {
 									//console.log('gsap configuration not changed')
-								}								
-							}							      
+								}
+							}
 						}
 
 						var updateContainerStyle = function (el, padding) {
-							if(el){
+							if (el) {
 								el = el.parentElement
-							}							
+							}
 							if (el && el.classList.contains('nr-dashboard-template')) {
 								if ($(el).css('paddingLeft') == '0px') {
 									el.style.paddingLeft = el.style.paddingRight = padding.hor
@@ -783,7 +786,7 @@ module.exports = function (RED) {
 
 						var createArcBgr = function (arc) {
 							var el = document.getElementById("ag_str_bg_" + $scope.unique)
-							if(el){
+							if (el) {
 								el.setAttribute("d", arcPath(arc.cx, arc.cy, arc.r, arc.left, arc.right));
 							}
 						}
@@ -795,7 +798,7 @@ module.exports = function (RED) {
 							}
 							el = document.getElementById("ag_alt_1_" + $scope.unique);
 							if (el) {
-								var p = convert(arc.cx, arc.cy + 10, arc.r - Math.max(5,$scope.lineWidth*$scope.sizecoef), center.point)
+								var p = convert(arc.cx, arc.cy + 10, arc.r - Math.max(5, $scope.lineWidth * $scope.sizecoef), center.point)
 								var diff = Math.abs(arc.cx - p.x)
 								var a = diff < 20 ? "middle" : p.x > arc.cx ? "end" : "start"
 
@@ -809,9 +812,9 @@ module.exports = function (RED) {
 							if (!cont) {
 								return
 							}
-							
-							const dots = [].slice.call(document.querySelectorAll('g#ag_dots_' + $scope.unique+' circle'));
-  							dots.forEach(dot => { dot.remove(); });
+
+							const dots = [].slice.call(document.querySelectorAll('g#ag_dots_' + $scope.unique + ' circle'));
+							dots.forEach(dot => { dot.remove(); });
 
 							if (!sectors) {
 								return
@@ -837,7 +840,7 @@ module.exports = function (RED) {
 								circle.setAttributeNS(null, 'style', 'fill:' + col + ';');
 								cont.appendChild(circle);
 							}
-							function drawDotLinear(data, idx, all) {								
+							function drawDotLinear(data, idx, all) {
 								if (!data.dot || data.dot == 0) {
 									return
 								}
@@ -863,19 +866,19 @@ module.exports = function (RED) {
 							}
 							if ($scope.type === 'radial') {
 								var arc = document.getElementById("ag_str_bg_" + $scope.unique)
-								if(arc){
+								if (arc) {
 									var pathLength = arc.getTotalLength() || 0
 									sectors.forEach(drawDotRadial)
 								}
-								
+
 							}
 							else {
 								var line = document.getElementById("ag_str_bg_" + $scope.unique)
-								if(line){
+								if (line) {
 									var pathWidth = $(line).width() || 0
-									
+
 									sectors.forEach(drawDotLinear)
-								}								
+								}
 							}
 						}
 
@@ -902,24 +905,24 @@ module.exports = function (RED) {
 							}
 						}
 
-						var placeIcon = function(classname,content,dataicon){
-							var container = document.createElement('div')							
-							container.className = "ag-icon-wrapper-"+ $scope.unique+" "+$scope.type							
+						var placeIcon = function (classname, content, dataicon) {
+							var container = document.createElement('div')
+							container.className = "ag-icon-wrapper-" + $scope.unique + " " + $scope.type
 							var icon = document.createElement('i')
 							icon.style.lineHeight = 'initial'
 							icon.className = classname
-							if(dataicon){								
-								icon.setAttribute('data-icon',dataicon)
+							if (dataicon) {
+								icon.setAttribute('data-icon', dataicon)
 								container.classList.add(dataicon)
 							}
-							if(content){
-								if(content.icon){
+							if (content) {
+								if (content.icon) {
 									icon.innerHTML = content.icon
 								}
-								if(content.size){
-									icon.style.fontSize = content.size+"em"
-								}								
-							}							
+								if (content.size) {
+									icon.style.fontSize = content.size + "em"
+								}
+							}
 							container.appendChild(icon)
 							var root = document.getElementById("ag_icondiv_" + $scope.unique);
 							root.innerHTML = ""
@@ -927,25 +930,25 @@ module.exports = function (RED) {
 						}
 
 						var updateIcon = function (type, icon, adjust) {
-							if (icon == "") {return	}
+							if (icon == "") { return }
 							switch (type) {
-								case 'fa':{	
-									placeIcon('fa fa-fw '+icon,{size:adjust.font})								
+								case 'fa': {
+									placeIcon('fa fa-fw ' + icon, { size: adjust.font })
 									break;
 								}
-								case 'wi':{	
-									placeIcon('wi wi-fw '+icon,{size:adjust.font})								
+								case 'wi': {
+									placeIcon('wi wi-fw ' + icon, { size: adjust.font })
 									break;
 								}
-								case 'mi':{	
-									placeIcon('material-icons',{size:adjust.font,icon:icon.substr(3)})								
+								case 'mi': {
+									placeIcon('material-icons', { size: adjust.font, icon: icon.substr(3) })
 									break;
 								}
-								case 'iconify':{	
-									placeIcon('iconify',{size:adjust.font+0.3},icon.split(' ')[0].substr(8))								
+								case 'iconify': {
+									placeIcon('iconify', { size: adjust.font + 0.3 }, icon.split(' ')[0].substr(8))
 									break;
-								}							
-								default:{break;}									
+								}
+								default: { break; }
 							}
 						}
 
@@ -961,42 +964,42 @@ module.exports = function (RED) {
 							var el = document.getElementById("ag_str_line_" + $scope.unique)
 							var dur = { full: 1, half: 0.5 }//$scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
 
-							$scope.lastline = {x:p.pos.x ,w:p.pos.w} 
+							$scope.lastline = { x: p.pos.x, w: p.pos.w }
 							var xp = p.pos.x
-							var wp = p.pos.w										
-							if(p.pos.c){
+							var wp = p.pos.w
+							if (p.pos.c) {
 								xp = p.pos.c
 								wp = p.pos.x == p.pos.c ? p.pos.x + p.pos.w : p.pos.x
 							}
-							if(el){
-								try{
-									gsap.to($scope.line, { x: xp, w: wp, duration: dur.full, ease: "power2.inOut", onUpdate: drawPathLine, onUpdateParams: [$scope.line] })									
-									gsap.to(el, { duration: dur.half, delay: dur.half, stroke: p.col })				
+							if (el) {
+								try {
+									gsap.to($scope.line, { x: xp, w: wp, duration: dur.full, ease: "power2.inOut", onUpdate: drawPathLine, onUpdateParams: [$scope.line] })
+									gsap.to(el, { duration: dur.half, delay: dur.half, stroke: p.col })
 								}
 								catch (error) {
 									$scope.line.x = xp
-									$scope.line.w = wp								
+									$scope.line.w = wp
 									if (el) {
-										el.setAttribute("stroke",p.col);
+										el.setAttribute("stroke", p.col);
 										drawPathLine($scope.line)
-									}								
-								}								
-							}	
+									}
+								}
+							}
 						}
 
-						var drawPathLine = function(p){
+						var drawPathLine = function (p) {
 							if (!p || !p.x === undefined || !p.w === undefined) {
 								return
 							}
 							p.x = parseFloat(p.x)
-							p.w = parseFloat(p.w)							
+							p.w = parseFloat(p.w)
 							if (isNaN(p.x) || isNaN(p.w)) {
 								return
 							}
 							var el = document.getElementById("ag_str_line_" + $scope.unique)
 							if (el) {
 								var d = ["M", p.x, $scope.stripey, "L", p.w, $scope.stripey].join(" ")
-								
+
 								el.setAttribute("d", d);
 							}
 						}
@@ -1009,39 +1012,39 @@ module.exports = function (RED) {
 							if (p.pos.x) {
 								return
 							}
-							if(!$scope.arc){
+							if (!$scope.arc) {
 								return
 							}
 							var el = document.getElementById("ag_str_line_" + $scope.unique)
 							try {
-								var double = false								
+								var double = false
 								var dur = { full: 1, half: 0.5 } //$scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
-								
+
 								if (p.pos.cp && $scope.last) {
 									if (($scope.last.left < p.pos.cp && p.pos.left == p.pos.cp) || ($scope.last.right > p.pos.cp && p.pos.right == p.pos.cp)) {
-										double = true										
+										double = true
 									}
 								}
-								$scope.last = {left:p.pos.left ,right:p.pos.right}								
-								if(double){
+								$scope.last = { left: p.pos.left, right: p.pos.right }
+								if (double) {
 									gsap.to($scope.arc, { right: p.pos.cp, left: p.pos.cp, duration: dur.half, ease: "power2.in", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
-									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.half, delay: dur.half, ease: "power2.out", onUpdate: drawArcLine, onUpdateParams: [$scope.arc]})
+									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.half, delay: dur.half, ease: "power2.out", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
 								}
 								else {
 									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.full, ease: "power2.inOut", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
 								}
-								if(el){
+								if (el) {
 									gsap.to(el, { duration: dur.half, delay: dur.half, stroke: p.col })
 								}
 							}
 							catch (error) {
 								$scope.arc.left = p.pos.left
-								$scope.arc.right = p.pos.right								
+								$scope.arc.right = p.pos.right
 								if (el) {
-									el.setAttribute("stroke",p.col);
+									el.setAttribute("stroke", p.col);
 									drawArcLine($scope.arc)
-								}								
-							}							
+								}
+							}
 						}
 
 						var drawArcLine = function (p) {
@@ -1079,7 +1082,7 @@ module.exports = function (RED) {
 							if (!msg) {
 								return;
 							}
-							if($scope.inited == false){
+							if ($scope.inited == false) {
 								$scope.waitingmessage = msg
 								return
 							}
