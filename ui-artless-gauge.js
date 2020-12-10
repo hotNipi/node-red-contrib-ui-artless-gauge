@@ -46,6 +46,9 @@ module.exports = function (RED) {
 			.ag-txt-{{unique}}.small {
 				font-size:${config.font.small}em;
 			}
+			.ag-txt-{{unique}}.medium {
+				font-size:${config.font.medium}em;
+			}
 			.ag-txt-{{unique}}.big {
 				font-size:${config.font.big}em;
 			}			
@@ -124,7 +127,7 @@ module.exports = function (RED) {
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${(config.arc.cy - config.arc.r) - config.height * 4}">${config.label}</text>
 				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline"
 				 x="${config.exactwidth / 2}" y="${config.arc.cy * .9}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}"></text>
-				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} small" text-anchor="middle" dominant-baseline="baseline"
+				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} medium" text-anchor="middle" dominant-baseline="baseline"
 				 x="${config.exactwidth / 2}" y="${config.arc.cy * .9 + config.stripe.sdy}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}"></text>
 				
 				<text ng-if="${config.width > 2}" id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="0" y="0"
@@ -531,7 +534,8 @@ module.exports = function (RED) {
 				var norm = parseFloat(config.sizecoef * n).toFixed(1)
 				var big = parseFloat(config.sizecoef * b).toFixed(1)
 				var small = parseFloat(config.sizecoef * 0.75).toFixed(1)
-				config.font = { normal: norm, small: small, big: big, icon: is }
+				var medium = parseFloat(config.sizecoef * 0.9).toFixed(1)
+				config.font = { normal: norm, small: small, big: big, icon: is,medium:medium }
 				config.iconcont = Math.floor((config.exactheight / config.height) + (config.height * 8))
 				var le = config.icon == "" ? 0 : config.iconcont
 				var wi = config.icon == "" ? config.exactwidth : config.exactwidth - config.iconcont
