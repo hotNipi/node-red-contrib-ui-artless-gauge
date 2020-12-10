@@ -918,6 +918,10 @@ module.exports = function (RED) {
 								}
 								if(content.size){
 									icon.style.fontSize = content.size+"em"
+								}
+								if(content.width){
+									icon.style.width = content.width+"em"
+									icon.style.height = content.height+"em"
 								}								
 							}							
 							container.appendChild(icon)
@@ -942,7 +946,7 @@ module.exports = function (RED) {
 									break;
 								}
 								case 'iconify':{	
-									placeIcon('iconify',{size:adjust.font+0.3},icon.split(' ')[0].substr(8))								
+									placeIcon('iconify',{width:adjust.font+0.15,height:adjust.font+0.15},icon.split(' ')[0].substr(8))								
 									break;
 								}							
 								default:{break;}									
