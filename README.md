@@ -77,11 +77,21 @@ Min and max values can be shown near the track.
 For differential mode, also the center value is shown.
 With radial layout the tickmarks can be shown only if layout size is 3x3 units or more.
 
-### Format
-#### Unit
-Unit is displayed near the value field. Unit can be any string.
-#### Decimals 
-Value is always rounded according to the configured decimals. Default is zero so value presented as integer.  
+### Round value 
+Value is always rounded according to the configured decimals. Default is zero so value presented as integer. 
+
+### Unit
+Unit is displayed near the value field. Unit can be any string. For radial layout by default the unit is shown below the value field. The unit can be shown inline with the value. By using this option, there will be secondary value field available to show any string below the main value field.
+
+![Node-RED dashboard widget node-red-contrib-ui-artless-gauge secondary](images/artless-gauge-secondary-field.JPG)
+
+### Secondary input
+Secondary input is available only for radial layout and if uint is placed inline with value field.
+
+Value for configured secondary input property (default is <code>msg.secondary</code>) should be string or number.
+
+For sure the data for secondary input does not change with same rate as the main data. You may, but there is no need to send it always. But be aware that if you change dashboard tabs or do refresh, the secondary field may be empty because of last message what is replied to gauge may then miss the data for secondary field. The artless-gauge does not store that data as configured unit or similar. It depends on incoming message. So if you don't send data with every input, you can use the <code>ui_control</code> node to inject the flow to retrieve last known value for secondary field and send it when dashboard connects or changes the tab.
+ 
 
 ## Change the configuration at runtime
 

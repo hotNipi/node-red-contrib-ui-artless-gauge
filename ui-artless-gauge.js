@@ -81,7 +81,7 @@ module.exports = function (RED) {
 			}		
 			.ag-icon-wrapper-{{unique}}.radial{
 				position: absolute;
-				bottom: 0px;
+				bottom: 2%;
 				margin-right: auto;
 				margin-left: auto;
 				left: 0px;
@@ -125,11 +125,20 @@ module.exports = function (RED) {
 		var radial = String.raw`				
 			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" cursor="default" pointer-events="none" ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${(config.arc.cy - config.arc.r) - config.height * 4}">${config.label}</text>
-				<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline"
-				 x="${config.exactwidth / 2}" y="${config.arc.cy * .9}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}"></text>
-				<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} medium" text-anchor="middle" dominant-baseline="baseline"
-				 x="${config.exactwidth / 2}" y="${config.arc.cy * .9 + config.stripe.sdy}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}"></text>
-				
+				<g ng-if="${config.inlineunit == false}">
+					<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline"
+					x="${config.exactwidth / 2}" y="${config.arc.cy * .9}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}"></text>
+					<text id="ag_unit_{{unique}}" class="ag-txt-{{unique}} medium" text-anchor="middle" dominant-baseline="baseline"
+					x="${config.exactwidth / 2}" y="${config.arc.cy * .9 + config.stripe.sdy}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}"></text>
+				</g>
+				<g ng-if="${config.inlineunit == true}">
+					<text x="${config.exactwidth / 2}" y="${config.arc.cy * .9}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}" text-anchor="end" dominant-baseline="baseline">	
+						<tspan id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline"></tspan>
+						<tspan id="ag_unit_{{unique}}" class="ag-txt-{{unique}} medium" text-anchor="middle" dominant-baseline="baseline""></tspan>
+					</text>
+					<text id="ag_secondary_{{unique}}" class="ag-txt-{{unique}} medium" text-anchor="middle" dominant-baseline="baseline"
+					x="${config.exactwidth / 2}" y="${config.arc.cy * .92 + config.stripe.sdy}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}"></text>	
+				</g>
 				<text ng-if="${config.width > 2}" id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="0" y="0"
 					text-anchor="end" dominant-baseline="baseline">
 					<tspan y="0" dy="${config.arc.cy * .75 + config.arc.r}" x="0" dx="${config.exactwidth / 2 - config.arc.r * .68}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
@@ -523,6 +532,7 @@ module.exports = function (RED) {
 				var side = Math.min((site.sizes.sy * config.height), (site.sizes.sx * config.width))
 				var b = config.type == 'radial' ? range(side, fp, 'clamp', false) : config.height == 2 ? 2 : 1.28
 				var n = config.type == 'radial' ? 1 : config.height == 2 ? 1.28 : 1
+				var m = config.height == 2 ? 0.7 : 0.9
 
 				config.icontype = getIconType()
 				var ismult = config.type == "linear" ? config.icontype == "wi" ? 1.2 : 1.4 : config.height < 4 ? config.height - 1.25 : 2.5
@@ -534,7 +544,7 @@ module.exports = function (RED) {
 				var norm = parseFloat(config.sizecoef * n).toFixed(1)
 				var big = parseFloat(config.sizecoef * b).toFixed(1)
 				var small = parseFloat(config.sizecoef * 0.75).toFixed(1)
-				var medium = parseFloat(config.sizecoef * 0.9).toFixed(1)
+				var medium = parseFloat(config.sizecoef * m).toFixed(1)
 				config.font = { normal: norm, small: small, big: big, icon: is,medium:medium }
 				config.iconcont = Math.floor((config.exactheight / config.height) + (config.height * 8))
 				var le = config.icon == "" ? 0 : config.iconcont
@@ -597,8 +607,10 @@ module.exports = function (RED) {
 					})
 				}
 
-
+				config.inlineunit = config.type == 'linear' ? false : config.inline
 				config.property = config.property || "payload";
+				config.secondary = config.secondary || "secondary";
+
 				var html = HTML(config);
 
 				done = ui.addWidget({
@@ -619,6 +631,7 @@ module.exports = function (RED) {
 							fem.config = modifyConfig(msg.control)
 						}
 						var val = RED.util.getMessageProperty(msg, config.property);
+						var sec = RED.util.getMessageProperty(msg, config.secondary);
 
 						if (val === undefined || val === null) {
 							val = config.min
@@ -629,6 +642,9 @@ module.exports = function (RED) {
 							value: val.toFixed(config.decimals.fixed),
 							pos: calculatePercPos(val),
 							col: calculateColor(val)
+						}
+						if(sec){
+							fem.payload.sec = sec
 						}
 						return { msg: fem };
 					},
@@ -728,11 +744,14 @@ module.exports = function (RED) {
 								else {
 									if (!data.payload) {
 										data.payload = d.payload
+										if(d.sec){
+											data.sec = d.sec
+										}
 									}
 								}
 							}
 							if (data.payload) {
-								if ($scope.type === 'radial') {
+								if ($scope.type === 'radial') {									
 									updateGaugeRadial(data.payload)
 								} else {
 									updateGaugeLinear(data.payload)
@@ -1012,10 +1031,17 @@ module.exports = function (RED) {
 							}
 						}
 
-						var updateGaugeRadial = function (p) {
+						var updateGaugeRadial = function (p) {	
+							console.log()						
 							var ic = document.getElementById("ag_value_" + $scope.unique);
 							if (ic) {
 								$(ic).text(p.value);
+							}
+							if(p.sec){
+								ic = document.getElementById("ag_secondary_" + $scope.unique);
+								if (ic) {
+									$(ic).text(p.sec);
+								}
 							}
 							if (p.pos.x) {
 								return

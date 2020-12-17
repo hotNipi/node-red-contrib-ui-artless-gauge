@@ -58,6 +58,8 @@ SOFTWARE.
             style: { value: '' },
             colorFromTheme: { value: true },
             property: { value: "payload", required: true },
+            secondary: { value: "secondary", required: false },
+            inline:{value:false},
             sectors: {
                 value: [{ val: 0, col: '#ff9900', t: "min", dot: 0 }, { val: 10, col: '#ff9900', t: "max", dot: 0 }],
                 validate: function (v) {
@@ -188,14 +190,44 @@ SOFTWARE.
                 this.style = '';
                 $('#node-input-style').val('');
             }
+            if (this.inline === undefined) {
+                this.inline = false; 
+                $("#node-input-inline").prop('checked', false);               
+            }
             if (this.property === undefined) {
                 $("#node-input-property").val("payload");
             }
+            if (this.secondary === undefined) {
+                $("#node-input-secondary").val("secondary");
+            }
             $("#node-input-property").typedInput({ default: 'msg', types: ['msg'] });
+            $("#node-input-secondary").typedInput({ default: 'msg', types: ['msg'] });
 
             if (this.differential === undefined) {
                 $("#node-input-differential").prop('checked', false);
             }
+            $('#node-input-layout').change(function(){
+                if($('#node-input-layout option:selected').text() == 'Linear'){
+                    $('#node-input-inline').hide()
+                    $('#node-input-inline-label').hide()
+                    $('#secondary-container').hide();
+                }else {
+                    $('#node-input-inline').show();
+                    $('#node-input-inline-label  ').show();
+                    if($('#node-input-inline').is(":checked")){
+                        $('#secondary-container').show();
+                    }           
+                }
+            })
+            $('#node-input-inline').change(function () {
+                if (this.checked == false) {
+                    $('#secondary-container').hide();
+                   
+                } else {
+                    $('#secondary-container').show();                  
+                }
+            });
+
             $('#node-input-differential').change(function () {
                 if (this.checked == false) {
                     $('#node-input-diffCenter').hide();
@@ -405,6 +437,10 @@ SOFTWARE.
             $('#node-input-height').change(function(){
                 window.setTimeout(checkLineOptions,40)
             })
+            $("#node-input-decimals").spinner({
+                min:0,
+                max:8,
+            })
 
         },
         oneditsave: function () {
@@ -468,7 +504,7 @@ SOFTWARE.
     <div class='form-row' id='node-input-diffmode'>
         <label for='node-input-differential'><i class='fa fa-gear'></i> Mode</span></label>
         <input type="checkbox" id="node-input-differential" style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;">differential
-        <span for='node-input-decimals' id='node-input-diffCenterSpan' style='margin-left:20px;'>center</span>
+        <span for='node-input-diffCenter' id='node-input-diffCenterSpan' style='margin-left:20px;'>center</span>
         <input type='text' id='node-input-diffCenter' style='width:80px' placeholder='' dir=''>       
     </div>   
     
@@ -509,14 +545,23 @@ SOFTWARE.
     <div class='form-row' id='node-input-minmaxshow'>
         <label for='node-input-minmax'><i class='fa fa-gear'></i> Tickmarks</span></label>
         <input type="checkbox" id="node-input-minmax" style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;">Show for min and max (and center)    
+    </div> 
+    <div class='form-row'>
+        <label for='node-input-decimals'><i class='fa fa-gear'></i> Round value</label>
+        <input type='text' id='node-input-decimals' style='width:50px ;border:none' placeholder='0'>
+        <span for='node-input-decimals'> decimals</span>
     </div>  
     <div class='form-row'>
-        <label for='node-input-unit'><i class='fa fa-gear'></i> Format</label>
-        <span for='node-input-unit'>Unit</span>
+        <label for='node-input-unit'><i class='fa fa-gear'></i> Unit</label>      
         <input type='text' id='node-input-unit' style='width:120px' placeholder='units' dir=''>
-        <span for='node-input-decimals' style='margin-left:20px;'>decimals</span>
-        <input type='text' id='node-input-decimals' style='width:80px' placeholder='0' dir=''>
-    </div>  
+        <input type="checkbox" id="node-input-inline" style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;"></input>
+        <label id="node-input-inline-label" for='node-input-inline'> Inline with value</label>
+                
+    </div>
+    <div class="form-row" id="secondary-container">
+        <label for="node-input-secondary" style="font-size:11px;"><i class="fa fa-arrow-right"></i> Secondary input</label>
+        <input type="text" id="node-input-secondary" style="width:70%;"/>
+    </div>
      
 </br>
     <div class='form-row'>
@@ -586,7 +631,7 @@ To get perfetly round dots, configure dash width to 0 and gap width equal or a b
     0, 8, round
 </code> 
 
-<p>See more about <a href="https://iconify.design/">stroke dash-array</a>
+<p>See more about <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray">stroke dash-array</a>
 
 
 <h3> Track color</h3>
@@ -598,13 +643,20 @@ For differential mode, also the center value is shown.
 <p>With radial layout the tickmarks can be shown only if layout size is 3x3 units or more.
 
 
-<h3> Format</h3>
-<h4> Unit</h4>
-Unit is displayed near the value field. Unit can be any string.
-
-<h4> Decimals</h4>
+<h3>Round value</h3> 
 Value is always rounded according to the configured decimals. 
-Default is zero so value presented as integer.  
+Default is zero so value presented as integer. 
+    
+<h3>Unit</h3> 
+Unit is displayed near the value field. Unit can be any string. 
+For radial layout by default the unit is shown below the value field. 
+The unit can be shown inline with the value. By using this option, there 
+will be secondary value field available to show any string below the main value field.
+    
+<h3>Secondary input</h3>
+Secondary input is available only for radial layout and if uint is placed inline with value field.
+Value for configured secondary input property 
+(default is msg.secondary) should be string or number.
 
 
 <h2> Change the configuration at runtime</h2>
