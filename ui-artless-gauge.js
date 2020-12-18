@@ -91,24 +91,32 @@ module.exports = function (RED) {
 		var initpos = config.differential == true ? config.center.point : config.stripe.left
 
 		var linear = String.raw`				
-			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" cursor="default" pointer-events="none" ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
+			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" cursor="default" pointer-events="none" ng-init='init(${cojo})' xmlns="http://www.w3.org/2000/svg" >				
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" 
 				text-anchor="start" dominant-baseline="baseline" 
-				x="` + config.stripe.left + `" y="${config.stripe.y - 5 - (config.lineWidth / 2)}">${config.label}</text>
-				<text  x="${config.exactwidth - 3}" y="${config.stripe.y - 4 - (config.lineWidth / 2)}">
-				<tspan id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="end" dominant-baseline="baseline"></tspan>
-				<tspan ng-if="${config.minmax == true && config.unit != ""}" class="ag-txt-{{unique}}" id="ag_alt_3_{{unique}}" text-anchor="end"></tspan>
+				x="${config.stripe.left}" y="${config.stripe.y - 5 - (config.lineWidth / 2)}">${config.label}</text>
+				<text x="${config.exactwidth - 3}" y="${config.stripe.y - 4 - (config.lineWidth / 2)}">
+					<tspan id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="end" dominant-baseline="baseline"></tspan>
+					<tspan ng-if="${config.minmax == true && config.unit != ""}" class="ag-txt-{{unique}}" id="ag_alt_3_{{unique}}" text-anchor="end"></tspan>
 				</text>
+				<g ng-if="${config.differential == true}">
+				<text id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="${config.stripe.left}" y="${config.stripe.y + config.stripe.sdy}"
+					text-anchor="end" dominant-baseline="baseline">
+					<tspan x="${config.stripe.left}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>					
+					<tspan x="${config.center.point + 1.5}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
+					<tspan x="${config.exactwidth - 3}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
+				</text>
+				</g>
+				<g ng-if="${config.differential == false}">
 				<text id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="${config.stripe.left}" y="${config.stripe.y + config.stripe.sdy}"
 					text-anchor="end" dominant-baseline="baseline">
 					<tspan x="${config.stripe.left}" id="ag_alt_0_{{unique}}" text-anchor="start"></tspan>
-					<tspan ng-if="${config.differential == false}" x="${config.stripe.left + 1.5 + (config.stripe.width / 2)}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
-					<tspan ng-if="${config.differential == true}" x="${config.center.point + 1.5}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>
+					<tspan x="${config.stripe.left + 1.5 + (config.stripe.width / 2)}" id="ag_alt_1_{{unique}}" text-anchor="middle"></tspan>					
 					<tspan x="${config.exactwidth - 3}" id="ag_alt_2_{{unique}}" text-anchor="end"></tspan>					
 				</text>
+				</g>
 				
-				
-				<rect id="ag_str_bg_{{unique}}" x="` + config.stripe.left + `" y="` + config.stripe.y + `" 
+				<rect id="ag_str_bg_{{unique}}" x="${config.stripe.left}" y="${config.stripe.y}" 
 					width="${config.stripe.width}" height="1"	
 					style="stroke:none";
 					fill="${config.bgrColor}"					
@@ -123,7 +131,7 @@ module.exports = function (RED) {
 			</svg>`
 
 		var radial = String.raw`				
-			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" cursor="default" pointer-events="none" ng-init='init(` + cojo + `)' xmlns="http://www.w3.org/2000/svg" >				
+			<svg id="ag_svg_{{unique}}" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" cursor="default" pointer-events="none" ng-init='init(${cojo})' xmlns="http://www.w3.org/2000/svg" >				
 				<text ng-if="${config.label != ""}" id="ag_label_{{unique}}" class="ag-txt-{{unique}}" text-anchor="middle" dominant-baseline="baseline" x="${config.exactwidth / 2}" y="${(config.arc.cy - config.arc.r) - config.height * 4}">${config.label}</text>
 				<g ng-if="${config.inlineunit == false}">
 					<text id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline"
@@ -610,6 +618,7 @@ module.exports = function (RED) {
 				config.inlineunit = config.type == 'linear' ? false : config.inline || false
 				config.property = config.property || "payload";
 				config.secondary = config.secondary || "secondary";
+				config.differential = config.differential || false;
 
 				var html = HTML(config);
 
