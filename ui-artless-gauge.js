@@ -607,7 +607,7 @@ module.exports = function (RED) {
 					})
 				}
 
-				config.inlineunit = config.type == 'linear' ? false : config.inline
+				config.inlineunit = config.type == 'linear' ? false : config.inline || false
 				config.property = config.property || "payload";
 				config.secondary = config.secondary || "secondary";
 
