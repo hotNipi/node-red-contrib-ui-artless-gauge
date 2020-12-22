@@ -58,7 +58,8 @@ module.exports = function (RED) {
 				width: ${config.iconcont}px;
 				height: ${config.iconcont}px;
 				margin: auto;
-				text-align:center;				
+				text-align:center;
+				overflow:hidden;				
 			}
 			.ag-icon-container-{{unique}} > div > svg > path{
 				fill:currentColor !important;	
