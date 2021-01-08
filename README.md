@@ -37,7 +37,7 @@ Supported icons are same as for dashboard: [Font Awesome 4.7](https://fontawesom
 <script src="https://code.iconify.design/1/1.0.7/iconify.min.js"></script>
 ``` 
 
-Icon field does not support any html or CSS for icon appearance adjustments.
+<p>Any type of icon accepts additional classes. For example you can animate <code>iconify-mdi:fan</code> by adding <code>fa-spin</code>.
 
 ### Layout
 Choose layout type. Layout can be linear or radial.

@@ -65,9 +65,9 @@ module.exports = function (RED) {
 				fill:currentColor !important;	
 			}
 			.ag-icon-container-{{unique}}.linear{				
-				text-align: center;				
-				top: 50%;				
-				transform: translateY(-50%);
+				display: flex;
+				justify-content: center;
+				align-items: center;
 			}
 			.ag-icon-container-{{unique}}.radial{				
 				bottom:  ${config.padding.vert};
@@ -75,10 +75,7 @@ module.exports = function (RED) {
 				left: 50%;
 			}
 			.ag-icon-wrapper-{{unique}}.linear{
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50% , -50%);
+				
 			}		
 			.ag-icon-wrapper-{{unique}}.radial{
 				position: absolute;
@@ -676,7 +673,8 @@ module.exports = function (RED) {
 						$scope.stripey = 0
 
 						$scope.init = function (p) {
-							if (!document.getElementById('greensock-gsap-3')) {
+							
+							if (!document.getElementById('greensock-gsap-3')) {								
 								loadScript('greensock-gsap-3', 'ui-artless-gauge/js/gsap.min.js')
 							}
 							//document.addEventListener("visibilitychange", visibility);
@@ -938,7 +936,8 @@ module.exports = function (RED) {
 							}
 						}
 
-						var placeIcon = function (classname, content, dataicon) {
+						var placeIcon = function (classname, content, dataicon,classes) {
+							console.log(classname+" "+content+" "+dataicon+" "+classes)
 							var container = document.createElement('div')
 							container.className = "ag-icon-wrapper-" + $scope.unique + " " + $scope.type
 							var icon = document.createElement('i')
@@ -947,6 +946,9 @@ module.exports = function (RED) {
 							if (dataicon) {
 								icon.setAttribute('data-icon', dataicon)
 								container.classList.add(dataicon)
+							}
+							if (classes) {
+								classes.forEach(cl => container.classList.add(cl))								
 							}
 							if (content) {
 								if (content.icon) {
@@ -981,8 +983,14 @@ module.exports = function (RED) {
 									placeIcon('material-icons', { size: adjust.font, icon: icon.substr(3) })
 									break;
 								}
-								case 'iconify':{	
-									placeIcon('iconify',{width:adjust.font+0.15,height:adjust.font+0.15},icon.split(' ')[0].substr(8))								
+								case 'iconify':{
+									var arr = icon.split(' ')//[0].substr(8)
+									var ic = arr.shift().substr(8)									
+									var cls = null 
+									if(arr.length){
+										cls = arr
+									}
+									placeIcon('iconify',{width:adjust.font+0.15,height:adjust.font+0.15},ic,cls)								
 									break;
 								}
 								default: { break; }
