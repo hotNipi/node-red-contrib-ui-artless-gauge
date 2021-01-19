@@ -60,6 +60,7 @@ SOFTWARE.
             property: { value: "payload", required: true },
             secondary: { value: "secondary", required: false },
             inline:{value:false},
+            animate:{value:true, required: true},
             sectors: {
                 value: [{ val: 0, col: '#ff9900', t: "min", dot: 0 }, { val: 10, col: '#ff9900', t: "max", dot: 0 }],
                 validate: function (v) {
@@ -193,6 +194,10 @@ SOFTWARE.
             if (this.inline === undefined) {
                 this.inline = false; 
                 $("#node-input-inline").prop('checked', false);               
+            }
+            if (this.animate === undefined) {
+                this.animate = true; 
+                $("#node-input-animate").prop('checked', true);               
             }
             if (this.property === undefined) {
                 $("#node-input-property").val("payload");
@@ -514,7 +519,12 @@ SOFTWARE.
     <div class="form-row node-input-rule-container-row">
         <ol id="node-input-rule-container"></ol>    
     </div>
-</br>  
+</br>
+    <div class='form-row'>
+        <label for='node-input-animate'><i class='fa fa-gear'></i> Animate</label>      
+        <input type="checkbox" id="node-input-animate" checked style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;"></input>    
+                
+    </div>  
     <div class='form-row'>
         <label for='node-input-lineWidth'><i class='fa fa-list'></i> Line width</label>
         <select id='node-input-lineWidth' style='width:70px !important'>
@@ -612,6 +622,9 @@ Add segments and configure colors for them if needed.
 Note that Min and Max options can not be removed.
 <p>A small dot with segment color can be drawn at the point of segment. 
 To show dot for segment, configure size for dot bigger that zero.
+
+<h3>Animate</h3>
+You can turn on or off the animations of the colored bar.
 
 <h3>Line width</h3>
 You can adjust thickness of the colored bar. The range of possible values depends on layout and configured size.

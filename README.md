@@ -48,6 +48,9 @@ Option to turn on differential mode. With this option selected, the colored trac
 ### Range
 Configure minimum and maximum expected values and adjust line color. Add segments and configure colors for them if needed. Note that MIN and MAX options can not be removed. A small dot with segment color can be drawn at the point of segment. To show dot for segment, configure size for dot bigger that zero.
 
+### Animate
+You can turn on or off the animations of the colored bar. 
+
 ### Line width
 You can adjust thickness of the colored bar. The range of possible values depends on layout and configured size.
 

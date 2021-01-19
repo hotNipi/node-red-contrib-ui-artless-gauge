@@ -617,6 +617,7 @@ module.exports = function (RED) {
 				config.property = config.property || "payload";
 				config.secondary = config.secondary || "secondary";
 				config.differential = config.differential || false;
+				//config.animate = config.animate || true;
 
 				var html = HTML(config);
 
@@ -662,22 +663,22 @@ module.exports = function (RED) {
 						$scope.inited = false
 						$scope.type = null
 						$scope.arc = null
-						$scope.diffpoint = null
-						//$scope.vis = 'visible'						
+						$scope.diffpoint = null										
 						$scope.waitingmessage = null
 						$scope.lineWidth = 3
 						$scope.sizecoef = 1
 						$scope.line = null
-
-
 						$scope.stripey = 0
+						$scope.animate = false
 
-						$scope.init = function (p) {
-							
-							if (!document.getElementById('greensock-gsap-3')) {								
-								loadScript('greensock-gsap-3', 'ui-artless-gauge/js/gsap.min.js')
+						$scope.init = function (p) {							
+							if(p.config && p.config.animate){
+								if (!document.getElementById('greensock-gsap-3')) {								
+									loadScript('greensock-gsap-3', 'ui-artless-gauge/js/gsap.min.js')
+								}else{
+									$scope.animate = true
+								}
 							}
-							//document.addEventListener("visibilitychange", visibility);
 							update(p)
 						}
 
@@ -781,8 +782,9 @@ module.exports = function (RED) {
 							script.type = 'text/javascript';
 							script.id = id
 							script.src = path;
-							head.appendChild(script);
+							head.appendChild(script);							
 							script.onload = function () {
+								$scope.animate = true
 								try {
 									gsap.config({
 										nullTargetWarn: false
@@ -937,7 +939,7 @@ module.exports = function (RED) {
 						}
 
 						var placeIcon = function (classname, content, dataicon,classes) {
-							console.log(classname+" "+content+" "+dataicon+" "+classes)
+						//	console.log(classname+" "+content+" "+dataicon+" "+classes)
 							var container = document.createElement('div')
 							container.className = "ag-icon-wrapper-" + $scope.unique + " " + $scope.type
 							var icon = document.createElement('i')
@@ -1016,18 +1018,27 @@ module.exports = function (RED) {
 								xp = p.pos.c
 								wp = p.pos.x == p.pos.c ? p.pos.x + p.pos.w : p.pos.x
 							}
+							function setImmediately(){
+								$scope.line.x = xp
+								$scope.line.w = wp
+								if (el) {
+									el.setAttribute("stroke", p.col);
+									drawPathLine($scope.line)
+								}
+							}
+
+							if($scope.animate === false){
+								setImmediately()
+								return
+							}
+
 							if (el) {
 								try {
 									gsap.to($scope.line, { x: xp, w: wp, duration: dur.full, ease: "power2.inOut", onUpdate: drawPathLine, onUpdateParams: [$scope.line] })
 									gsap.to(el, { duration: dur.half, delay: dur.half, stroke: p.col })
 								}
 								catch (error) {
-									$scope.line.x = xp
-									$scope.line.w = wp
-									if (el) {
-										el.setAttribute("stroke", p.col);
-										drawPathLine($scope.line)
-									}
+									setImmediately()
 								}
 							}
 						}
@@ -1049,8 +1060,7 @@ module.exports = function (RED) {
 							}
 						}
 
-						var updateGaugeRadial = function (p) {	
-							console.log()						
+						var updateGaugeRadial = function (p) {				
 							var ic = document.getElementById("ag_value_" + $scope.unique);
 							if (ic) {
 								$(ic).text(p.value);
@@ -1066,8 +1076,20 @@ module.exports = function (RED) {
 							}
 							if (!$scope.arc) {
 								return
-							}
+							}							
 							var el = document.getElementById("ag_str_line_" + $scope.unique)
+							function setImmediately (){
+								$scope.arc.left = p.pos.left
+								$scope.arc.right = p.pos.right								
+								if (el) {
+									el.setAttribute("stroke", p.col);
+									drawArcLine($scope.arc)
+								}
+							}
+							if($scope.animate === false){
+								setImmediately()
+								return
+							}							
 							try {
 								var double = false
 								var dur = { full: 1, half: 0.5 } //$scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
@@ -1090,12 +1112,7 @@ module.exports = function (RED) {
 								}
 							}
 							catch (error) {
-								$scope.arc.left = p.pos.left
-								$scope.arc.right = p.pos.right
-								if (el) {
-									el.setAttribute("stroke", p.col);
-									drawArcLine($scope.arc)
-								}
+								setImmediately()
 							}
 						}
 
