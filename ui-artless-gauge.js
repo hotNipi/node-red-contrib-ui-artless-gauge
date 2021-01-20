@@ -617,7 +617,6 @@ module.exports = function (RED) {
 				config.property = config.property || "payload";
 				config.secondary = config.secondary || "secondary";
 				config.differential = config.differential || false;
-				//config.animate = config.animate || true;
 
 				var html = HTML(config);
 
@@ -746,7 +745,6 @@ module.exports = function (RED) {
 								Object.assign(d, $scope.waitingmessage)
 								$scope.waitingmessage = null
 								if (d.config) {
-									//console.log('reinit for waiting msg '+d.config)
 									$scope.timeout = setTimeout(() => { update(d) }, 40);
 									return
 								}
@@ -909,7 +907,6 @@ module.exports = function (RED) {
 								var line = document.getElementById("ag_str_bg_" + $scope.unique)
 								if (line) {
 									var pathWidth = $(line).width() || 0
-
 									sectors.forEach(drawDotLinear)
 								}
 							}
@@ -939,7 +936,6 @@ module.exports = function (RED) {
 						}
 
 						var placeIcon = function (classname, content, dataicon,classes) {
-						//	console.log(classname+" "+content+" "+dataicon+" "+classes)
 							var container = document.createElement('div')
 							container.className = "ag-icon-wrapper-" + $scope.unique + " " + $scope.type
 							var icon = document.createElement('i')
@@ -986,7 +982,7 @@ module.exports = function (RED) {
 									break;
 								}
 								case 'iconify':{
-									var arr = icon.split(' ')//[0].substr(8)
+									var arr = icon.split(' ')
 									var ic = arr.shift().substr(8)									
 									var cls = null 
 									if(arr.length){
@@ -1009,7 +1005,7 @@ module.exports = function (RED) {
 							}
 
 							var el = document.getElementById("ag_str_line_" + $scope.unique)
-							var dur = { full: 1, half: 0.5 }//$scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
+							var dur = { full: 1, half: 0.5 }
 
 							$scope.lastline = { x: p.pos.x, w: p.pos.w }
 							var xp = p.pos.x
@@ -1092,7 +1088,7 @@ module.exports = function (RED) {
 							}							
 							try {
 								var double = false
-								var dur = { full: 1, half: 0.5 } //$scope.vis == 'visible' ? { full: 1, half: 0.5 } : { full: 0, half: 0 }
+								var dur = { full: 1, half: 0.5 }
 
 								if (p.pos.cp && $scope.last) {
 									if (($scope.last.left < p.pos.cp && p.pos.left == p.pos.cp) || ($scope.last.right > p.pos.cp && p.pos.right == p.pos.cp)) {
@@ -1161,8 +1157,7 @@ module.exports = function (RED) {
 							if ($scope.timeout != null) {
 								clearTimeout($scope.timeout)
 								$scope.timeout = null
-							}
-							//document.removeEventListener("visibilitychange", visibility);
+							}							
 						});
 					}
 				});
