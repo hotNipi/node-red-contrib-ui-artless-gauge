@@ -520,7 +520,6 @@ module.exports = function (RED) {
 					config.height = smallest
 				}
 
-
 				config.exactwidth = parseInt(site.sizes.sx * config.width + site.sizes.cx * (config.width - 1)) - 12;
 				config.exactheight = parseInt(site.sizes.sy * config.height + site.sizes.cy * (config.height - 1)) - 12;
 				config.sizecoef = site.sizes.sy / 48
@@ -690,7 +689,6 @@ module.exports = function (RED) {
 							$scope.inited = true
 							$scope.timeout = null
 							if (data.config) {
-
 								$scope.stripey = data.config.stripe.y
 								$scope.lineWidth = data.config.lineWidth
 								$scope.sizecoef = data.config.sizecoef
@@ -901,7 +899,6 @@ module.exports = function (RED) {
 									var pathLength = arc.getTotalLength() || 0
 									sectors.forEach(drawDotRadial)
 								}
-
 							}
 							else {
 								var line = document.getElementById("ag_str_bg_" + $scope.unique)
