@@ -140,7 +140,7 @@ module.exports = function (RED) {
 				<g ng-if="${config.inlineunit == true}">
 					<text x="${config.exactwidth / 2}" y="${config.arc.cy * .9}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}" text-anchor="end" dominant-baseline="baseline">	
 						<tspan id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="middle" dominant-baseline="baseline"></tspan>
-						<tspan id="ag_unit_{{unique}}" class="ag-txt-{{unique}} medium" text-anchor="middle" dominant-baseline="baseline""></tspan>
+						<tspan ng-if="${config.unit!=""}" id="ag_unit_{{unique}}" class="ag-txt-{{unique}} medium" text-anchor="middle" dominant-baseline="baseline"></tspan>
 					</text>
 					<text id="ag_secondary_{{unique}}" class="ag-txt-{{unique}} medium" text-anchor="middle" dominant-baseline="baseline"
 					x="${config.exactwidth / 2}" y="${config.arc.cy * .92 + config.stripe.sdy}" dy="${config.icon == "" ? config.font.icon * 2 * config.height : 0}"></text>	
