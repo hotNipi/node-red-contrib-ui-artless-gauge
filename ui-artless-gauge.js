@@ -681,7 +681,6 @@ module.exports = function (RED) {
 						}
 
 						var update = function (data) {
-							console.log('update:',data)
 							var main = document.getElementById("ag_svg_" + $scope.unique);
 							if (!main && $scope.inited == false && data.config) {
 								$scope.timeout = setTimeout(() => { update(data) }, 40);
@@ -787,7 +786,6 @@ module.exports = function (RED) {
 										nullTargetWarn: false
 									});
 								} catch (error) {
-									//console.log('gsap configuration not changed')
 								}
 							}
 						}
@@ -1060,7 +1058,6 @@ module.exports = function (RED) {
 						}
 
 						var updateGaugeRadial = function (p) {
-							console.log('RADIAL p',p)				
 							var ic = document.getElementById("ag_value_" + $scope.unique);
 							if (ic) {
 								$(ic).text(p.value);
@@ -1079,7 +1076,6 @@ module.exports = function (RED) {
 							}			
 							var el = document.getElementById("ag_str_line_" + $scope.unique)
 							function setImmediately (){
-								console.log('immediately',p)
 								$scope.arc.left = p.pos.left
 								$scope.arc.right = p.pos.right								
 								if (el) {
