@@ -793,7 +793,6 @@ module.exports = function (RED) {
 										nullTargetWarn: false
 									});
 								} catch (error) {
-									//console.log('gsap configuration not changed')
 								}
 							}
 						}
@@ -1022,7 +1021,9 @@ module.exports = function (RED) {
 								$scope.line.x = xp
 								$scope.line.w = wp
 								if (el) {
-									el.setAttribute("stroke", p.col);
+									if(p.col){
+										el.setAttribute("stroke", p.col);
+									}									
 									drawPathLine($scope.line)
 								}
 							}
@@ -1035,7 +1036,10 @@ module.exports = function (RED) {
 							if (el) {
 								try {
 									gsap.to($scope.line, { x: xp, w: wp, duration: dur.full, ease: "power2.inOut", onUpdate: drawPathLine, onUpdateParams: [$scope.line] })
-									gsap.to(el, { duration: dur.half, delay: dur.half, stroke: p.col })
+									if(p.col){
+										gsap.to(el, { duration: dur.half, delay: dur.half, stroke: p.col })
+									}
+									
 								}
 								catch (error) {
 									setImmediately()
@@ -1060,7 +1064,7 @@ module.exports = function (RED) {
 							}
 						}
 
-						var updateGaugeRadial = function (p) {				
+						var updateGaugeRadial = function (p) {
 							var ic = document.getElementById("ag_value_" + $scope.unique);
 							if (ic) {
 								$(ic).text(p.value);
@@ -1076,13 +1080,15 @@ module.exports = function (RED) {
 							}
 							if (!$scope.arc) {
 								return
-							}							
+							}			
 							var el = document.getElementById("ag_str_line_" + $scope.unique)
 							function setImmediately (){
 								$scope.arc.left = p.pos.left
 								$scope.arc.right = p.pos.right								
 								if (el) {
-									el.setAttribute("stroke", p.col);
+									if(p.col){
+										el.setAttribute("stroke", p.col);
+									}									
 									drawArcLine($scope.arc)
 								}
 							}
@@ -1108,7 +1114,9 @@ module.exports = function (RED) {
 									gsap.to($scope.arc, { right: p.pos.right, left: p.pos.left, duration: dur.full, ease: "power2.inOut", onUpdate: drawArcLine, onUpdateParams: [$scope.arc] })
 								}
 								if (el) {
-									gsap.to(el, { duration: dur.half, delay: dur.half, stroke: p.col })
+									if(p.col){
+										gsap.to(el, { duration: dur.half, delay: dur.half, stroke: p.col })
+									}									
 								}
 							}
 							catch (error) {
