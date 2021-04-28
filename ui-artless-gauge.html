@@ -213,12 +213,8 @@ SOFTWARE.
             }
             $('#node-input-layout').change(function(){
                 if($('#node-input-layout option:selected').text() == 'Linear'){
-                    $('#node-input-inline').hide()
-                    $('#node-input-inline-label').hide()
                     $('#secondary-container').hide();
                 }else {
-                    $('#node-input-inline').show();
-                    $('#node-input-inline-label  ').show();
                     if($('#node-input-inline').is(":checked")){
                         $('#secondary-container').show();
                     }           
@@ -229,7 +225,10 @@ SOFTWARE.
                     $('#secondary-container').hide();
                    
                 } else {
-                    $('#secondary-container').show();                  
+                    if($('#node-input-layout option:selected').text() != 'Linear'){
+                        $('#secondary-container').show();  
+                    }
+                                   
                 }
             });
 

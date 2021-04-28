@@ -95,7 +95,7 @@ module.exports = function (RED) {
 				x="${config.stripe.left}" y="${config.stripe.y - 5 - (config.lineWidth / 2)}">${config.label}</text>
 				<text x="${config.exactwidth - 3}" y="${config.stripe.y - 4 - (config.lineWidth / 2)}">
 					<tspan id="ag_value_{{unique}}" class="ag-txt-{{unique}} big" text-anchor="end" dominant-baseline="baseline">0</tspan>
-					<tspan ng-if="${config.minmax == true && config.unit != ""}" class="ag-txt-{{unique}}" id="ag_alt_3_{{unique}}" text-anchor="end"> </tspan>
+					<tspan ng-if="${(config.minmax == true || config.inlineunit == true) && config.unit != ""}" class="ag-txt-{{unique}}" id="ag_alt_3_{{unique}}" text-anchor="end"> </tspan>
 				</text>
 				<g ng-if="${config.differential == true}">
 				<text id="ag_alt_{{unique}}" class="ag-txt-{{unique}} small" x="${config.stripe.left}" y="${config.stripe.y + config.stripe.sdy}"
@@ -612,7 +612,7 @@ module.exports = function (RED) {
 					})
 				}
 
-				config.inlineunit = config.type == 'linear' ? false : config.inline || false
+				config.inlineunit = config.inline || false
 				config.property = config.property || "payload";
 				config.secondary = config.secondary || "secondary";
 				config.differential = config.differential || false;
@@ -702,9 +702,16 @@ module.exports = function (RED) {
 								}
 
 								updateContainerStyle(main, data.config.padding)
-								var u = data.config.type == "linear" ? ["", "", data.config.unit] : ["", "", ""]
+								var u = ["", "", ""]
 								var cv = ""
 								var euv = ""
+								if (data.config.type == "linear" && data.config.unit != "") {
+									if (data.config.inlineunit) {
+										euv = data.config.unit
+									} else {
+										u = ["", "", data.config.unit]
+									}
+								}
 								if (data.config.minmax) {
 									if (data.config.type == "linear" && data.config.unit != "") {
 										euv = data.config.unit
