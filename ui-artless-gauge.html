@@ -61,6 +61,7 @@ SOFTWARE.
             secondary: { value: "secondary", required: false },
             inline:{value:false},
             animate:{value:true, required: true},
+            log2:{value:false, requred: true},
             sectors: {
                 value: [{ val: 0, col: '#ff9900', t: "min", dot: 0 }, { val: 10, col: '#ff9900', t: "max", dot: 0 }],
                 validate: function (v) {
@@ -198,6 +199,10 @@ SOFTWARE.
             if (this.animate === undefined) {
                 this.animate = true; 
                 $("#node-input-animate").prop('checked', true);               
+            }
+            if (this.log2 === undefined) {
+                this.log2 = true; 
+                $("#node-input-log2").prop('checked', true);               
             }
             if (this.property === undefined) {
                 $("#node-input-property").val("payload");
@@ -523,7 +528,12 @@ SOFTWARE.
         <label for='node-input-animate'><i class='fa fa-gear'></i> Animate</label>      
         <input type="checkbox" id="node-input-animate" checked style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;"></input>    
                 
-    </div>  
+    </div>
+    <div class='form-row'>
+        <label for='node-input-log2'><i class='fa fa-gear'></i> Log2</label>
+        <input type="checkbox" id="node-input-log2" checked style="display:inline-block; width:auto; vertical-align:baseline; margin-right:5px;"></input>    
+                
+    </div>
     <div class='form-row'>
         <label for='node-input-lineWidth'><i class='fa fa-list'></i> Line width</label>
         <select id='node-input-lineWidth' style='width:70px !important'>
@@ -624,6 +634,9 @@ To show dot for segment, configure size for dot bigger that zero.
 
 <h3>Animate</h3>
 You can turn on or off the animations of the colored bar.
+
+<h3>log2</h3>
+You can turn on or off a function that is used the base-2 logarithm of the value.
 
 <h3>Line width</h3>
 You can adjust thickness of the colored bar. The range of possible values depends on layout and configured size.
