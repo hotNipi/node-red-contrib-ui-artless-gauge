@@ -255,6 +255,9 @@ module.exports = function (RED) {
 				modifyConfig = function (input) {
 					function addSectors(s) {
 						if (s.t == 'sec') {
+							if (config.log2 == true) {
+								s.val = Math.log2(s.val);
+							}
 							config.sectors.push(s)
 						}
 					}
@@ -268,6 +271,14 @@ module.exports = function (RED) {
 							}
 							insec = input.sectors.find(el => el.t == 'min')
 							if (insec) {
+								if (config.log2 == true ) {
+									if (insec.val > 1) {
+										 insec.val = Math.log2(insec.val)
+									}
+									else {
+										insec.val = 0
+									}
+								}
 								sec = config.sectors.find(el => el.t == 'min')
 								sec.val = insec.val
 								sec.col = insec.col
@@ -278,6 +289,9 @@ module.exports = function (RED) {
 
 							insec = input.sectors.find(el => el.t == 'max')
 							if (insec) {
+								if (config.log2 == true) {
+									insec.val = Math.log2(insec.val);
+								}
 								sec = config.sectors.find(el => el.t == 'max')
 								sec.val = insec.val
 								sec.col = insec.col
@@ -366,6 +380,9 @@ module.exports = function (RED) {
 				}
 
 				calculatePercPos = function (v) {
+					if (config.log2 == true ){
+						v = Math.log2(v);
+					}
 					if (config.type == 'linear') {
 						if (config.differential == true) {
 							var vp, wcp
@@ -452,6 +469,9 @@ module.exports = function (RED) {
 				calculateColor = function (v) {
 					if (config.sectors.length < 2) {
 						return config.color
+					}
+					if (config.log2 == true ) {
+						v = Math.log2(v);
 					}
 					var i = config.sectors.findIndex(color => color.val > v)
 					var ret = config.color
@@ -668,6 +688,7 @@ module.exports = function (RED) {
 						$scope.line = null
 						$scope.stripey = 0
 						$scope.animate = false
+						$scope.log2 = false
 
 						$scope.init = function (p) {							
 							if(p.config && p.config.animate){
