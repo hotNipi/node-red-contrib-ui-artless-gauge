@@ -53,6 +53,9 @@ You can turn on or off the animations of the colored bar.
     
 ### log2
 You can turn on or off a function that is used the base-2 logarithm to calculate the value.
+    
+![Node-RED dashboard widget node-red-contrib-ui-artless-gauge](images/log2.JPG)
+
 
 ### Line width
 You can adjust thickness of the colored bar. The range of possible values depends on layout and configured size.
