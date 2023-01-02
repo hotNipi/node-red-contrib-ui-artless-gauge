@@ -214,7 +214,7 @@ module.exports = function (RED) {
 					if (dets > 0) {
 						input = parseFloat(input.toFixed(dets))
 					} else {
-						input = parseInt(input)
+						input = parseInt(input.toFixed(0))
 					}
 					return input;
 				}
